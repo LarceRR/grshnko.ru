@@ -4,7 +4,7 @@ import RandomTerm from "../../components/randomTerm";
 
 interface ITgCosmosProps {}
 
-const TgCosmos: React.FC<ITgCosmosProps> = (props) => {
+const TgCosmos: React.FC<ITgCosmosProps> = () => {
   return (
     <div>
       <DSGenerator />
