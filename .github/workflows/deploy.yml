@@ -33,7 +33,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "dist/*"
+          source: "grshnko.ru/dist/*"
           target: "/var/www/grshnko.ru"
 
       - name: Restart Nginx
