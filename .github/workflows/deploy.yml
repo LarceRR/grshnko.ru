@@ -18,8 +18,12 @@ jobs:
         with:
           node-version: 23
 
+      # - name: List files
+      #   run: ls -R
+
       - name: Install Dependencies & Build
         run: |
+          cd grshnko.ru
           npm install
           npm run build
 
