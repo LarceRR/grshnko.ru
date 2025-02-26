@@ -34,4 +34,8 @@ jobs:
       - name: Debug Dist
         run: ls -la dist
 
-      # - run: cp -r /home/vps/git-runners/action-runner/_work/grshnko.ru/dist/. /var/www/grshnko.ru/
+      - name: Debug /var/www/grshnko.ru
+        run: ls -la /var/www/grshnko.ru
+
+      # - name: Copy files
+      #   run: cp -r dist/. /var/www/grshnko.ru/
