@@ -28,7 +28,7 @@ jobs:
       - run: npm i
 
       - name: Debug Build Output
-        run: ls -la grshnko.ru
+        run: ls -la
 
-      - run: npm run build --if-present
-      - run: cp -r /home/vps/git-runners/action-runner/_work/grshnko.ru/dist/. /var/www/grshnko.ru/
+      # - run: npm run build --if-present
+      # - run: cp -r /home/vps/git-runners/action-runner/_work/grshnko.ru/dist/. /var/www/grshnko.ru/
