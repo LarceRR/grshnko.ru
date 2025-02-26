@@ -1,4 +1,4 @@
-name: Deploy grshnko.ru App
+name: Deploy grshnko.ru app
 
 on:
   push:
