@@ -30,6 +30,8 @@ jobs:
 
       - name: Debug Build Output
         run: ls -la
-      - run: ls -la /home/vps/git-runners/action-runner/_work/grshnko.ru/dist/
+
+      - name: Debug Dist
+        run: ls -la dist
 
       # - run: cp -r /home/vps/git-runners/action-runner/_work/grshnko.ru/dist/. /var/www/grshnko.ru/
