@@ -32,7 +32,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          key: ~/.ssh/id_rsa
           source: "grshnko.ru/dist/*"
           target: "/var/www/grshnko.ru"
 
