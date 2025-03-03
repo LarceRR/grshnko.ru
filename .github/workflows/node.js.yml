@@ -26,10 +26,10 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: pnpm i
+        run: npm i
 
       - name: Build
-        run: pnpm run build --if-present
+        run: npm run build --if-present
 
       - name: Debug Build Output
         run: ls -la
