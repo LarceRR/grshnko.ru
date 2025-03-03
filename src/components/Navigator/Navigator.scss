@@ -5,6 +5,10 @@
     transition: all 0.1s ease-in-out;
     justify-content: space-between;
 
+    @media screen and (max-width: 1028px) {
+        justify-content: flex-end;
+    }
+
     .navigator-links {
         display: flex;
         gap: 20px;

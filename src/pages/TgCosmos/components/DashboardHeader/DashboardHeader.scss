@@ -7,6 +7,26 @@
     border-radius: 20px;
     background-color: var(--card-background);
     border: var(--input-border) solid 1px;
+    position: relative;
+
+    @media screen and (max-width: 1028px) {
+        flex-direction: column;
+        padding: 20px 30px;
+        gap: 20px;
+    }
+
+    .dashboard-additional-buttons {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+
+        .dashboard-additional-button {
+            width: 100%;
+            background-color: var(--button-primary-bg);
+            border: unset;
+        }
+    }
 
     .status-item {
         padding: 15px 0px;

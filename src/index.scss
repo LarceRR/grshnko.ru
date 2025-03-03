@@ -27,7 +27,20 @@
     font-weight: 400;
     font-style: italic;
 }
-  
+
+::-webkit-scrollbar {
+    width: 2px;
+    margin-right: 20px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--button-primary-bg); /* Цвет ползунка */
+    border-radius: 6px; /* Закругление углов ползунка */ /* Отступ между ползунком и треком */
+}
 
 html {
     scroll-behavior: smooth;

@@ -7,17 +7,31 @@
     border-radius: 20px;
     background-color: var(--card-background);
     border: var(--input-border) solid 1px;
+
+    @media screen and (max-width: 1028px) {
+        flex-direction: column;
+        gap: 15px;
+
+        .generate-post-control {
+            width: 100%;
+        }
+    }
     
     .generate-post-control {
         width: 370px;
+        gap: 20px;
         display: flex;
         flex-direction: column;
+        padding: 10px 0px 20px 0px;
+
+        @media screen and (max-width: 1028px) {
+            width: 100%;
+        }
 
         .generate-post-buttons {
             gap: 10px;
             display: flex;
             flex-direction: column;
-            padding-bottom: 20px;
 
             p {
                 line-height: 22px;
@@ -25,11 +39,48 @@
                 font-size: 14px;
             }
 
+            .generate-post-button-splitter {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+
+                .generate-post-button {
+                    width: 100%;
+                }
+
+                :where(.css-dev-only-do-not-override-1v613y0).ant-checkbox .ant-checkbox-inner {
+                    width: 32px;
+                    height: 32px;
+                    background-color: var(--card-background);
+                    border: var(--input-border) 1px solid;
+                    position: relative;
+
+                    &::after {
+                        border: 2px solid #fff;
+                        border-top: 0;
+                        border-left: 0;
+                        left: 11px;
+                        width: 8px;
+                        height: 12px;
+                    }
+                }
+
+                :where(.css-dev-only-do-not-override-1v613y0).ant-checkbox-checked .ant-checkbox-inner {
+                    background-color: var(--button-primary-bg);
+                    border: unset;
+                }
+            }
+
             .generate-post-input {
                 background-color: var(--input-background);
                 border: var(--input-border) solid 1px;
                 color: var(--text-color);
                 border-radius: 5px;
+
+                &:hover {
+                    border: unset;
+                }
             }
 
             .generate-post-button {
@@ -42,10 +93,27 @@
     .generate-post-result {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 20px;
         width: 100%;
         align-self: stretch;
-        padding-bottom: 20px;
+        padding: 10px 0px 20px 0px;
+
+        .generate-post-result__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .generate-post-result__header-buttons {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+
+                .create-new-post {
+                    background-color: var(--button-primary-bg);
+                    border: unset;
+                }
+            }
+        }
 
         p {
             line-height: 22px;
@@ -60,6 +128,10 @@
             border: var(--input-border) solid 1px;
             color: var(--text-color);
             border-radius: 5px;
+
+            @media screen and (max-width: 1028px) {
+                height: 500px;
+            }
         }
     }
 }
