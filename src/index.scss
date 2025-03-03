@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: 'Product Sans';
+    src: url('/assets/fonts/Product Sans 400.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+  
+  @font-face {
+    font-family: 'Product Sans';
+    src: url('/assets/fonts/Product Sans Bold 700.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+  
+  @font-face {
+    font-family: 'Product Sans';
+    src: url('/assets/fonts/Product Sans Bold Italic 700.ttf') format('truetype');
+    font-weight: 700;
+    font-style: italic;
+}
+  
+  @font-face {
+    font-family: 'Product Sans';
+    src: url('/assets/fonts/Product Sans Italic 400.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+}
+  
+
+html {
+    scroll-behavior: smooth;
+    background-color: var(--background-color);
+    transition: all 0.2s ease-in-out;
+    padding: 20px;    
+}
+
+.divider {
+    align-self: stretch;
+    width: 1px;
+    background-color: var(--border-color);
+}
+
+/* Основной шрифт для всего текста */
+body {
+    font-family: 'Product Sans', sans-serif;
+    font-weight: 400; /* Обычное начертание для основного текста */
+  }
+  
+  /* Заголовки жирные */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700; /* Жирный шрифт для заголовков */
+  }
+  
+  /* Курсив для текста */
+  em, i {
+    font-style: italic; /* Курсив для текста */
+  }
+
+  button {
+    span {
+        color: var(--button-primary-text);
+    }
+  }
+  
+  /* Для других элементов по умолчанию без изменений, просто наследуется шрифт */
+  p, span, a, div, ul, ol, li, strong {
+    font-weight: 400; /* Обычное начертание для основного текста */
+    color: var(--text-color);
+  }
+  
+  strong {
+    font-weight: 700; /* Жирное начертание для элемента <strong> */
+  }
+  
+
+:root {
+    /* 🎨 Основные цвета */
+    --color-blue: #2F77C8;
+    --color-green: #2EA043;
+    --color-red: #CF222E;
+    --color-orange: #D18616;
+    --color-purple: #8250DF;
+    --color-yellow: #FFD33D;
+    
+    /* 🎨 Градации серого */
+    --color-white: #FFFFFF;
+    --color-light-gray: #F6F8FA;
+    --color-medium-gray: #D0D7DE;
+    --color-dark-gray: #24292E;
+    --color-black: #0D1117;
+  
+    /* 🌍 Фон и текст */
+    --background-color: var(--color-light-gray);
+    --card-background: var(--color-white);
+    --text-color: var(--color-dark-gray);
+    --text-secondary: #57606A; /* Тусклый текст */
+    --link-color: var(--color-blue);
+    
+    /* 📝 Инпуты */
+    --input-background: var(--color-white);
+    --input-text: var(--color-dark-gray);
+    --input-border: var(--color-medium-gray);
+    --input-placeholder: #6E7781;
+    --input-focus: var(--color-blue);
+  
+    /* 🔘 Кнопки */
+    --button-primary-bg: var(--color-blue);
+    --button-primary-text: var(--color-white);
+    --button-primary-hover: #2C974B;
+  
+    --button-secondary-bg: var(--color-light-gray);
+    --button-secondary-text: var(--color-dark-gray);
+    --button-secondary-border: var(--color-medium-gray);
+    --button-secondary-hover: #EAECEF;
+  
+    --button-danger-bg: var(--color-red);
+    --button-danger-text: var(--color-white);
+    --button-danger-hover: #A40E26;
+  
+    /* ⚠️ Уведомления */
+    --notification-success-bg: #D4F8E8;
+    --notification-success-text: #1F883D;
+  
+    --notification-warning-bg: #FFF5C2;
+    --notification-warning-text: #9A6700;
+  
+    --notification-error-bg: #FFEBE9;
+    --notification-error-text: #A40E26;
+  
+    /* 🛑 Бордеры, разделители */
+    --border-color: var(--color-medium-gray);
+    --divider-color: #EAECEF;
+  }
+  
+  [data-theme='dark'] {
+    /* 🌙 Тёмная тема */
+    --background-color: var(--color-black);
+    --card-background: #161B22;
+    --text-color: #C9D1D9;
+    --text-secondary: #8B949E;
+    --link-color: var(--color-blue);
+  
+    /* 📝 Инпуты */
+    --input-background: #0D1117;
+    --input-text: #C9D1D9;
+    --input-border: #30363D;
+    --input-placeholder: #8B949E;
+    --input-focus: #58A6FF;
+  
+    /* 🔘 Кнопки */
+    --button-primary-bg: var(--color-blue);
+    --button-primary-text: var(--color-white);
+    --button-primary-hover: #2EA043;
+  
+    --button-secondary-bg: #161B22;
+    --button-secondary-text: #C9D1D9;
+    --button-secondary-border: #30363D;
+    --button-secondary-hover: #21262D;
+  
+    --button-danger-bg: #DA3633;
+    --button-danger-text: var(--color-white);
+    --button-danger-hover: #FF7B72;
+  
+    /* ⚠️ Уведомления */
+    --notification-success-bg: #033A16;
+    --notification-success-text: #3FB950;
+  
+    --notification-warning-bg: #4D2D00;
+    --notification-warning-text: #E3B341;
+  
+    --notification-error-bg: #490202;
+    --notification-error-text: #FF7B72;
+  
+    /* 🛑 Бордеры, разделители */
+    --border-color: #30363D;
+    --divider-color: #21262D;
+  }
+  
+.router-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 30px;
+}
+  

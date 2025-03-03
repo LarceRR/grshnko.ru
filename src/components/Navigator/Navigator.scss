@@ -1,0 +1,32 @@
+.navigator-wrapper {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    transition: all 0.1s ease-in-out;
+    justify-content: space-between;
+
+    .navigator-links {
+        display: flex;
+        gap: 20px;
+        z-index: 1;
+
+        .nav-link {
+            padding: 10px 20px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .nav-link-active {
+            color: var(--button-primary-text);
+        }
+    }
+
+    .navigator-underline {
+        background-color: var(--button-primary-bg);
+        position: absolute;
+        bottom: 0px;
+        height: 100%;
+        transition: all 0.2s ease-in-out;
+        border-radius: 4px;
+    }
+}

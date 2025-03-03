@@ -1,13 +1,15 @@
 import { Route, Routes } from "react-router-dom";
 import TgCosmos from "./pages/TgCosmos/TgCosmos";
-import Other from "./pages/TgCosmos/other";
+import Other from "./pages/Other/Other";
 
 export const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<TgCosmos />} />
-      <Route path="/other" element={<Other />} />
-    </Routes>
+    <div className="router-wrapper">
+      <Routes>
+        <Route path="/" element={<TgCosmos />} />
+        <Route path="/other" element={<Other />} />
+      </Routes>
+    </div>
   );
 };
 

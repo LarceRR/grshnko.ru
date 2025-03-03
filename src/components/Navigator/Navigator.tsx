@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import CustomNavLink from "./custom-components/custom-link";
-import { settings } from "../settings";
+import CustomNavLink from "../custom-components/custom-link";
+import { Switch } from "antd";
+import "./Navigator.scss";
+import useTheme from "../../hooks/useTheme";
 
 const Navbar: React.FC = () => {
   const [underlineStyle, setUnderlineStyle] = useState({
@@ -10,6 +12,8 @@ const Navbar: React.FC = () => {
   });
   const location = useLocation();
   const underlineRef = useRef<HTMLDivElement>(null);
+
+  const [theme, toggleTheme] = useTheme();
 
   useEffect(() => {
     const activeLink = document.querySelector(".nav-link-active");
@@ -28,19 +32,25 @@ const Navbar: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <nav className="relative flex gap-6 border-b p-4">
-      <CustomNavLink to="/">TgCosmos</CustomNavLink>
-      <CustomNavLink to="/other">Other</CustomNavLink>
+    <nav className="navigator-wrapper">
+      <div className="navigator-links">
+        <CustomNavLink to="/">Telegram Autopost CRM</CustomNavLink>
+        <CustomNavLink to="/other">Other future shit</CustomNavLink>
+      </div>
+      <Switch
+        defaultChecked
+        checkedChildren={theme}
+        unCheckedChildren={theme}
+        onChange={toggleTheme}
+      />
 
       {/* Подчёркивание */}
       <div
         ref={underlineRef}
-        className="absolute bottom-[7px] h-[40px] transition-all duration-300 ease-in-out"
+        className="navigator-underline"
         style={{
           left: underlineStyle.left,
           width: underlineStyle.width,
-          backgroundColor: settings.navigator["underline-color"],
-          borderRadius: settings.navigator["border-radius"],
         }}
       />
     </nav>

@@ -1,0 +1,65 @@
+.generate-post-wrapper {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 10px 30px;
+    border-radius: 20px;
+    background-color: var(--card-background);
+    border: var(--input-border) solid 1px;
+    
+    .generate-post-control {
+        width: 370px;
+        display: flex;
+        flex-direction: column;
+
+        .generate-post-buttons {
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 20px;
+
+            p {
+                line-height: 22px;
+                color: var(--text-secondary);
+                font-size: 14px;
+            }
+
+            .generate-post-input {
+                background-color: var(--input-background);
+                border: var(--input-border) solid 1px;
+                color: var(--text-color);
+                border-radius: 5px;
+            }
+
+            .generate-post-button {
+                background-color: var(--button-primary-bg);
+                color: var(--text-color);
+            }
+        }
+    }
+
+    .generate-post-result {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        align-self: stretch;
+        padding-bottom: 20px;
+
+        p {
+            line-height: 22px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .generate-post-input {
+            height: 100%;
+            width: 100%;
+            background-color: var(--input-background);
+            border: var(--input-border) solid 1px;
+            color: var(--text-color);
+            border-radius: 5px;
+        }
+    }
+}

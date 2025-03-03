@@ -1,14 +1,15 @@
 import React from "react";
-import { DSGenerator } from "../../components/DSGenerator";
-import RandomTerm from "../../components/randomTerm";
+import "./TgCosmos.scss";
+import GeneratePost from "./components/GeneratePost/GeneratePost";
+import DashboardHeader from "./components/DashboardHeader/DashboardHeader";
 
 interface ITgCosmosProps {}
 
 const TgCosmos: React.FC<ITgCosmosProps> = () => {
   return (
-    <div>
-      <DSGenerator />
-      <RandomTerm />
+    <div className="tg-cosmos-wrapper">
+      <DashboardHeader />
+      <GeneratePost />
     </div>
   );
 };
