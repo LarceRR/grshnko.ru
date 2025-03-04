@@ -11,7 +11,7 @@ const TgCosmos: React.FC<ITgCosmosProps> = () => {
     <div className="tg-cosmos-wrapper">
       <DashboardHeader />
       <GeneratePost />
-      <ImageSelector prompt="test" />
+      <ImageSelector />
     </div>
   );
 };

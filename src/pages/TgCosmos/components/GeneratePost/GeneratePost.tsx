@@ -1,16 +1,49 @@
 import { Button, Checkbox, Input } from "antd";
 import "./GeneratePost.scss";
-import { Ellipsis } from "lucide-react";
+import { Ban, Ellipsis } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import axios from "axios";
+import { setTopic } from "../../../../features/currentTopic";
+import { useState } from "react";
 
 const { TextArea } = Input;
 
 const GeneratePost = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [topicError, setTopicError] = useState<boolean>(false);
+
+  const topic = useAppSelector((state) => state.topic.topic);
+  const dispatch = useAppDispatch();
+
+  const getTopic = () => {
+    setLoading(true);
+    axios
+      .get(import.meta.env.VITE_API_URL + "/getRandomTerm")
+      .then((response) => {
+        dispatch(setTopic(response.data.term.term));
+        setLoading(false);
+        setTopicError(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+        setTopicError(true);
+        console.log(error);
+      });
+  };
+
   return (
     <div className="generate-post-wrapper">
       <div className="generate-post-control">
         <div className="generate-post-buttons">
-          <p>Тема не выбрана</p>
-          <Button type="primary" className="generate-post-button">
+          {topic ? topic : <p>Тема не выбрана</p>}
+          <Button
+            type="primary"
+            className="generate-post-button"
+            onClick={getTopic}
+            loading={loading}
+            style={{ backgroundColor: topicError ? "red" : "" }}
+            icon={topicError ? <Ban width={20} /> : null}
+          >
             Выбрать тему
           </Button>
           <Button type="primary" className="generate-post-button">
