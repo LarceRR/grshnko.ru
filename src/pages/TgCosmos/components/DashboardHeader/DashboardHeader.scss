@@ -8,6 +8,8 @@
     background-color: var(--card-background);
     border: var(--input-border) solid 1px;
     position: relative;
+    width: 100%;
+    max-width: 1420px;
 
     @media screen and (max-width: 1028px) {
         flex-direction: column;

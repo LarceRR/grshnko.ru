@@ -7,11 +7,15 @@
     border-radius: 20px;
     background-color: var(--card-background);
     border: var(--input-border) solid 1px;
+    width: 100%;
+    max-width: 1420px;
 
     .image-selector-gallery {
         display: flex;
         flex-wrap: wrap;
         gap: 20px;
+        justify-content: center;
+        width: 100%;
 
         .image-selector-gallery-image {
             overflow: hidden;
@@ -67,6 +71,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+
+            p {
+                margin: 20px 0px;
+                line-height: 25px;
+            }
 
             @media screen and (max-width: 1028px) {
                 flex-direction: column-reverse;

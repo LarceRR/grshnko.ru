@@ -1,50 +1,38 @@
-import { useEffect, useState } from "react";
 import "./ImageSelector.scss";
 import { Button } from "antd";
 import { Ban, Ellipsis } from "lucide-react";
-import axios, { AxiosResponse } from "axios";
 import { useAppSelector } from "../../../../store/hooks";
+import useGetImages from "../../../../hooks/useGetImages";
+import { IImage } from "../../../../features/images";
 
-export interface IImageResponse {
-  images: string[];
+export interface ImageData {
+  alt: string;
+  avg_color: string;
+  height: number;
+  id: number;
+  liked: boolean;
+  photographer: string;
+  photographer_id: number;
+  photographer_url: string;
+  src: {
+    landscape: string;
+    large: string;
+    large2x: string;
+    medium: string;
+    original: string;
+    portrait: string;
+    small: string;
+    tiny: string;
+  };
+  url: string;
+  width: number;
 }
 
 const ImageSelector = () => {
-  const [images, setImages] = useState<string[]>([]);
-  const [imagesError, setImagesError] = useState<boolean>(false);
-  const [newImageTriggerer, setNewImageTriggerer] = useState<boolean>(false);
-  const [imageLoading, setImageLoading] = useState<boolean>(false);
+  const topic = useAppSelector((state) => state.topic.topic.eng_term);
+  const { images, error, loading } = useAppSelector((state) => state.images);
 
-  const topic = useAppSelector((state) => state.topic.topic);
-
-  const getNewImagesTrigger = () => {
-    setNewImageTriggerer(!newImageTriggerer);
-  };
-
-  useEffect(() => {
-    setImageLoading(true);
-    const fetchImages = async () => {
-      try {
-        const response: AxiosResponse<IImageResponse> = await axios.get(
-          `${
-            import.meta.env.VITE_API_URL
-          }/getGoogleImages?query=${topic} в науке`
-        );
-
-        if (response) {
-          setImages(response.data.images);
-          setImagesError(false);
-          setImageLoading(false);
-        }
-      } catch (error) {
-        setImageLoading(false);
-        setImagesError(true);
-        console.log(error);
-      }
-    };
-
-    fetchImages();
-  }, [topic, newImageTriggerer]);
+  const { fetchImages } = useGetImages();
 
   return (
     <div className="image-selector-wrapper">
@@ -54,25 +42,36 @@ const ImageSelector = () => {
           <div className="image-selector-result__header-buttons">
             <Button
               className="get-new-images"
-              style={{ backgroundColor: imagesError ? "red" : "" }}
-              onClick={getNewImagesTrigger}
-              loading={imageLoading}
-              icon={imagesError ? <Ban width={20} /> : ""}
+              style={{ backgroundColor: error ? "red" : "" }}
+              onClick={fetchImages}
+              loading={loading}
+              icon={error ? <Ban width={20} /> : ""}
             >
-              Получить изображежния
+              Получить изображения
             </Button>
             <Ellipsis />
           </div>
         </div>
         <div className="image-selector-gallery">
           {images &&
-            images.map((image: string, index: number) => (
+            topic &&
+            images.map((image: IImage, index: number) => (
               <div key={index} className="image-selector-gallery-image">
-                <img className="blured_image" src={image} alt="no image"></img>
+                <img
+                  className="blured_image"
+                  src={image.url}
+                  alt="no image"
+                ></img>
                 <div className="white-cover-image"></div>
-                <img className="image" src={image} alt="no image"></img>
+                <img className="image" src={image.url} alt="no image"></img>
               </div>
             ))}
+
+          {!topic && (
+            <p style={{ padding: "20px", opacity: 0.5, fontSize: "20px" }}>
+              Выберите тему чтобы изображения загрузились
+            </p>
+          )}
         </div>
       </div>
     </div>
