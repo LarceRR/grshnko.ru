@@ -36,7 +36,7 @@ const useAiController = () => {
       // Проверяем поддержку ReadableStream
       if (!response.body) {
         dispatch(setAiError("Не поддерживается стримминг данных"));
-        throw new Error("ReadableStream не поддерживается в этом браузере.");
+        throw new Error("ReadableStream не поддерживается.");
       }
 
       const reader = response.body.getReader();
