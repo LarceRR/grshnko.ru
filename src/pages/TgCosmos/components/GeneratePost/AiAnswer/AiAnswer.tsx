@@ -1,47 +1,61 @@
 import { Button } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { Ban, Ellipsis } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../../store/hooks";
 import useAiController from "../../../../../hooks/useAiController";
 import {
-  setAiIsTextAreaAllowedToEdit,
+  setAiIsMarkdownLocked,
   setAiResponse,
 } from "../../../../../features/ai_response";
 import Markdown from "react-markdown";
 
 const AiAnswer: React.FC = () => {
-  const { ai_response, ai_loading, ai_error, ai_isTextAreaAllowedToEdit } =
-    useAppSelector((state) => state.ai_response);
+  const {
+    ai_response,
+    ai_loading,
+    ai_error,
+    ai_isMarkdownLocked, // Используем ai_isMarkdownLocked вместо ai_isTextAreaAllowedToEdit
+  } = useAppSelector((state) => state.ai_response);
   const { generatePostByTopic } = useAiController();
   const dispatch = useAppDispatch();
   const textAreaWrapperRef = useRef<HTMLDivElement>(null); // Реф на обёртку
 
+  // Локальное состояние для переключения между Markdown и Textarea
+  const [isMarkdown, setIsMarkdown] = useState(true);
+
+  // Обработчик клика вне области Textarea
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         textAreaWrapperRef.current &&
         !textAreaWrapperRef.current.contains(event.target as Node)
       ) {
-        dispatch(setAiIsTextAreaAllowedToEdit(true)); // Включаем Markdown
+        setIsMarkdown(true); // Переключаем обратно на Markdown
+        dispatch(setAiIsMarkdownLocked(true)); // Блокируем Textarea
       }
     };
 
-    if (!ai_isTextAreaAllowedToEdit) {
+    if (!ai_isMarkdownLocked) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [ai_isTextAreaAllowedToEdit, dispatch]);
+  }, [ai_isMarkdownLocked, dispatch]);
 
+  // Обработчик изменения текста в Textarea
   const handleEditAfterDone = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     dispatch(setAiResponse(e.target.value));
   };
 
+  // Обработчик переключения на Textarea
   const handleSetEdit = () => {
-    dispatch(setAiIsTextAreaAllowedToEdit(false)); // Включаем TextArea
+    if (!ai_isMarkdownLocked) {
+      setIsMarkdown(false); // Переключаем на Textarea
+      dispatch(setAiIsMarkdownLocked(false)); // Разблокируем Textarea
+    }
   };
 
   return (
@@ -61,7 +75,9 @@ const AiAnswer: React.FC = () => {
           <Ellipsis />
         </div>
       </div>
-      {ai_isTextAreaAllowedToEdit ? (
+
+      {/* Отображение Markdown или Textarea */}
+      {isMarkdown ? (
         <div
           className="generate-post-input generate-post-input-wrapper"
           style={{ paddingInline: "10px", paddingTop: "6px" }}

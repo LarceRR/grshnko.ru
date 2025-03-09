@@ -5,7 +5,7 @@ interface IAiResponseState {
   ai_loading: boolean,
   ai_error: string,
   ai_isAlreadyAsked: boolean,
-  ai_isTextAreaAllowedToEdit: boolean
+  ai_isMarkdownLocked: boolean
 }
 
 const initialState: IAiResponseState = {
@@ -13,7 +13,7 @@ const initialState: IAiResponseState = {
   ai_loading: false,
   ai_error: '',
   ai_isAlreadyAsked: false,
-  ai_isTextAreaAllowedToEdit: false
+  ai_isMarkdownLocked: true
 }
 
 export const ai_responseSlice = createSlice({
@@ -32,12 +32,12 @@ export const ai_responseSlice = createSlice({
     setIsAiAlreadyAsked: (state, action: PayloadAction<boolean>) => {
       state.ai_isAlreadyAsked = action.payload
     },
-    setAiIsTextAreaAllowedToEdit: (state, action: PayloadAction<boolean>) => {
-      state.ai_isTextAreaAllowedToEdit = action.payload
+    setAiIsMarkdownLocked: (state, action: PayloadAction<boolean>) => {
+      state.ai_isMarkdownLocked = action.payload
     }
   },
 });
 
-export const { setAiResponse, setAiLoading, setAiError, setIsAiAlreadyAsked, setAiIsTextAreaAllowedToEdit } = ai_responseSlice.actions;
+export const { setAiResponse, setAiLoading, setAiError, setIsAiAlreadyAsked, setAiIsMarkdownLocked } = ai_responseSlice.actions;
 
 export default ai_responseSlice.reducer;

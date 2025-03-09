@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import {
   setAiError,
-  setAiIsTextAreaAllowedToEdit,
+  setAiIsMarkdownLocked,
   setAiLoading,
   setAiResponse,
   setIsAiAlreadyAsked,
@@ -20,7 +20,7 @@ const useAiController = () => {
       dispatch(setIsAiAlreadyAsked(true));
       dispatch(setAiResponse(""));
       dispatch(setAiError(""));
-      dispatch(setAiIsTextAreaAllowedToEdit(false));
+      dispatch(setAiIsMarkdownLocked(false));
 
       // Формируем URL запроса
       const url = new URL("https://api.grshnko.ru/generate");
@@ -50,7 +50,7 @@ const useAiController = () => {
           // Завершаем загрузку и разрешаем редактирование
           dispatch(setAiLoading(false));
           dispatch(setIsAiAlreadyAsked(false));
-          dispatch(setAiIsTextAreaAllowedToEdit(true));
+          dispatch(setAiIsMarkdownLocked(false));
           break;
         }
 
@@ -67,7 +67,7 @@ const useAiController = () => {
       dispatch(setAiLoading(false));
       dispatch(setIsAiAlreadyAsked(false));
       dispatch(setAiError("Произошла ошибка при генерации поста"));
-      dispatch(setAiIsTextAreaAllowedToEdit(true));
+      dispatch(setAiIsMarkdownLocked(false));
     }
   };
 
