@@ -3,6 +3,7 @@ import "./TgCosmos.scss";
 import GeneratePost from "./components/GeneratePost/GeneratePost";
 import DashboardHeader from "./components/DashboardHeader/DashboardHeader";
 import ImageSelector from "./components/ImageSelector/ImageSelector";
+import SendMessage from "./components/SendMessage/SendMessage";
 
 interface ITgCosmosProps {}
 
@@ -12,6 +13,7 @@ const TgCosmos: React.FC<ITgCosmosProps> = () => {
       <DashboardHeader />
       <GeneratePost />
       <ImageSelector />
+      <SendMessage />
     </div>
   );
 };

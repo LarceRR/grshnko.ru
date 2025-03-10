@@ -3,7 +3,8 @@ import { Button } from "antd";
 import { Ban, Ellipsis } from "lucide-react";
 import { useAppSelector } from "../../../../store/hooks";
 import useGetImages from "../../../../hooks/useGetImages";
-import { IImage } from "../../../../features/images";
+import { IImage, setSelectImage } from "../../../../features/images";
+import { useDispatch } from "react-redux";
 
 export interface ImageData {
   alt: string;
@@ -31,8 +32,13 @@ export interface ImageData {
 const ImageSelector = () => {
   const topic = useAppSelector((state) => state.topic.topic.eng_term);
   const { images, error, loading } = useAppSelector((state) => state.images);
+  const dispatch = useDispatch();
 
   const { fetchImages } = useGetImages();
+
+  const handleSelectImage = (url: string) => {
+    dispatch(setSelectImage(url));
+  };
 
   return (
     <div className="image-selector-wrapper">
@@ -56,7 +62,11 @@ const ImageSelector = () => {
           {images &&
             topic &&
             images.map((image: IImage, index: number) => (
-              <div key={index} className="image-selector-gallery-image">
+              <div
+                key={index}
+                className="image-selector-gallery-image"
+                onClick={() => handleSelectImage(image.url)}
+              >
                 <img
                   className="blured_image"
                   src={image.url}
