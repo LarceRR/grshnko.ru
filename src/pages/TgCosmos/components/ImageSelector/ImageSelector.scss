@@ -10,6 +10,10 @@
     width: 100%;
     max-width: 1420px;
 
+    @media screen and (max-width: 1028px) {
+        padding: 10px 15px;
+    }
+
     .image-selector-gallery {
         display: flex;
         flex-wrap: wrap;

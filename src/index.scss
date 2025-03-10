@@ -46,7 +46,11 @@ html {
     scroll-behavior: smooth;
     background-color: var(--background-color);
     transition: all 0.2s ease-in-out;
-    padding: 20px;    
+    padding: 20px;   
+    
+    @media screen and (max-width: 1028px) {
+      padding: 10px;
+    }
 }
 
 .divider {
