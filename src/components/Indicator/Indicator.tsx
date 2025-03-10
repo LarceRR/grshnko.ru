@@ -21,7 +21,7 @@ const Indicator: React.FC<IIndicatorProps> = ({
         width: 10,
         height: 10,
         background: color,
-        borderRadius: 50,
+        borderRadius: 51,
         position: "absolute",
         zIndex: 1,
         left: left,
