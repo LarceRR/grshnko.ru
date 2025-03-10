@@ -12,48 +12,46 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [23.x] # Specify the Node.js version(s) you want to test against
+        node-version: [23.x]
 
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "pnpm" # Cache pnpm dependencies
+          cache: "pnpm"
 
-      # Step 3: Install pnpm (if not already installed)
       - name: Install pnpm
         run: npm install -g pnpm
 
-      # Step 4: Install dependencies
+      - name: Cache pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
+
       - name: Install dependencies
         run: pnpm install
 
-      # Step 5: Build the project
       - name: Build
         run: pnpm run build --if-present
 
-      # Step 6: Debug Build Output
       - name: Debug Build Output
         run: ls -la
 
-      # Step 7: Debug Dist Folder
       - name: Debug Dist
         run: ls -la dist
 
-      # Step 8: Debug Deployment Directory
       - name: Debug /var/www/grshnko.ru
         run: ls -la /var/www/grshnko.ru
 
-      # Step 9: Copy files to the deployment directory
       - name: Copy files
         run: sudo cp -r dist/. /var/www/grshnko.ru/
 
-      # Step 10: Reload NGINX
       - name: Reload NGINX
         run: sudo systemctl reload nginx
