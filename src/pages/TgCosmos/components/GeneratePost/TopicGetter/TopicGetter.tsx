@@ -49,11 +49,12 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
         type="primary"
         className="generate-post-button"
         style={{ marginTop: "15px" }}
+        disabled
       >
         Выбрать вручную
       </Button>
       <div className="generate-post-button-splitter">
-        <Button type="primary" className="generate-post-button">
+        <Button type="primary" className="generate-post-button" disabled>
           Создать новую тему
         </Button>
         <Checkbox className="checkbox"></Checkbox>
@@ -77,6 +78,7 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
           className="generate-post-button"
           icon={<Plus />}
           style={{ width: "48px" }}
+          disabled
           // onClick={}
         ></Button>
       </div>

@@ -59,10 +59,10 @@ const DashboardHeader = () => {
           </div>
         </div>
         <div className="dashboard-additional-buttons">
-          <Button className="dashboard-additional-button">
+          <Button className="dashboard-additional-button" disabled>
             Показать все посты(999999)
           </Button>
-          <Button className="dashboard-additional-button">
+          <Button className="dashboard-additional-button" disabled>
             Показать отложенные посты(999999)
           </Button>
         </div>
