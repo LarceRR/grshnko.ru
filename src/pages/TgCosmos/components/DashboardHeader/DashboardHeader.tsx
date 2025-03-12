@@ -42,7 +42,7 @@ const DashboardHeader = () => {
     return (
       <div className="dashboard-block-wrapper">
         <div className="popular-post-item">
-          <span>Тема: Какашки</span>
+          <span>Тема: ОТОБРАЖЕНИЕ ТЕМЫ ЗДЕСЬ</span>
           <div className="post">
             <div className="input-wrapper">
               <Input
