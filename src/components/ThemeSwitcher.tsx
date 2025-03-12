@@ -2,13 +2,13 @@ import { Switch } from "antd";
 import useTheme from "../hooks/useTheme";
 
 const ThemeSwitcher = () => {
-  const [theme, toggleTheme] = useTheme();
+  const [, toggleTheme] = useTheme();
 
   return (
     <Switch
       defaultChecked
-      checkedChildren={theme}
-      unCheckedChildren={theme}
+      checkedChildren={"Dark"}
+      unCheckedChildren={"Light"}
       onChange={toggleTheme}
     />
   );

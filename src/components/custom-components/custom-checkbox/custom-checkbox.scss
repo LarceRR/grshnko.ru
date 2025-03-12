@@ -1,0 +1,41 @@
+/* Checkbox.css */
+.custom-checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .custom-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  .custom-checkbox-checkmark {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--input-background);
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  
+  .custom-checkbox-input:checked ~ .custom-checkbox-checkmark {
+    background-color: var(--button-primary-bg);
+    border: none;
+  }
+  
+  .custom-checkbox-input:checked ~ .custom-checkbox-checkmark::after {
+    display: block; /* Показываем галочку при выборе */
+  }
+  
+  .custom-checkbox-input:disabled ~ .custom-checkbox-checkmark {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }

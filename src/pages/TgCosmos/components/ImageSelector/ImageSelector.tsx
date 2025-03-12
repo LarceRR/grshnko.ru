@@ -44,7 +44,6 @@ const ImageSelector = () => {
     <div className="image-selector-wrapper">
       <div className="image-selector-result">
         <div className="image-selector-result__header">
-          <p>Выберите от 1 до 3 из предложенных изображенний</p>
           <div className="image-selector-result__header-buttons">
             <Button
               className="get-new-images"
@@ -78,7 +77,15 @@ const ImageSelector = () => {
             ))}
 
           {!topic && (
-            <p style={{ padding: "20px", opacity: 0.5, fontSize: "20px" }}>
+            <p
+              style={{
+                padding: "20px",
+                opacity: 0.5,
+                fontSize: "20px",
+                textAlign: "center",
+                lineHeight: "25px",
+              }}
+            >
               Выберите тему чтобы изображения загрузились
             </p>
           )}

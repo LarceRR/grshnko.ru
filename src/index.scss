@@ -76,6 +76,14 @@ body {
   }
 
   button {
+    border: none!important;
+    cursor: pointer;
+    outline: none;
+
+    &:hover {
+      opacity: .7!important;
+    }
+
     span {
         color: var(--button-primary-text);
     }

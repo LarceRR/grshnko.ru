@@ -8,3 +8,17 @@
 .ant-btn-icon {
     display: flex!important;
 }
+
+.ant-switch-inner {
+    margin-top: 3px!important;
+}
+
+.ant-dropdown-menu {
+    background-color: var(--card-background)!important;
+    border-radius: 10px;
+    padding: 10px!important;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    border: var(--input-border) solid 1px;
+}

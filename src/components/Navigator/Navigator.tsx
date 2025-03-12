@@ -62,7 +62,7 @@ const Navbar: React.FC = () => {
       </nav>
     );
   } else {
-    console.log(items);
+    // console.log(items);
     return (
       <nav className="navigator-wrapper">
         <Dropdown

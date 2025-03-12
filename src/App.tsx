@@ -1,12 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import TgCosmos from "./pages/TgCosmos/TgCosmos";
 import Other from "./pages/Other/Other";
+import AllPosts from "./pages/TgCosmos/components/AllPosts/AllPosts";
 
 export const App = () => {
   return (
     <div className="router-wrapper">
       <Routes>
         <Route path="/" element={<TgCosmos />} />
+        <Route path="/tgcosmos/allPosts" element={<AllPosts />} />
         <Route path="/other" element={<Other />} />
       </Routes>
     </div>
