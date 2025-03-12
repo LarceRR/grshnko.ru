@@ -16,7 +16,7 @@ const DashboardHeader = () => {
         </div>
         <div className="divider"></div>
         <div className="popular-post-item">
-          <span>Тема: Какашки</span>
+          <span>Тема: ДОБАВИТЬ ОТОБРАЖЕНИЕ ТЕМЫ</span>
           <div className="post">
             <div className="input-wrapper">
               <Input
