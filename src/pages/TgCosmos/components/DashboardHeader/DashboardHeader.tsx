@@ -50,7 +50,7 @@ const DashboardHeader = () => {
             Показать все посты({posts?.messages.length})
           </Button>
           <Button className="dashboard-additional-button" disabled>
-            Показать отложенные посты(unreleased)
+            Показать отложенные посты(0)
           </Button>
         </div>
       </div>
