@@ -87,8 +87,7 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
           type="primary"
           className="generate-post-button"
           icon={<Plus />}
-          style={{ width: "32px" }}
-          disabled
+          style={{ width: "48px" }}
           // onClick={}
         ></Button>
       </div>

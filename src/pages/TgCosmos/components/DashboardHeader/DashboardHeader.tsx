@@ -4,14 +4,11 @@ import { Ellipsis } from "lucide-react";
 import { useWindowSize } from "../../../../hooks/useWindowSize";
 import Button from "../../../../components/custom-components/custom-button";
 import PopularPost from "./PopularPost/PopularPost";
-import { useNavigate } from "react-router-dom";
 import usePostController from "../../../../hooks/postsController";
 import { useEffect } from "react";
 
 const DashboardHeader = () => {
-  const navigate = useNavigate();
-
-  const { getPopularPosts, popularPosts, posts } = usePostController();
+  const { getPopularPosts, popularPosts } = usePostController();
 
   useEffect(() => {
     getPopularPosts();
@@ -43,13 +40,10 @@ const DashboardHeader = () => {
       <div className="dashboard-block-wrapper">
         <PopularPost maxShowEmojies={7} popularPosts={popularPosts} />
         <div className="dashboard-additional-buttons">
-          <Button
-            className="dashboard-additional-button"
-            onClick={() => navigate("/tgcosmos/allPosts")}
-          >
-            Показать все посты ({posts?.messages.length})
-          </Button>
           <Button className="dashboard-additional-button">
+            Показать все посты(999999)
+          </Button>
+          <Button className="dashboard-additional-button" disabled>
             Показать отложенные посты(999999)
           </Button>
         </div>
