@@ -6,9 +6,12 @@ import Button from "../../../../components/custom-components/custom-button";
 import PopularPost from "./PopularPost/PopularPost";
 import usePostController from "../../../../hooks/postsController";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const DashboardHeader = () => {
-  const { getPopularPosts, popularPosts } = usePostController();
+  const { getPopularPosts, popularPosts, posts } = usePostController();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     getPopularPosts();
@@ -40,11 +43,14 @@ const DashboardHeader = () => {
       <div className="dashboard-block-wrapper">
         <PopularPost maxShowEmojies={7} popularPosts={popularPosts} />
         <div className="dashboard-additional-buttons">
-          <Button className="dashboard-additional-button">
-            Показать все посты(999999)
+          <Button
+            className="dashboard-additional-button"
+            onClick={() => navigate("/tgcosmos/allPosts")}
+          >
+            Показать все посты({posts?.messages.length})
           </Button>
           <Button className="dashboard-additional-button" disabled>
-            Показать отложенные посты(999999)
+            Показать отложенные посты(unreleased)
           </Button>
         </div>
       </div>
