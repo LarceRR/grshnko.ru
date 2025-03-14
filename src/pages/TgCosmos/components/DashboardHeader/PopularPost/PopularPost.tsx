@@ -2,54 +2,39 @@ import { Input } from "antd";
 import { Eye } from "lucide-react";
 import "./PopularPost.scss";
 import { Message } from "../../../../../types/postTypes";
-import { getEmojiUrl } from "../../../../../functions/getEmojiUrl";
+import usePostController from "../../../../../hooks/postsController";
+import { useEffect } from "react";
+import EmojiWrapper from "./EmojiWrapper/EmojiWrapper";
 
 interface IPopularPostProps {
   maxShowEmojies: number;
   popularPosts: Message[] | null;
 }
 
-const PopularPost: React.FC<IPopularPostProps> = ({
-  maxShowEmojies,
-  popularPosts,
-}) => {
+const PopularPost: React.FC<IPopularPostProps> = ({ popularPosts }) => {
+  const { getPostPhotos, postPhotos } = usePostController();
+
+  useEffect(() => {
+    if (popularPosts) getPostPhotos(popularPosts[0]);
+  }, [popularPosts]);
+
+  useEffect(() => {
+    if (postPhotos) console.log(postPhotos);
+  }, [postPhotos]);
+
   return (
     <div className="popular-post-item">
       <div className="popular-post-item__header">
         <span>Популярный пост</span>
-        <div>
-          <div
-            style={{
-              zIndex:
-                (popularPosts?.[0]?.reactions?.results?.length ?? 0) >
-                maxShowEmojies
-                  ? 0
-                  : 1,
-              position:
-                (popularPosts?.[0]?.reactions?.results?.length ?? 0) >
-                maxShowEmojies
-                  ? "unset"
-                  : "relative",
-            }}
-          >
-            {popularPosts &&
-              popularPosts[0].reactions?.results.map((item) => {
-                return (
-                  <div>
-                    <img
-                      width="20px"
-                      src={getEmojiUrl(item.reaction.emoticon) ?? ""}
-                      alt={item.reaction.emoticon}
-                    />
-                    <span>{item.count}</span>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
+        {popularPosts && <EmojiWrapper post={popularPosts[0]} />}
       </div>
       {popularPosts && (
         <div className="post">
+          {postPhotos && (
+            <div className="post-photos">
+              <img src={postPhotos} alt={""} />
+            </div>
+          )}
           <div className="input-wrapper">
             <Input
               value={popularPosts[0].message}

@@ -1,0 +1,64 @@
+.emoji-wrapper {
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: end;
+    gap: 10px;
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: -1px;
+        top: 0;
+        width: 20px;
+        height: 100%;
+        background: linear-gradient(90deg, var(--background-color), color-mix(in srgb, var(--background-color), transparent 80%));                ;
+        pointer-events: none;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 20px;
+        height: 100%;
+        background: linear-gradient(270deg, var(--background-color), color-mix(in srgb, var(--background-color), transparent 80%));                ;
+        pointer-events: none;
+    }
+
+    & > div {
+        width: fit-content;
+        display: flex;
+        overflow-x: scroll;
+        gap: 15px;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        & > div {
+            flex-shrink: 0;
+            display: flex;
+            gap: 7px;
+            align-items: center;
+            width: 35px;
+    
+            img {
+                height: 20px;
+            }
+
+            span {
+               margin-top: 3px;
+            }
+    
+            &::-webkit-scrollbar {
+                display: none;
+            }
+            
+            span {
+                opacity: 1;
+            }
+        }
+    }
+}

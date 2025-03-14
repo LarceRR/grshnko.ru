@@ -5,6 +5,7 @@ import { Message, Messages } from "../types/postTypes";
 const usePostController = () => {
   const [posts, setPosts] = useState<Messages | null>(null);
   const [popularPosts, setPopularPosts] = useState<Message[] | null>(null);
+  const [postPhotos, setPostPhotos] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,6 +23,37 @@ const usePostController = () => {
       console.error(err); // Логируем ошибку
     } finally {
       setLoading(false); // Завершаем загрузку
+    }
+  };
+
+  const getPostPhotos = async (message: Message) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post(
+        "https://api.grshnko.ru/getPostPhotos",
+        { messageId: message.id }, // Передаем message в теле запроса
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded", // Указываем правильный Content-Type
+          },
+          responseType: "blob", // Указываем, что ожидаем бинарные данные
+        }
+      );
+
+      // console.log(response.data);
+
+      // Создаем URL для изображения
+      const imageUrl = URL.createObjectURL(new Blob([response.data]));
+
+      // Обновляем состояние с URL изображения
+      setPostPhotos(imageUrl);
+    } catch (err) {
+      setError("Ошибка при загрузке фотографий");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,9 +104,11 @@ const usePostController = () => {
     posts,
     loading,
     error,
+    postPhotos,
     popularPosts,
     getAllPosts,
     getPopularPosts,
+    getPostPhotos,
   };
 };
 
