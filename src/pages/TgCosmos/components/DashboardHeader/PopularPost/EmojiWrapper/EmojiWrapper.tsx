@@ -24,45 +24,6 @@ const EmojiWrapper: React.FC<IEmojiWrapperProps> = ({ post }) => {
               </div>
             );
           })}
-        {post &&
-          post.reactions?.results.map((item) => {
-            return (
-              <div>
-                <img
-                  width="20px"
-                  src={getEmojiUrl(item.reaction.emoticon) ?? ""}
-                  alt={item.reaction.emoticon}
-                />
-                <span>{item.count}</span>
-              </div>
-            );
-          })}
-        {post &&
-          post.reactions?.results.map((item) => {
-            return (
-              <div>
-                <img
-                  width="20px"
-                  src={getEmojiUrl(item.reaction.emoticon) ?? ""}
-                  alt={item.reaction.emoticon}
-                />
-                <span>{item.count}</span>
-              </div>
-            );
-          })}
-        {post &&
-          post.reactions?.results.map((item) => {
-            return (
-              <div>
-                <img
-                  width="20px"
-                  src={getEmojiUrl(item.reaction.emoticon) ?? ""}
-                  alt={item.reaction.emoticon}
-                />
-                <span>{item.count}</span>
-              </div>
-            );
-          })}
       </div>
     </div>
   );
