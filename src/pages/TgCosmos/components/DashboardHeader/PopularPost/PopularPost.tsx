@@ -24,31 +24,33 @@ const PopularPost: React.FC<IPopularPostProps> = ({ popularPosts }) => {
 
   return (
     <div className="popular-post-item">
-      <div className="popular-post-item__header">
-        <span>Популярный пост</span>
-        {popularPosts && <EmojiWrapper post={popularPosts[0]} />}
-      </div>
-      {popularPosts && (
-        <div className="post">
-          {postPhotos && (
-            <div className="post-photos">
-              <img src={postPhotos} alt={""} />
-            </div>
-          )}
-          <div className="input-wrapper">
-            <Input
-              value={popularPosts[0].message}
-              className="input"
-              disabled
-              maxLength={50}
-            />
-          </div>
-          <div className="views">
-            <Eye width={20} />
-            <span>{popularPosts[0].views}</span>
-          </div>
+      {postPhotos && (
+        <div className="post-photos">
+          <img src={postPhotos} alt={""} />
         </div>
       )}
+      <div>
+        <div className="popular-post-item__header">
+          <span>Популярный пост</span>
+          {popularPosts && <EmojiWrapper post={popularPosts[0]} />}
+        </div>
+        {popularPosts && (
+          <div className="post">
+            <div className="input-wrapper">
+              <Input
+                value={popularPosts[0].message}
+                className="input"
+                disabled
+                maxLength={50}
+              />
+            </div>
+            <div className="views">
+              <Eye width={20} />
+              <span>{popularPosts[0].views}</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
