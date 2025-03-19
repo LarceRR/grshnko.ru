@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
         <div className="navigator-links">
           <CustomNavLink to="/">Telegram Autopost CRM</CustomNavLink>
           <CustomNavLink to="/other">Other future shit</CustomNavLink>
-          {size[0]}
+          {/* {size[0]} */}
         </div>
         <Switch
           defaultChecked

@@ -3,41 +3,33 @@ import { Button } from "antd";
 import { Ban, Ellipsis } from "lucide-react";
 import { useAppSelector } from "../../../../store/hooks";
 import useGetImages from "../../../../hooks/useGetImages";
-import { IImage, setSelectImage } from "../../../../features/images";
+import { IImage, setSelectedImages } from "../../../../features/images";
 import { useDispatch } from "react-redux";
-
-export interface ImageData {
-  alt: string;
-  avg_color: string;
-  height: number;
-  id: number;
-  liked: boolean;
-  photographer: string;
-  photographer_id: number;
-  photographer_url: string;
-  src: {
-    landscape: string;
-    large: string;
-    large2x: string;
-    medium: string;
-    original: string;
-    portrait: string;
-    small: string;
-    tiny: string;
-  };
-  url: string;
-  width: number;
-}
+import ImageComponent from "./ImageComponent/ImageComponent";
 
 const ImageSelector = () => {
   const topic = useAppSelector((state) => state.topic.topic.eng_term);
-  const { images, error, loading } = useAppSelector((state) => state.images);
+  const { images, selectedImages, error, loading } = useAppSelector(
+    (state) => state.images
+  );
   const dispatch = useDispatch();
-
   const { fetchImages } = useGetImages();
 
-  const handleSelectImage = (url: string) => {
-    dispatch(setSelectImage(url));
+  // useEffect(() => {
+  //   console.log(selectedImages);
+  // }, [selectedImages]);
+
+  const handleSelectImage = (image: IImage) => {
+    if (selectedImages.includes(image)) {
+      dispatch(
+        setSelectedImages(selectedImages.filter((img) => img !== image))
+      );
+      return;
+    }
+
+    if (selectedImages.length >= 3) return;
+
+    dispatch(setSelectedImages([...selectedImages, image]));
   };
 
   return (
@@ -50,7 +42,7 @@ const ImageSelector = () => {
               style={{ backgroundColor: error ? "red" : "" }}
               onClick={fetchImages}
               loading={loading}
-              icon={error ? <Ban width={20} /> : ""}
+              icon={error ? <Ban width={20} /> : undefined}
             >
               Получить изображения
             </Button>
@@ -58,35 +50,18 @@ const ImageSelector = () => {
           </div>
         </div>
         <div className="image-selector-gallery">
-          {images &&
-            topic &&
+          {images && topic ? (
             images.map((image: IImage, index: number) => (
-              <div
-                key={index}
-                className="image-selector-gallery-image"
-                onClick={() => handleSelectImage(image.url)}
-              >
-                <img
-                  className="blured_image"
-                  src={image.url}
-                  alt="no image"
-                ></img>
-                <div className="white-cover-image"></div>
-                <img className="image" src={image.url} alt="no image"></img>
-              </div>
-            ))}
-
-          {!topic && (
-            <p
-              style={{
-                padding: "20px",
-                opacity: 0.5,
-                fontSize: "20px",
-                textAlign: "center",
-                lineHeight: "25px",
-              }}
-            >
-              Выберите тему чтобы изображения загрузились
+              <ImageComponent
+                key={index} // Используем index вместо уникального ID
+                image={image}
+                handleSelectImage={handleSelectImage}
+                selectedImages={selectedImages}
+              />
+            ))
+          ) : (
+            <p className="no-topic-message">
+              Выберите тему, чтобы изображения загрузились
             </p>
           )}
         </div>

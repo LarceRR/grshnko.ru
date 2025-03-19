@@ -1,6 +1,7 @@
 import { Input } from "antd";
 import { Ban, ArrowRight, Plus } from "lucide-react";
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch } from "../../../../../store/hooks";
 import { setTopic } from "../../../../../features/currentTopic";
 import Button from "../../../../../components/custom-components/custom-button";
@@ -24,7 +25,6 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
   inputTopic,
 }) => {
   const [isSplitterChecked, setIsSplitterChecked] = useState(false);
-
   const dispatch = useAppDispatch();
 
   const setCustomTopic = () => {
@@ -39,7 +39,34 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
 
   return (
     <div className="generate-post-buttons">
-      {topic ? topic.term : <p>Тема не выбрана</p>}
+      <span>
+        {topic.term ? (
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={topic ? topic.term : "default"}
+              initial={{ opacity: 0, scale: 0.8, color: "#888" }}
+              animate={{ opacity: 1, scale: 1, color: "#000" }}
+              exit={{ opacity: 0, scale: 1.2, color: "#888" }}
+              transition={{ duration: 0.1, ease: "easeInOut" }}
+              style={{ display: "inline-block", whiteSpace: "nowrap" }}
+            >
+              {topic.term.split("").map((char: string, index: number) => (
+                <motion.span
+                  key={char + index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.01, delay: index * 0.03 }}
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </motion.span>
+          </AnimatePresence>
+        ) : (
+          "Тема не выбрана"
+        )}
+      </span>
+
       <Button
         type="primary"
         className="generate-post-button"

@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import axios from "axios";
 import { setTopic } from "../../../../features/currentTopic";
 import { useState } from "react";
-import useGetImages from "../../../../hooks/useGetImages";
 import TopicGetter from "./TopicGetter/TopicGetter";
 import CharacterSetter from "./CharacterSetter/CharacterSetter";
 import AiAnswer from "./AiAnswer/AiAnswer";
@@ -15,8 +14,6 @@ const GeneratePost = () => {
 
   const topic = useAppSelector((state) => state.topic.topic);
   const dispatch = useAppDispatch();
-
-  const { fetchImages } = useGetImages();
 
   const getTopic = () => {
     setLoading(true);
@@ -34,11 +31,6 @@ const GeneratePost = () => {
       });
   };
 
-  const handleGetTopic = () => {
-    getTopic();
-    fetchImages();
-  };
-
   return (
     <div className="generate-post-wrapper">
       <div className="generate-post-control">
@@ -46,7 +38,7 @@ const GeneratePost = () => {
           loading={loading}
           topicError={topicError}
           topic={topic}
-          handleGetTopic={handleGetTopic}
+          handleGetTopic={getTopic}
           setInputTopic={setInputTopic}
           inputTopic={inputTopic}
         />

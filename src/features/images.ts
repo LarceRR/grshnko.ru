@@ -23,7 +23,7 @@ interface IImagesState {
   loading: boolean,
   error: string,
   isAlreadyAsked: boolean
-  selectedImage: string
+  selectedImages: IImage[]
 }
 
 const initialState: IImagesState = {
@@ -31,7 +31,7 @@ const initialState: IImagesState = {
   loading: false,
   error: '',
   isAlreadyAsked: false,
-  selectedImage: ''
+  selectedImages: []
 }
 
 export const imagesSlice = createSlice({
@@ -50,12 +50,12 @@ export const imagesSlice = createSlice({
     setIsImagesAlreadyRequested: (state, action: PayloadAction<boolean>) => {
       state.isAlreadyAsked = action.payload
     },
-    setSelectImage: (state, action: PayloadAction<string>) => {
-      state.selectedImage = action.payload
+    setSelectedImages: (state, action: PayloadAction<IImage[]>) => {
+      state.selectedImages = action.payload
     }
   },
 });
 
-export const { setImages, setLoading, setError, setIsImagesAlreadyRequested, setSelectImage } = imagesSlice.actions;
+export const { setImages, setLoading, setError, setIsImagesAlreadyRequested, setSelectedImages } = imagesSlice.actions;
 
 export default imagesSlice.reducer;

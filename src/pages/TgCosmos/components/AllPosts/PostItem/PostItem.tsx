@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Message } from "../../../../../types/postTypes";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import usePostController from "../../../../../hooks/postsController";
 import "./PostItem.scss";
 import EmojiWrapper from "../../DashboardHeader/PopularPost/EmojiWrapper/EmojiWrapper";
-import { Eye } from "lucide-react";
+import { Eye, Loader } from "lucide-react"; // Предположим, что у вас есть компонент Loader
+import { useInView } from "react-intersection-observer";
 
 interface IPostItemProps {
   post: Message;
@@ -16,18 +17,28 @@ dayjs.locale("ru");
 
 const PostItem: React.FC<IPostItemProps> = ({ post }) => {
   const { getPostPhotos, postPhotos } = usePostController();
+  const { ref, inView } = useInView({ triggerOnce: true });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getPostPhotos(post);
-  }, []);
+    if (inView) {
+      getPostPhotos(post).then(() => setIsLoading(false));
+    }
+  }, [inView]);
 
   return (
-    <div className="post-item-wrapper">
-      {postPhotos && (
-        <div className="post-item-image">
-          <img src={postPhotos} alt="" />
-        </div>
-      )}
+    <div ref={ref} className="post-item-wrapper">
+      <div className={`post-item-image ${isLoading ? "loading" : ""}`}>
+        {isLoading ? (
+          <div className="loader-wrapper">
+            <Loader className="loader" />
+          </div>
+        ) : (
+          postPhotos && (
+            <img src={postPhotos} alt="" onLoad={() => setIsLoading(false)} />
+          )
+        )}
+      </div>
       <p className="post-item-message">{post.message}</p>
       {post.reactions?.results && post.reactions?.results.length > 0 && (
         <EmojiWrapper post={post} />

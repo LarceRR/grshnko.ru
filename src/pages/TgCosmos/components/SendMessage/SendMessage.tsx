@@ -7,7 +7,7 @@ import axios from "axios";
 
 const SendMessage = () => {
   const { ai_response } = useAppSelector((state) => state.ai_response);
-  const { selectedImage } = useAppSelector((state) => state.images);
+  const { selectedImages } = useAppSelector((state) => state.images);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,20 +15,25 @@ const SendMessage = () => {
     if (ai_response) {
       try {
         setLoading(true);
+        const formData = new URLSearchParams();
+        formData.append("message", ai_response);
+
+        if (selectedImages?.length > 0) {
+          formData.append("media", selectedImages[0].url);
+        }
+
         const response = await axios.post(
           "https://api.grshnko.ru/sendMessage",
-          // Format the data as x-www-form-urlencoded
-          `message=${encodeURIComponent(
-            ai_response
-          )}&media=${encodeURIComponent(selectedImage)}`,
+          formData.toString(),
           {
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
             },
           }
         );
+
         console.log(response.data);
-        setLoading(false); // Handle the response as needed
+        setLoading(false);
       } catch (error) {
         console.error("Error sending post:", error);
         setError("error");

@@ -1,0 +1,17 @@
+.send-post-wrapper {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 20px 30px;
+    border-radius: 20px;
+    background-color: var(--card-background);
+    border: var(--input-border) solid 1px;
+    width: 100%;
+    max-width: 1420px;
+}
+
+.send-post-button {
+    background-color: var(--button-primary-bg);
+    border: unset;
+}

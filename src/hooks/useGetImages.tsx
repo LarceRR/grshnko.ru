@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import axios from "axios";
 import {
@@ -13,36 +13,47 @@ const url = import.meta.env.VITE_API_URL;
 // Define the custom hook
 const useGetImages = () => {
   const [error, setError] = useState<string | null>(null);
-
   const { images } = useAppSelector((state) => state.images);
   const { topic } = useAppSelector((state) => state.topic);
   const dispatch = useAppDispatch();
 
-  const fetchImages = async () => {
+  // Флаг, который предотвратит повторные вызовы
+  const isFetchingRef = useRef(false);
+
+  const fetchImages = useCallback(async () => {
+    const query = topic?.eng_term?.trim();
+
+    if (!query || isFetchingRef.current) return;
+
+    isFetchingRef.current = true;
+    dispatch(setLoading(true));
+    dispatch(setIsImagesAlreadyRequested(true));
+
     try {
-      dispatch(setLoading(true));
-      dispatch(setIsImagesAlreadyRequested(true));
-
       const response = await axios.get<IImage[]>(
-        `${url}/getGoogleImages?query=${topic.eng_term}`
+        `${url}/getGoogleImages?query=${query}`
       );
-
       dispatch(setImages(response.data));
+      setError(null);
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(error.message);
-      } else {
-        setError(`Unknown error: ${error}`);
-      }
+      setError(
+        axios.isAxiosError(error) ? error.message : `Unknown error: ${error}`
+      );
     } finally {
       dispatch(setLoading(false));
       dispatch(setIsImagesAlreadyRequested(false));
+      isFetchingRef.current = false;
     }
-  };
+  }, [topic, dispatch]);
 
   useEffect(() => {
     fetchImages();
-  }, [topic]); // Re-run the effect if photoId changes
+  }, [fetchImages]);
+
+  useEffect(() => {
+    console.log(topic);
+    fetchImages();
+  }, [topic]);
 
   return { fetchImages, images, error };
 };
