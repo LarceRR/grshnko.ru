@@ -1,0 +1,288 @@
+import React, { useEffect, useRef, useState } from 'react'
+import { Stage, Layer, RegularPolygon, Text, Image, Group } from 'react-konva'
+import Konva from 'konva'
+
+const HEX_SIZE = 50 // Размер одного шестиугольника
+const CHUNK_SIZE = 10 // Количество гексов в одном чанке по горизонтали и вертикали
+const PADDING = 5 // Дополнительные чанки за пределами видимой области
+const HEX_GAP = 5 // Отступ между гексами
+
+interface HexData {
+    q: number
+    r: number
+    s: number
+    text?: string
+    image?: HTMLImageElement | null
+}
+
+const HexGrid: React.FC = () => {
+    const stageRef = useRef<Konva.Stage>(null)
+    const [chunks, setChunks] = useState<{ [key: string]: HexData[] }>({})
+    const [stagePos, setStagePos] = useState({ x: 0, y: 0 })
+    const [selectedHex, setSelectedHex] = useState<{ chunkKey: string; index: number } | null>(null)
+    const [inputText, setInputText] = useState('')
+    const [imageFile, setImageFile] = useState<File | null>(null)
+
+    // Функция для получения ключа чанка
+    const getChunkKey = (chunkQ: number, chunkR: number) => `${chunkQ},${chunkR}`
+
+    // Преобразование кубических координат в декартовы с учётом отступа
+    const cubicToPixel = (q: number, r: number, s: number) => {
+        const x = (HEX_SIZE * Math.sqrt(3) + HEX_GAP) * (q + r / 2)
+        const y = (HEX_SIZE * 1.5 + HEX_GAP) * r
+        return { x, y, s }
+    }
+
+    // Генерация гексов в чанке
+    const generateHexesInChunk = (chunkQ: number, chunkR: number) => {
+        const hexes: HexData[] = []
+
+        for (let dq = 0; dq < CHUNK_SIZE; dq++) {
+            for (let dr = 0; dr < CHUNK_SIZE; dr++) {
+                const q = chunkQ * CHUNK_SIZE + dq
+                const r = chunkR * CHUNK_SIZE + dr
+                const s = -q - r
+                hexes.push({ q, r, s })
+            }
+        }
+
+        return hexes
+    }
+
+    // Загрузка чанков вокруг камеры
+    const loadChunksAroundCamera = (cameraX: number, cameraY: number) => {
+        const hexWidth = HEX_SIZE * Math.sqrt(3) + HEX_GAP
+        const hexHeight = HEX_SIZE * 1.5 + HEX_GAP
+
+        // Определяем текущий чанк камеры
+        const chunkQ = Math.floor(cameraX / (CHUNK_SIZE * hexWidth))
+        const chunkR = Math.floor(cameraY / (CHUNK_SIZE * hexHeight))
+
+        const newChunks: { [key: string]: HexData[] } = {}
+
+        // Загружаем чанки вокруг камеры
+        for (let dq = -PADDING; dq <= PADDING; dq++) {
+            for (let dr = -PADDING; dr <= PADDING; dr++) {
+                const key = getChunkKey(chunkQ + dq, chunkR + dr)
+                if (!chunks[key]) {
+                    newChunks[key] = generateHexesInChunk(chunkQ + dq, chunkR + dr)
+                }
+            }
+        }
+
+        // Обновляем состояние чанков
+        if (Object.keys(newChunks).length > 0) {
+            setChunks((prevChunks) => ({ ...prevChunks, ...newChunks }))
+        }
+    }
+
+    // Обработчик перетаскивания сцены
+    const handleDragMove = () => {
+        setSelectedHex(null)
+        const stage = stageRef.current
+        if (stage) {
+            const pos = stage.position()
+            setStagePos({ x: pos.x, y: pos.y })
+            loadChunksAroundCamera(-pos.x, -pos.y)
+        }
+    }
+
+    // Инициализация загрузки чанков и центрирование гекса (0, 0)
+    useEffect(() => {
+        const stage = stageRef.current
+        if (stage) {
+            const initialX = -window.innerWidth / 2
+            const initialY = -window.innerHeight / 2
+            stage.position({ x: initialX, y: initialY })
+            setStagePos({ x: initialX, y: initialY })
+            loadChunksAroundCamera(-initialX, -initialY)
+        }
+    }, [])
+
+    // Проверка видимости гекса
+    const isHexVisible = (q: number, r: number, s: number, stageX: number, stageY: number, width: number, height: number) => {
+        const { x, y } = cubicToPixel(q, r, s)
+        const hexWidth = HEX_SIZE * Math.sqrt(3) + HEX_GAP
+        const hexHeight = HEX_SIZE * 1.5 + HEX_GAP
+
+        return x + hexWidth / 2 > -stageX && x - hexWidth / 2 < -stageX + width && y + hexHeight / 2 > -stageY && y - hexHeight / 2 < -stageY + height
+    }
+
+    // Обработчик клика по гексу
+    const handleHexClick = (chunkKey: string, index: number) => {
+        setSelectedHex({ chunkKey, index })
+        setInputText('')
+        setImageFile(null)
+    }
+
+    // Обработчик сохранения текста или изображения
+    const handleSave = () => {
+        if (selectedHex) {
+            const { chunkKey, index } = selectedHex
+            const updatedChunks = { ...chunks }
+
+            if (imageFile) {
+                const reader = new FileReader()
+                reader.onload = (e) => {
+                    const img = new window.Image()
+                    img.src = e.target?.result as string
+                    img.onload = () => {
+                        updatedChunks[chunkKey][index].image = img
+                        updatedChunks[chunkKey][index].text = undefined
+                        setChunks(updatedChunks)
+                        setSelectedHex(null)
+                    }
+                }
+                reader.readAsDataURL(imageFile)
+            } else if (inputText) {
+                updatedChunks[chunkKey][index].text = inputText
+                updatedChunks[chunkKey][index].image = null
+                setChunks(updatedChunks)
+                setSelectedHex(null)
+            }
+        }
+    }
+
+    return (
+        <>
+            <Stage
+                width={window.innerWidth}
+                height={window.innerHeight}
+                draggable
+                ref={stageRef}
+                onDragMove={handleDragMove}
+                style={{ background: '#222' }}
+                x={stagePos.x}
+                y={stagePos.y}
+            >
+                <Layer>
+                    {Object.entries(chunks).map(([chunkKey, hexes]) =>
+                        hexes.map((hex, index) => {
+                            const { x, y } = cubicToPixel(hex.q, hex.r, hex.s)
+                            const isVisible = isHexVisible(hex.q, hex.r, hex.s, stagePos.x, stagePos.y, window.innerWidth, window.innerHeight)
+                            const isCenterHex = hex.q === 0 && hex.r === 0 && hex.s === 0
+
+                            return isVisible ? (
+                                <Group
+                                    key={`hex-${chunkKey}-${index}`}
+                                    x={x}
+                                    y={y}
+                                >
+                                    <RegularPolygon
+                                        sides={6}
+                                        radius={HEX_SIZE}
+                                        fill={isCenterHex ? 'red' : '#cccccc30'}
+                                        stroke='black'
+                                        strokeWidth={1}
+                                        onClick={() => handleHexClick(chunkKey, index)}
+                                    />
+                                    {hex.text ? (
+                                        <Text
+                                            x={-HEX_SIZE / 2}
+                                            y={-HEX_SIZE / 2}
+                                            text={hex.text}
+                                            fontSize={12}
+                                            fill='black'
+                                            align='center'
+                                            width={HEX_SIZE} // Ограничение ширины текста
+                                            wrap='word' // Перенос текста
+                                        />
+                                    ) : (
+                                        <Text
+                                            x={-HEX_SIZE / 2}
+                                            y={-HEX_SIZE / 2}
+                                            text={`${hex.q}, ${hex.r}, ${hex.s}`}
+                                            fontSize={12}
+                                            fill='black'
+                                            align='center'
+                                            width={HEX_SIZE} // Ограничение ширины текста
+                                            wrap='word' // Перенос текста
+                                        />
+                                    )}
+                                    {hex.image && (
+                                        <Group
+                                            x={-HEX_SIZE / 2}
+                                            y={-HEX_SIZE / 2}
+                                        >
+                                            {/* Маска в виде шестиугольника */}
+                                            <RegularPolygon
+                                                sides={6}
+                                                radius={HEX_SIZE}
+                                                fill='black'
+                                                opacity={0}
+                                                listening={false}
+                                            />
+                                            {/* Изображение с маской */}
+                                            <Group
+                                                clipFunc={(ctx) => {
+                                                    ctx.beginPath()
+                                                    for (let i = 0; i < 6; i++) {
+                                                        const angle = (Math.PI / 3) * i + 11
+                                                        const px = HEX_SIZE * Math.cos(angle) + 25
+                                                        const py = HEX_SIZE * Math.sin(angle) + 25
+                                                        if (i === 0) ctx.moveTo(px, py)
+                                                        else ctx.lineTo(px, py)
+                                                    }
+                                                    ctx.closePath()
+                                                }}
+                                            >
+                                                <Image
+                                                    image={hex.image}
+                                                    width={HEX_SIZE * 2}
+                                                    height={HEX_SIZE * 2}
+                                                    x={-HEX_SIZE + 26}
+                                                    y={-HEX_SIZE + 26}
+                                                />
+                                            </Group>
+                                        </Group>
+                                    )}
+                                </Group>
+                            ) : null
+                        }),
+                    )}
+                </Layer>
+            </Stage>
+
+            {/* Модальное окно для ввода текста или загрузки изображения */}
+            {selectedHex && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        background: 'white',
+                        padding: '20px',
+                        borderRadius: '10px',
+                        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+                        zIndex: 1000,
+                    }}
+                >
+                    <h3>Добавить текст или изображение</h3>
+                    <input
+                        type='text'
+                        placeholder='Введите текст'
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        style={{ marginBottom: '10px', width: '100%' }}
+                    />
+                    <input
+                        type='file'
+                        accept='image/*'
+                        onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                        style={{ marginBottom: '10px', width: '100%' }}
+                    />
+                    <button
+                        onClick={handleSave}
+                        style={{ marginRight: '10px' }}
+                    >
+                        Сохранить
+                    </button>
+                    <button onClick={() => setSelectedHex(null)}>Отмена</button>
+                </div>
+            )}
+        </>
+    )
+}
+
+export default HexGrid
