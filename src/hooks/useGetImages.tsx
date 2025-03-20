@@ -6,6 +6,7 @@ import {
   setImages,
   setIsImagesAlreadyRequested,
   setLoading,
+  setSelectedImages,
 } from "../features/images";
 
 const url = import.meta.env.VITE_API_URL;
@@ -21,6 +22,7 @@ const useGetImages = () => {
   const isFetchingRef = useRef(false);
 
   const fetchImages = useCallback(async () => {
+    dispatch(setSelectedImages([]));
     const query = topic?.eng_term?.trim();
 
     if (!query || isFetchingRef.current) return;

@@ -11,6 +11,10 @@
     width: 100%;
     max-width: 1420px;
 
+    .ant-skeleton {
+        width: 100%;
+    }
+
     @media screen and (max-width: 1028px) {
         flex-direction: column;
         padding: 10px 15px;

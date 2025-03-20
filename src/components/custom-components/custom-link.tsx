@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import "../Navigator/Navigator.scss";
 
 interface ICustomLinkProps {
   children: React.ReactNode;

@@ -7,6 +7,7 @@ import PopularPost from "./PopularPost/PopularPost";
 import usePostController from "../../../../hooks/postsController";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Skeleton } from "antd";
 
 const DashboardHeader = () => {
   const { getPopularPosts, popularPosts, posts } = usePostController();
@@ -31,7 +32,20 @@ const DashboardHeader = () => {
           <HighlightedText color="#ff0000">Онлайн</HighlightedText>
         </div>
         <div className="divider"></div>
-        <PopularPost maxShowEmojies={30} popularPosts={popularPosts} />
+        {popularPosts ? (
+          <PopularPost maxShowEmojies={30} popularPosts={popularPosts} />
+        ) : (
+          <Skeleton.Avatar
+            active={true}
+            size={"large"}
+            shape="square"
+            style={{
+              height: "70px",
+              width: "100px",
+              borderRadius: 5,
+            }}
+          />
+        )}
         <div className="divider"></div>
         <div>
           <Ellipsis />
@@ -40,17 +54,22 @@ const DashboardHeader = () => {
     );
   } else {
     return (
-      <div className="dashboard-block-wrapper">
+      <div
+        className="dashboard-block-wrapper"
+        style={{
+          display: "flex",
+        }}
+      >
         <PopularPost maxShowEmojies={7} popularPosts={popularPosts} />
         <div className="dashboard-additional-buttons">
           <Button
             className="dashboard-additional-button"
             onClick={() => navigate("/tgcosmos/allPosts")}
           >
-            Показать все посты({posts?.messages.length})
+            Показать все посты ({posts?.messages.length})
           </Button>
           <Button className="dashboard-additional-button" disabled>
-            Показать отложенные посты(0)
+            Показать отложенные посты (0)
           </Button>
         </div>
       </div>

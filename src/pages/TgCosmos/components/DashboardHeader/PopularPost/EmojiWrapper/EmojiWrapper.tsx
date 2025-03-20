@@ -12,9 +12,9 @@ const EmojiWrapper: React.FC<IEmojiWrapperProps> = ({ post }) => {
     <div className="emoji-wrapper">
       <div>
         {post &&
-          post.reactions?.results.map((item) => {
+          post.reactions?.results.map((item, index) => {
             return (
-              <div>
+              <div key={index}>
                 <img
                   width="20px"
                   src={getEmojiUrl(item.reaction.emoticon) ?? ""}

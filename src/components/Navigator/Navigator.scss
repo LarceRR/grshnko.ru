@@ -5,23 +5,71 @@
     transition: all 0.1s ease-in-out;
     justify-content: space-between;
 
-    @media screen and (max-width: 1028px) {
-        justify-content: flex-end;
-    }
-
-    .navigator-links {
+    & > div {
         display: flex;
         gap: 20px;
         z-index: 1;
 
         .nav-link {
-            padding: 10px 20px;
+            padding: 15px 10px;
             font-weight: 700;
             color: var(--text-color);
+            transition: all 0.2s ease-in-out;
         }
 
         .nav-link-active {
             color: var(--button-primary-text);
+            background-color: var(--nav-background);
+            padding: 15px 10px;
+            border-radius: 5px;
+            transition: all 0.2s ease-in-out;
+        }
+    }
+
+    @media screen and (max-width: 1028px) {
+        justify-content: flex-end;
+        background-color: var(--nav-background);
+        backdrop-filter: blur(40px);
+        position: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        z-index: 1;
+        width: 100%;
+        height: 70px;
+        left: 0;
+        bottom: 0;
+
+        & > div {
+            display: flex;
+            gap: 20px;
+            z-index: 1;
+
+            a {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+
+                span {
+                    font-size: 12px;
+                }
+            }
+    
+            .nav-link {
+                padding: 15px 10px;
+                font-weight: 700;
+                color: var(--nav-text-color);
+                transition: all 0.2s ease-in-out;
+            }
+    
+            .nav-link-active {
+                color: var(--nav-text-active);
+                background-color: unset;
+                padding: 15px 10px;
+                border-radius: 5px;
+                transition: all 0.2s ease-in-out;
+            }
         }
     }
 

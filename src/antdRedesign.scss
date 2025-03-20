@@ -22,3 +22,16 @@
     flex-direction: column;
     border: var(--input-border) solid 1px;
 }
+
+.ant-modal-content {
+    background-color: var(--card-background)!important;
+    pointer-events: none;
+
+    .ant-modal-header {
+        background-color: var(--card-background)!important;
+
+        .ant-modal-title {
+            color: var(--text-color)!important;
+        }
+    }
+}

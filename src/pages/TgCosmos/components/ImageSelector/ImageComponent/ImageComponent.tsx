@@ -1,5 +1,6 @@
 import React from "react";
 import { IImage } from "../../../../../features/images";
+import { Image } from "antd";
 
 interface IImageComponentProps {
   handleSelectImage: (image: IImage) => void;
@@ -15,23 +16,29 @@ const ImageComponent: React.FC<IImageComponentProps> = ({
   return (
     <div
       className="image-selector-gallery-image"
-      onClick={() => handleSelectImage(image)}
       style={{
-        outline: selectedImages.includes(image) ? "2px solid #2f77c8" : "",
+        outline: selectedImages.includes(image) ? "3px solid #2f77c8" : "",
       }}
     >
-      <img
+      <Image
+        onClick={(e) => e.stopPropagation()}
         className="blured_image"
         src={image.thumbnail.url}
         alt="no image"
-      ></img>
+      ></Image>
       <div className="white-cover-image"></div>
-      <img className="image" src={image.thumbnail.url} alt="no image"></img>
-      {selectedImages.includes(image) && (
-        <div className="selected-image">
-          {selectedImages.indexOf(image) + 1}
-        </div>
-      )}
+      <Image className="image" src={image.url} alt="no image"></Image>
+      <div
+        className="selected-image"
+        onClick={() => handleSelectImage(image)}
+        style={{
+          backgroundColor: selectedImages.includes(image) ? "#2f77c8" : "",
+        }}
+      >
+        {selectedImages.includes(image)
+          ? selectedImages.indexOf(image) + 1
+          : ""}
+      </div>
     </div>
   );
 };

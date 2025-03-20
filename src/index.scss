@@ -62,6 +62,7 @@ html {
 /* Основной шрифт для всего текста */
 body {
     font-family: 'Product Sans', sans-serif;
+    position: relative;
     font-weight: 400; /* Обычное начертание для основного текста */
   }
   
@@ -109,6 +110,11 @@ body {
     --color-orange: #D18616;
     --color-purple: #8250DF;
     --color-yellow: #FFD33D;
+
+    /* Навигатор */
+    --nav-background: #bfc0c253;
+    --nav-text-color: #00000077;
+    --nav-text-active: #000000;
     
     /* 🎨 Градации серого */
     --color-white: #FFFFFF;
@@ -161,6 +167,11 @@ body {
   }
   
   [data-theme='dark'] {
+    /* Навигатор */
+    --nav-background: #0D111790;
+    --nav-text-color: #77808a;
+    --nav-text-active: var(--text-color);
+
     /* 🌙 Тёмная тема */
     --background-color: var(--color-black);
     --card-background: #161B22;
@@ -209,5 +220,10 @@ body {
     flex-direction: column;
     gap: 30px;
     margin-top: 30px;
+
+    @media screen and (max-width: 1028px) {
+      margin-bottom: 80px;
+      margin-top: 0px;
+    }
 }
   

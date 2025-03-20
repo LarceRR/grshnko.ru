@@ -18,6 +18,7 @@ const usePostController = () => {
         "https://api.grshnko.ru/getAllMessages"
       );
       setPosts(response.data); // Устанавливаем данные из ответа
+      console.log(response);
     } catch (err) {
       setError("Ошибка при загрузке постов");
       console.error(err); // Логируем ошибку

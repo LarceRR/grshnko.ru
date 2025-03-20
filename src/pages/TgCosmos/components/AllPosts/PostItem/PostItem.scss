@@ -4,6 +4,7 @@
     border: var(--input-border) solid 1px;
     overflow: hidden;
     position: relative;
+    max-width: 500px;
 
     .post-item-image {
         .loader-wrapper {

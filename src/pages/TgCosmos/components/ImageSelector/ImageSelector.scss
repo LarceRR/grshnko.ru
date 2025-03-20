@@ -31,22 +31,29 @@
             height: 400px;
             background-color: #ffffff30;
             position: relative;
+            cursor: pointer;
 
             .selected-image {
                 position: absolute;
                 top: 5px;
                 right: 5px;
                 z-index: 1;
-                width: 20px;
-                height: 20px;
-                background-color: #2f77c8;
+                width: 30px;
+                height: 30px;
+                background-color: white;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 12px;
+                font-size: 16px;
                 font-weight: 900;
                 color: white;
+
+                @media screen and (max-width: 1028px) {
+                    width: 30px;
+                    height: 30px;
+                    font-size: 12px;
+                }
             }
 
             @media screen and (max-width: 1028px) {
@@ -73,6 +80,7 @@
 
             .image {
                 z-index: 1;
+                position: relative;
                 height: 100%;
                 width: 100%;
                 object-fit: contain;

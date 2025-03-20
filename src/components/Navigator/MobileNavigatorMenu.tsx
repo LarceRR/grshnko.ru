@@ -1,21 +1,28 @@
-import { MenuProps } from "antd";
+import { Ellipsis, Home } from "lucide-react";
 import CustomNavLink from "../custom-components/custom-link";
-import ThemeSwitcher from "../ThemeSwitcher";
 
-export const items: MenuProps["items"] = [
+export interface IMenuItem {
+  label: React.ReactNode;
+  key: string;
+}
+
+export const items = [
   {
-    label: <CustomNavLink to="/">Telegram Autopost CRM</CustomNavLink>,
+    label: (
+      <CustomNavLink to="/">
+        <Home size={26} />
+        <span>TA CRM</span>
+      </CustomNavLink>
+    ),
     key: "0",
   },
   {
-    label: <CustomNavLink to="/other">Other future shit</CustomNavLink>,
+    label: (
+      <CustomNavLink to="/other">
+        <Ellipsis size={26} />
+        <span>Другое</span>
+      </CustomNavLink>
+    ),
     key: "1",
-  },
-  {
-    type: "divider",
-  },
-  {
-    label: <ThemeSwitcher />,
-    key: "3",
   },
 ];

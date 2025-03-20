@@ -7,6 +7,7 @@ import "./PostItem.scss";
 import EmojiWrapper from "../../DashboardHeader/PopularPost/EmojiWrapper/EmojiWrapper";
 import { Eye, Loader } from "lucide-react"; // Предположим, что у вас есть компонент Loader
 import { useInView } from "react-intersection-observer";
+import { Image } from "antd";
 
 interface IPostItemProps {
   post: Message;
@@ -35,7 +36,12 @@ const PostItem: React.FC<IPostItemProps> = ({ post }) => {
           </div>
         ) : (
           postPhotos && (
-            <img src={postPhotos} alt="" onLoad={() => setIsLoading(false)} />
+            <Image
+              src={postPhotos}
+              alt=""
+              onLoad={() => setIsLoading(false)}
+              placeholder={<Loader />}
+            />
           )
         )}
       </div>
