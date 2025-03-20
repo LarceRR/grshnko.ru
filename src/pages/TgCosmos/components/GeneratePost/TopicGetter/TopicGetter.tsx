@@ -3,7 +3,7 @@ import { Ban, ArrowRight, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch } from "../../../../../store/hooks";
-import { setTopic } from "../../../../../features/currentTopic";
+import { setTopic } from "../../../../../features/currentTopicSlice";
 import Button from "../../../../../components/custom-components/custom-button";
 import Checkbox from "../../../../../components/custom-components/custom-checkbox/custom-checkbox";
 

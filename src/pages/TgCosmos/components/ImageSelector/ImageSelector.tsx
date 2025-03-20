@@ -3,7 +3,7 @@ import { Button } from "antd";
 import { Ban, Ellipsis } from "lucide-react";
 import { useAppSelector } from "../../../../store/hooks";
 import useGetImages from "../../../../hooks/useGetImages";
-import { IImage, setSelectedImages } from "../../../../features/images";
+import { IImage, setSelectedImages } from "../../../../features/imagesSlice";
 import { useDispatch } from "react-redux";
 import ImageComponent from "./ImageComponent/ImageComponent";
 

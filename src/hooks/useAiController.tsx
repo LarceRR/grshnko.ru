@@ -5,7 +5,7 @@ import {
   setAiLoading,
   setAiResponse,
   setIsAiAlreadyAsked,
-} from "../features/ai_response";
+} from "../features/aiResponceSlice";
 import { useAppSelector } from "../store/hooks";
 
 const useAiController = () => {

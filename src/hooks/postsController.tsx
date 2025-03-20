@@ -1,6 +1,13 @@
 import axios from "axios";
 import { useState } from "react";
 import { Message, Messages } from "../types/postTypes";
+import { useDispatch } from "react-redux";
+import { ITelegram, updateServerStatus } from "../features/systemStatusSlice";
+
+export interface IAxiosServerResponse {
+  messages: Message[];
+  serverData: ITelegram;
+}
 
 const usePostController = () => {
   const [posts, setPosts] = useState<Messages | null>(null);
@@ -9,12 +16,14 @@ const usePostController = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const dispatch = useDispatch();
+
   const getAllPosts = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await axios.get<Messages>(
+      const response = await axios.get<IAxiosServerResponse>(
         "https://api.grshnko.ru/getAllMessages"
       );
       setPosts(response.data); // Устанавливаем данные из ответа
@@ -63,11 +72,13 @@ const usePostController = () => {
     setError(null);
 
     try {
-      const response = await axios.get<Messages>(
+      const response = await axios.get<IAxiosServerResponse>(
         "https://api.grshnko.ru/getAllMessages"
       );
 
       setPosts(response.data); // Устанавливаем все посты
+      dispatch(updateServerStatus(response.data.serverData));
+      console.log(response.data.serverData.telegram.telegram_client_status);
 
       // Фильтруем посты, у которых есть поле "views"
       const filteredPosts = response.data.messages.filter(

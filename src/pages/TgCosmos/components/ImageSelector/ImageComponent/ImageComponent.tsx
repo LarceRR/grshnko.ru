@@ -1,5 +1,5 @@
 import React from "react";
-import { IImage } from "../../../../../features/images";
+import { IImage } from "../../../../../features/imagesSlice";
 import { Image } from "antd";
 
 interface IImageComponentProps {

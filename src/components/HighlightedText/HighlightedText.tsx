@@ -2,24 +2,22 @@ import React from "react";
 import "./HighlightedText.scss";
 
 interface IHighlightedTextProps {
-  children: React.ReactNode;
-  color: string;
+  children?: React.ReactNode;
+  color?: string;
+  state: boolean;
 }
 
-const HighlightedText: React.FC<IHighlightedTextProps> = ({
-  children,
-  color,
-}) => {
+const HighlightedText: React.FC<IHighlightedTextProps> = ({ state }) => {
   return (
     <div
       className="highlighted-text"
       style={{
-        color: color,
-        border: `1px solid ${color}`,
-        backgroundColor: `${color}20`,
+        color: state ? "#59ff56" : "ff0000",
+        border: `1px solid ${state ? "#59ff56" : "#ff0000"}`,
+        backgroundColor: `${state ? "#59ff56" : "ff0000"}40`,
       }}
     >
-      {children}
+      {state ? "Онлайн" : "Оффлайн"}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import TextArea from "antd/es/input/TextArea";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../../../../../store/hooks";
-import { setCharacter } from "../../../../../features/character";
+import { setCharacter } from "../../../../../features/characterSlice";
 
 interface ICharacterSetterProps {}
 

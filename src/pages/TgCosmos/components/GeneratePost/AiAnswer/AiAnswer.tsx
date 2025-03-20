@@ -7,7 +7,7 @@ import useAiController from "../../../../../hooks/useAiController";
 import {
   setAiIsMarkdownLocked,
   setAiResponse,
-} from "../../../../../features/ai_response";
+} from "../../../../../features/aiResponceSlice";
 import Markdown from "react-markdown";
 
 const AiAnswer: React.FC = () => {

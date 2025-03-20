@@ -1,5 +1,4 @@
 import "./DashboardHeader.scss";
-import HighlightedText from "../../../../components/HighlightedText/HighlightedText";
 import { Ellipsis } from "lucide-react";
 import { useWindowSize } from "../../../../hooks/useWindowSize";
 import Button from "../../../../components/custom-components/custom-button";
@@ -8,6 +7,7 @@ import usePostController from "../../../../hooks/postsController";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "antd";
+import ServerStatus from "./ServerStatus/ServerStatus";
 
 const DashboardHeader = () => {
   const { getPopularPosts, popularPosts, posts } = usePostController();
@@ -27,10 +27,7 @@ const DashboardHeader = () => {
   if (size[0] > 1028) {
     return (
       <div className="dashboard-block-wrapper">
-        <div className="status-item">
-          <span>Статус:</span>
-          <HighlightedText color="#ff0000">Онлайн</HighlightedText>
-        </div>
+        <ServerStatus />
         <div className="divider"></div>
         {popularPosts ? (
           <PopularPost maxShowEmojies={30} popularPosts={popularPosts} />

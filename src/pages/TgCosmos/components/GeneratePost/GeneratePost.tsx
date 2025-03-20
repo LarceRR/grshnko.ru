@@ -1,7 +1,7 @@
 import "./GeneratePost.scss";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import axios from "axios";
-import { setTopic } from "../../../../features/currentTopic";
+import { setTopic } from "../../../../features/currentTopicSlice";
 import { useState } from "react";
 import TopicGetter from "./TopicGetter/TopicGetter";
 import CharacterSetter from "./CharacterSetter/CharacterSetter";

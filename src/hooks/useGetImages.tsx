@@ -7,7 +7,7 @@ import {
   setIsImagesAlreadyRequested,
   setLoading,
   setSelectedImages,
-} from "../features/images";
+} from "../features/imagesSlice";
 
 const url = import.meta.env.VITE_API_URL;
 
