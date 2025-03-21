@@ -1,37 +1,45 @@
 .ant-input-data-count {
-    color: var(--text-color)!important;
+    color: var(--text-color) !important;
     // bottom: 0!important;
     // right: 5px!important;
     font-size: 10px;
 }
 
 .ant-btn-icon {
-    display: flex!important;
+    display: flex !important;
 }
 
 .ant-switch-inner {
-    margin-top: 3px!important;
+    margin-top: 3px !important;
 }
 
 .ant-dropdown-menu {
-    background-color: var(--card-background)!important;
+    background-color: var(--card-background) !important;
     border-radius: 10px;
-    padding: 10px!important;
+    padding: 10px !important;
     gap: 10px;
     display: flex;
     flex-direction: column;
     border: var(--input-border) solid 1px;
 }
 
+.ant-image-preview-img {
+    border-radius: 10px;
+}
+
+.ant-image-preview-mask {
+    backdrop-filter: blur(50px);
+}
+
 .ant-modal-content {
-    background-color: var(--card-background)!important;
+    background-color: var(--card-background) !important;
     pointer-events: none;
 
     .ant-modal-header {
-        background-color: var(--card-background)!important;
+        background-color: var(--card-background) !important;
 
         .ant-modal-title {
-            color: var(--text-color)!important;
+            color: var(--text-color) !important;
         }
     }
 }
