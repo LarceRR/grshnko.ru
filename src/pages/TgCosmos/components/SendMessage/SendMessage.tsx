@@ -30,7 +30,7 @@ const SendMessage = () => {
         // }
 
         // const response = await axios.post(
-        //   "https://api.grshnko.ru/sendMessage",
+        //   "https://api.grshnko.ru/sendMessage"
         //   formData.toString(),
         //   {
         //     headers: {
