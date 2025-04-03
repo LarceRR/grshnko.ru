@@ -2,8 +2,8 @@ import { useState } from "react";
 import "./SendMessage.scss";
 import { Ban } from "lucide-react";
 import { useAppSelector } from "../../../../store/hooks";
+import axios from "axios";
 import Button from "../../../../components/custom-components/custom-button";
-import { loadImageBlobs } from "../../../../functions/loadImageBlobs";
 
 const SendMessage = () => {
   const { ai_response, ai_loading } = useAppSelector(
@@ -20,26 +20,23 @@ const SendMessage = () => {
         const formData = new URLSearchParams();
         formData.append("message", ai_response);
 
-        const photosArray = await loadImageBlobs(selectedImages);
+        const photosArray = selectedImages?.map((image) => image.url) || [];
 
-        console.log(photosArray);
+        if (selectedImages?.length > 0) {
+          formData.append("media", JSON.stringify(photosArray));
+        }
 
-        // if (selectedImages?.length > 0) {
-        //   console.log(selectedImages);
-        //   formData.append("media", JSON.stringify(photosArray));
-        // }
+        const response = await axios.post(
+          "https://api.grshnko.ru/sendMessage",
+          formData.toString(),
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
 
-        // const response = await axios.post(
-        //   "https://api.grshnko.ru/sendMessage"
-        //   formData.toString(),
-        //   {
-        //     headers: {
-        //       "Content-Type": "application/x-www-form-urlencoded",
-        //     },
-        //   }
-        // );
-
-        // console.log(response.data);
+        console.log(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error sending post:", error);
