@@ -39,7 +39,7 @@ const SendMessage = () => {
         console.log(response.data);
         setLoading(false);
       } catch (error) {
-        console.error("Error sending post:", error);
+        console.error("Error sending post", error);
         setError("error");
         setLoading(false);
       }
