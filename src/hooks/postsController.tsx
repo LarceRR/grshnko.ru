@@ -24,7 +24,7 @@ const usePostController = () => {
 
     try {
       const response = await axios.get<IAxiosServerResponse>(
-        "https://api.grshnko.ru/getAllMessages"
+        "https://api.grshnko.ru/getAllMessages?channel=@saycosmic"
       );
       setPosts(response.data); // Устанавливаем данные из ответа
       console.log(response);
@@ -73,7 +73,7 @@ const usePostController = () => {
 
     try {
       const response = await axios.get<IAxiosServerResponse>(
-        "https://api.grshnko.ru/getAllMessages"
+        "https://api.grshnko.ru/getAllMessages?channel=@saycosmic"
       );
 
       setPosts(response.data); // Устанавливаем все посты

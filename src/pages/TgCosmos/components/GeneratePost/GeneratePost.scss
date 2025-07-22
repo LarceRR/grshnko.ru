@@ -10,6 +10,64 @@
     width: 100%;
     max-width: 1420px;
 
+    .paraphrase {
+        textarea {
+            font-size: 16px!important;
+        }
+    }
+
+    .generate-post-buttons {
+        gap: 10px;
+        display: flex;
+        flex-direction: column;
+
+        & > span {
+            text-align: center;
+            margin-bottom: 15px;
+            line-height: 22px;
+            color: var(--text-secondary);
+            font-size: 20px;
+        }
+
+        p {
+            line-height: 22px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .generate-post-button-splitter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+
+            .generate-post-button {
+                width: 100%;
+            }
+
+            :where(.css-dev-only-do-not-override-1v613y0).ant-checkbox-checked .ant-checkbox-inner {
+                background-color: var(--button-primary-bg);
+                border: unset;
+            }
+        }
+
+        .generate-post-button {
+            background-color: var(--button-primary-bg);
+            color: var(--text-color);
+        }
+    }
+
+    .generate-post-input {
+        background-color: var(--input-background);
+        border: var(--input-border) solid 1px;
+        color: var(--text-color);
+        border-radius: 5px;
+
+        &:hover {
+            border: unset;
+        }
+    }
+
     @media screen and (max-width: 1028px) {
         flex-direction: column;
         gap: 15px;
@@ -17,6 +75,35 @@
 
         .generate-post-control {
             width: 100%;
+        }
+    }
+
+    .tabs {
+        display: flex;
+        margin-bottom: 20px;
+    }
+
+    .tab-button {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        white-space: nowrap;
+        cursor: pointer;
+        font-size: 16px;
+        color: #666;
+        border-bottom: 2px solid transparent;
+
+        &:hover {
+            color: #b3b3b3;
+        }
+
+        &.active {
+            color: #ffffff;
+            border-bottom: 2px solid var(--button-primary-bg);
+
+            &:hover {
+                color: #ffffff;
+            }
         }
     }
     
@@ -29,58 +116,6 @@
 
         @media screen and (max-width: 1028px) {
             width: 100%;
-        }
-
-        .generate-post-buttons {
-            gap: 10px;
-            display: flex;
-            flex-direction: column;
-
-            & > span {
-                text-align: center;
-                margin-bottom: 15px;
-                line-height: 22px;
-                color: var(--text-secondary);
-                font-size: 20px;
-            }
-
-            p {
-                line-height: 22px;
-                color: var(--text-secondary);
-                font-size: 14px;
-            }
-
-            .generate-post-button-splitter {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 10px;
-
-                .generate-post-button {
-                    width: 100%;
-                }
-
-                :where(.css-dev-only-do-not-override-1v613y0).ant-checkbox-checked .ant-checkbox-inner {
-                    background-color: var(--button-primary-bg);
-                    border: unset;
-                }
-            }
-
-            .generate-post-input {
-                background-color: var(--input-background);
-                border: var(--input-border) solid 1px;
-                color: var(--text-color);
-                border-radius: 5px;
-
-                &:hover {
-                    border: unset;
-                }
-            }
-
-            .generate-post-button {
-                background-color: var(--button-primary-bg);
-                color: var(--text-color);
-            }
         }
     }
 

@@ -16,6 +16,7 @@
     "axios": "^1.7.9",
     "dayjs": "^1.11.13",
     "emoji-dictionary": "^1.0.12",
+    "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.477.0",
     "motion": "^12.5.0",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
+    "@types/lodash": "^4.17.16",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@types/react-redux": "^7.1.34",

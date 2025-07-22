@@ -12,7 +12,7 @@ interface ITopicState {
     id: number;
     term: string;
     eng_term: string;
-  }
+  },
 }
 
 const initialState: ITopicState = {
@@ -20,7 +20,7 @@ const initialState: ITopicState = {
     id: 0,
     term: "",
     eng_term: "",
-  }
+  },
 }
 
 export const topicSlice = createSlice({
