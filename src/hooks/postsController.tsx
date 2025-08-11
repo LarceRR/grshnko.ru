@@ -43,7 +43,7 @@ const usePostController = () => {
     try {
       const response = await axios.post(
         "https://api.grshnko.ru/getPostPhotos",
-        { messageId: message.id }, // Передаем message в теле запроса
+        { messageId: message.id, channel: "@saycosmos" }, // Передаем message в теле запроса
         {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded", // Указываем правильный Content-Type

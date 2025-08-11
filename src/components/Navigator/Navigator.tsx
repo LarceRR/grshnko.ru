@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
       <nav className="navigator-wrapper">
         <div className="navigator-links">
           <CustomNavLink to="/">Telegram Autopost CRM</CustomNavLink>
-          <CustomNavLink to="/other">Other future shit</CustomNavLink>
+          <CustomNavLink to="/other">Other future page</CustomNavLink>
           {/* {size[0]} */}
         </div>
         <Switch
