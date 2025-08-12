@@ -37,7 +37,7 @@ const GeneratePost = () => {
   const getTopic = () => {
     setLoading(true);
     axios
-      .get(import.meta.env.VITE_API_URL + "/getRandomTerm")
+      .get(import.meta.env.VITE_API_URL + "getRandomTerm")
       .then((response) => {
         dispatch(setTopic(response.data.term));
         setLoading(false);
