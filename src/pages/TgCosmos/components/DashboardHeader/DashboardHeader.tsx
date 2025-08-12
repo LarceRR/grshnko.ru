@@ -18,9 +18,9 @@ const DashboardHeader = () => {
     getPopularPosts();
   }, []);
 
-  useEffect(() => {
-    console.log(popularPosts);
-  }, [popularPosts]);
+  // useEffect(() => {
+  //   console.log(popularPosts);
+  // }, [popularPosts]);
 
   const { size } = useWindowSize();
 
