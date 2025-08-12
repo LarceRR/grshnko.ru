@@ -1,107 +1,50 @@
-import "./GeneratePost.scss";
-import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
-import axios from "axios";
-import { setTopic } from "../../../../features/currentTopicSlice";
-import { useState, useCallback } from "react";
-import TopicGetter from "./TopicGetter/TopicGetter";
-import CharacterSetter from "./CharacterSetter/CharacterSetter";
+import React, { useState } from "react";
+import ExplainTab from "../tabs/ExplainTab";
+import ParaphraseTab from "../tabs/ParaphraseTab";
 import AiAnswer from "./AiAnswer/AiAnswer";
-import TextArea from "antd/es/input/TextArea";
-import { setParaphrase } from "../../../../features/currentParaphraseArticleSlice";
-import { debounce } from "lodash";
+import "./GeneratePost.scss";
+import ChannelsTab from "../tabs/ChannelsTab/ChannelsTab";
 
-const GeneratePost = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [topicError, setTopicError] = useState<boolean>(false);
-  const [inputTopic, setInputTopic] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<"paraphrase" | "explain">(
-    "explain"
-  );
+type TabKey = "explain" | "paraphrase" | "channels";
 
-  const topic = useAppSelector((state) => state.topic.topic);
-  const dispatch = useAppDispatch();
+interface TabConfig {
+  key: TabKey;
+  label: string;
+  Component: React.FC; // <-- ключевое уточнение
+}
 
-  // Добавляем debounce для setParaphraseArticle
-  const debouncedSetParaphrase = useCallback(
-    debounce((article: string) => {
-      // console.log(article);
-      dispatch(setParaphrase(article));
-    }, 500), // Задержка 500ms
-    [dispatch]
-  );
+const TABS: TabConfig[] = [
+  { key: "explain", label: "Рассказать о теме", Component: ExplainTab },
+  { key: "paraphrase", label: "Перефразировать", Component: ParaphraseTab },
+  { key: "channels", label: "Каналы", Component: ChannelsTab }, // Заглушка для "Каналы"
+];
 
-  const setParaphraseArticle = (article: string) => {
-    debouncedSetParaphrase(article);
-  };
+export default function GeneratePost() {
+  const [activeTab, setActiveTab] = useState<TabKey>("explain");
 
-  const getTopic = () => {
-    setLoading(true);
-    axios
-      .get(import.meta.env.VITE_API_URL + "getRandomTerm")
-      .then((response) => {
-        dispatch(setTopic(response.data.term));
-        setLoading(false);
-        setTopicError(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-        setTopicError(true);
-        console.log(error);
-      });
-  };
+  const activeTabConfig = TABS.find((tab) => tab.key === activeTab);
 
   return (
     <div className="generate-post-wrapper">
       <div>
         <div className="tabs">
-          <button
-            className={`tab-button ${activeTab === "explain" ? "active" : ""}`}
-            onClick={() => setActiveTab("explain")}
-          >
-            Рассказать о теме
-          </button>
-          <div className="divider"></div>
-          <button
-            className={`tab-button ${
-              activeTab === "paraphrase" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("paraphrase")}
-          >
-            Перефразировать
-          </button>
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              className={`tab-button ${activeTab === tab.key ? "active" : ""}`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {activeTab === "explain" ? (
-          <>
-            <div className="generate-post-control">
-              <TopicGetter
-                loading={loading}
-                topicError={topicError}
-                topic={topic}
-                handleGetTopic={getTopic}
-                setInputTopic={setInputTopic}
-                inputTopic={inputTopic}
-              />
-              <CharacterSetter />
-            </div>
-          </>
-        ) : (
-          <div className="generate-post-buttons paraphrase">
-            <p>Введите текст, который хотите перефразировать</p>
-            <TextArea
-              showCount
-              className="generate-post-input"
-              maxLength={5000}
-              style={{ height: "550px", resize: "none" }}
-              onChange={(e) => setParaphraseArticle(e.target.value)}
-            />
-          </div>
-        )}
+        {activeTabConfig && <activeTabConfig.Component />}
       </div>
+
       <div className="divider"></div>
+
       <AiAnswer />
     </div>
   );
-};
-
-export default GeneratePost;
+}

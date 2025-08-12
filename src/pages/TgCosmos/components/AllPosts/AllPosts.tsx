@@ -4,29 +4,44 @@ import { Message } from "../../../../types/postTypes";
 import "./AllPosts.scss";
 import "dayjs/locale/ru";
 import PostItem from "./PostItem/PostItem";
+import { useQuery } from "@tanstack/react-query";
 
 const AllPosts = () => {
-  const { getAllPosts, posts, loading, error } = usePostController();
+  interface ApiResponse {
+    messages: Message[];
+  }
+
+  const {
+    data: allPosts,
+    isLoading: isPostsLoading,
+    error: postsError,
+  } = useQuery<ApiResponse>({
+    queryKey: ["getAllPosts"],
+    queryFn: () =>
+      fetch(
+        `${import.meta.env.VITE_API_URL}getAllMessages?channel=@saycosmos`
+      ).then((res) => res.json()),
+  });
 
   useEffect(() => {
-    getAllPosts();
-  }, []);
+    if (allPosts) {
+      console.log(allPosts);
+    }
+  }, [allPosts]);
 
-  if (loading) {
+  if (isPostsLoading) {
     return <div>Загрузка постов...</div>;
   }
 
-  if (error) {
+  if (postsError) {
     return <div>Произошла ошибка</div>;
   }
 
-  if (posts) {
+  if (allPosts) {
     return (
       <div className="all-posts-wrapper">
-        {posts.messages
-          .filter(
-            (post): post is Message => (post as Message).message !== undefined
-          )
+        {allPosts?.messages
+          .filter((post: Message) => post.message !== undefined)
           .map((post: Message) => (
             <PostItem key={post.id} post={post} />
           ))}

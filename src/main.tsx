@@ -6,15 +6,20 @@ import { App } from "./App";
 import { BrowserRouter } from "react-router-dom";
 import Navigator from "./components/Navigator/Navigator";
 import { Provider } from "react-redux";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import store from "./store/store";
+
+const queryClient = new QueryClient({});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <Navigator />
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Navigator />
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </QueryClientProvider>
   </StrictMode>
 );
