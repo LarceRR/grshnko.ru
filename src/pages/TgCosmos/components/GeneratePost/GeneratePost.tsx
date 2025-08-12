@@ -24,7 +24,7 @@ const GeneratePost = () => {
   // Добавляем debounce для setParaphraseArticle
   const debouncedSetParaphrase = useCallback(
     debounce((article: string) => {
-      console.log(article);
+      // console.log(article);
       dispatch(setParaphrase(article));
     }, 500), // Задержка 500ms
     [dispatch]

@@ -27,7 +27,7 @@ const usePostController = () => {
         "https://api.grshnko.ru/getAllMessages?channel=@saycosmos"
       );
       setPosts(response.data); // Устанавливаем данные из ответа
-      console.log(response);
+      // console.log(response);
     } catch (err) {
       setError("Ошибка при загрузке постов");
       console.error(err); // Логируем ошибку
@@ -78,7 +78,7 @@ const usePostController = () => {
 
       setPosts(response.data); // Устанавливаем все посты
       dispatch(updateServerStatus(response.data.serverData));
-      console.log(response.data.serverData.telegram.telegram_client_status);
+      // console.log(response.data.serverData.telegram.telegram_client_status);
 
       // Фильтруем посты, у которых есть поле "views"
       const filteredPosts = response.data.messages.filter(

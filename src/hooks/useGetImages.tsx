@@ -53,7 +53,7 @@ const useGetImages = () => {
   }, [fetchImages]);
 
   useEffect(() => {
-    console.log(topic);
+    // console.log(topic);
     fetchImages();
   }, [topic]);
 

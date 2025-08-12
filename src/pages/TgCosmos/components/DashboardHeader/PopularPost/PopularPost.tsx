@@ -20,9 +20,9 @@ const PopularPost: React.FC<IPopularPostProps> = ({ popularPosts }) => {
     if (popularPosts) getPostPhotos(popularPosts[0]);
   }, [popularPosts]);
 
-  useEffect(() => {
-    if (postPhotos) console.log(postPhotos);
-  }, [postPhotos]);
+  // useEffect(() => {
+  //   if (postPhotos) console.log(postPhotos);
+  // }, [postPhotos]);
 
   const handleOpenModal = () => {
     setIsModalOpen(!isModalOpen);
