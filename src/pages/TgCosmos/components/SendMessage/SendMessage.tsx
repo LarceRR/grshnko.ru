@@ -27,7 +27,7 @@ const SendMessage = () => {
         }
 
         const response = await axios.post(
-          "https://api.grshnko.ru/sendMessage",
+          `${import.meta.env.VITE_API_URL}sendMessage`,
           formData.toString(),
           {
             headers: {

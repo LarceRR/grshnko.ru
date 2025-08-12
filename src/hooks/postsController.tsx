@@ -24,7 +24,7 @@ const usePostController = () => {
 
     try {
       const response = await axios.get<IAxiosServerResponse>(
-        "https://api.grshnko.ru/getAllMessages?channel=@saycosmos"
+        `${import.meta.env.VITE_API_URL}getAllMessages?channel=@saycosmos`
       );
       setPosts(response.data); // Устанавливаем данные из ответа
       // console.log(response);
@@ -42,7 +42,7 @@ const usePostController = () => {
 
     try {
       const response = await axios.post(
-        "https://api.grshnko.ru/getPostPhotos",
+        `${import.meta.env.VITE_API_URL}getPostPhotos`,
         { messageId: message.id, channel: "@saycosmos" }, // Передаем message в теле запроса
         {
           headers: {
@@ -73,7 +73,7 @@ const usePostController = () => {
 
     try {
       const response = await axios.get<IAxiosServerResponse>(
-        "https://api.grshnko.ru/getAllMessages?channel=@saycosmos"
+        `${import.meta.env.VITE_API_URL}getAllMessages?channel=@saycosmos`
       );
 
       setPosts(response.data); // Устанавливаем все посты
