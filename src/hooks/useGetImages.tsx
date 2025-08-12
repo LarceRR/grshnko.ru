@@ -33,7 +33,7 @@ const useGetImages = () => {
 
     try {
       const response = await axios.get<IImage[]>(
-        `${url}/getGoogleImages?query=${query}`
+        `${url}getGoogleImages?query=${query}`
       );
       dispatch(setImages(response.data));
       setError(null);
