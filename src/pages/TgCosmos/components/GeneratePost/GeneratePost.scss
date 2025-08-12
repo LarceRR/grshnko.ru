@@ -10,7 +10,7 @@
     width: 100%;
     max-width: 1420px;
 
-    & > div {
+    & > div:nth-child(1) {
         width: 100%;
     }
 
@@ -113,7 +113,7 @@
     }
     
     .generate-post-control {
-        width: 370px;
+        width: 100%;
         gap: 20px;
         display: flex;
         flex-direction: column;
@@ -179,4 +179,12 @@
             }
         }
     }
+}
+
+:where(.css-240cud).ant-btn-variant-outlined, :where(.css-240cud).ant-btn-variant-dashed {
+    border-color: unset!important;
+}
+
+:where(.css-240cud).ant-btn-variant-outlined:disabled, :where(.css-240cud).ant-btn-variant-dashed:disabled, :where(.css-240cud).ant-btn-variant-outlined.ant-btn-disabled, :where(.css-240cud).ant-btn-variant-dashed.ant-btn-disabled {
+    border-color: unset!important;
 }
