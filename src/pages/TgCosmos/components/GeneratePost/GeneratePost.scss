@@ -183,8 +183,10 @@
 
 :where(.css-240cud).ant-btn-variant-outlined, :where(.css-240cud).ant-btn-variant-dashed {
     border-color: unset!important;
+    border: 0px!important;
 }
 
 :where(.css-240cud).ant-btn-variant-outlined:disabled, :where(.css-240cud).ant-btn-variant-dashed:disabled, :where(.css-240cud).ant-btn-variant-outlined.ant-btn-disabled, :where(.css-240cud).ant-btn-variant-dashed.ant-btn-disabled {
     border-color: unset!important;
+    border: 0px!important;
 }
