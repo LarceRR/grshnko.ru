@@ -10,6 +10,10 @@
     width: 100%;
     max-width: 1420px;
 
+    & > div {
+        width: 100%;
+    }
+
     .paraphrase {
         textarea {
             font-size: 16px!important;
@@ -84,7 +88,8 @@
     }
 
     .tab-button {
-        padding: 10px 20px;
+        width: 100%;
+        padding: 10px 0px;
         background: none;
         border: none;
         white-space: nowrap;
