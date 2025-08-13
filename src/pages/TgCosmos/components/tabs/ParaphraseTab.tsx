@@ -6,7 +6,7 @@ import { useAppDispatch } from "../../../../store/hooks";
 
 interface IParaphraseTabProps {}
 
-const ParaphraseTab: React.FC<IParaphraseTabProps> = (props) => {
+const ParaphraseTab: React.FC<IParaphraseTabProps> = () => {
   const dispatch = useAppDispatch();
 
   // Добавляем debounce для setParaphraseArticle

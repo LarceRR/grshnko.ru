@@ -7,7 +7,7 @@ import { Message } from "../../../../../types/postTypes";
 
 interface IChannelsTabProps {}
 
-const ChannelsTab: React.FC<IChannelsTabProps> = (props) => {
+const ChannelsTab: React.FC<IChannelsTabProps> = () => {
   const {
     data: channels,
     isLoading: isChannelsLoading,
@@ -24,11 +24,7 @@ const ChannelsTab: React.FC<IChannelsTabProps> = (props) => {
     channels?.channels[0]?.id || "@saycosmos"
   );
 
-  const {
-    data: messages,
-    isLoading: isMessagesLoading,
-    error: messagesError,
-  } = useQuery({
+  const { data: messages, isLoading: isMessagesLoading } = useQuery({
     queryKey: ["getAllMessagesFromChannelId", channelId],
     queryFn: () =>
       fetch(

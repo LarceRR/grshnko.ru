@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import usePostController from "../../../../hooks/postsController";
 import { Message } from "../../../../types/postTypes";
 import "./AllPosts.scss";
 import "dayjs/locale/ru";

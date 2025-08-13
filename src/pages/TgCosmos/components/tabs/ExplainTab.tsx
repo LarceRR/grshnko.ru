@@ -1,14 +1,13 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import TopicGetter from "../GeneratePost/TopicGetter/TopicGetter";
 import CharacterSetter from "../GeneratePost/CharacterSetter/CharacterSetter";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import axios from "axios";
 import { setTopic } from "../../../../features/currentTopicSlice";
-import { debounce } from "lodash";
 
 interface IExplainTabProps {}
 
-const ExplainTab: React.FC<IExplainTabProps> = (props) => {
+const ExplainTab: React.FC<IExplainTabProps> = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [topicError, setTopicError] = useState<boolean>(false);
   const [inputTopic, setInputTopic] = useState<string>("");
