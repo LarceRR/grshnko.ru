@@ -79,7 +79,7 @@ export const useAiAnswer = () => {
       };
     }
     return {
-      icon: <img src="/src/assets/openai.svg" alt="OpenAI" />,
+      icon: <img src="/openai.svg" alt="OpenAI" />,
       loading: false,
     };
   }, [ai_loading, ai_error]);
