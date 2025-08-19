@@ -1,14 +1,16 @@
 {
   "name": "grshnko.ru",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "release": "node release.js"
+    "release": "standard-version && git push --follow-tags origin main",
+    "release:minor": "standard-version --release-as minor && git push --follow-tags origin main",
+    "release:patch": "standard-version --release-as patch && git push --follow-tags origin main"
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
