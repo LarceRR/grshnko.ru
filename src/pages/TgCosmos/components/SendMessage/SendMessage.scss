@@ -4,11 +4,20 @@
     align-items: flex-start;
     justify-content: flex-end;
     padding: 20px 30px;
-    border-radius: 20px;
+    border-radius: 10px;
     background-color: var(--card-background);
     border: var(--input-border) solid 1px;
     width: 100%;
     max-width: 1420px;
+
+    .send-post__error-message {
+        width: 100%;
+        display: flex;
+        line-height: 30px;
+        justify-content: center;
+        align-items: center;
+        color: var(--notification-error-text);
+    }
 
     .send-post-button {
         background-color: var(--button-primary-bg)!important;

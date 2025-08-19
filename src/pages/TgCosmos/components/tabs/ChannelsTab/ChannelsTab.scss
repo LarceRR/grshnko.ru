@@ -1,11 +1,109 @@
 .channels-list {
+    margin: 30px 0px;
     display: flex;
-    gap: 10px;
+    gap: 30px;
     overflow-x: auto;
     width: 100%;
-    margin-bottom: 10px;
+    justify-content: center;
+    align-items: center;
+
+    @media screen and (max-width: 767px) {
+        margin: 20px 0px;
+        gap: 10px;
+        justify-content: flex-start;
+    }
 
     &::-webkit-scrollbar {
-        height: 4px;
+        height: 2px;
+        display: none;
+    }
+}
+
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    width: 100%;
+    padding-right: 10px;
+    gap: 20px;
+    height: 400px;
+
+    &::-webkit-scrollbar {
+        width: 2px;
+    }
+
+    @media screen and (max-width: 767px) {
+        padding-right: 2px;
+        gap: 6px;
+    }
+
+    .post-item-image {
+        padding: 10px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            border-radius: 5px;
+        }
+    }
+
+    .post-item-wrapper {
+        display: flex;
+        overflow: unset;
+        flex: 1;
+        width: 100%;
+        max-width: unset;
+        height: 80px;
+        min-height: 80px;
+        justify-content: space-between;
+
+        .post-item-message {
+            overflow: hidden;
+            height: 90%;
+            width: 800px;
+            word-wrap: break-word;
+            padding: 10px;
+            line-height: 20px;
+            max-height: 75px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            text-overflow: ellipsis;
+
+            @media screen and (max-width: 767px) {
+                height: 60%;
+                font-size: 14px;
+                -webkit-line-clamp: 2;
+            }
+        }
+
+        .emoji-wrapper {
+            padding: 10px;
+            width: 25%;
+
+            @media screen and (max-width: 767px) {
+                display: none;
+            }
+
+            & > div > div {
+                width: fit-content;
+                min-height: 25px;
+                max-height: 25px;
+                padding-inline: 4px;
+                border-radius: 50px;
+                background-color: var(--border-color);
+            }
+
+            & > div > div img {
+                height: 15px;
+                width: 15px;
+            }
+        }
+
+        img {
+            max-height: 400px;
+        }
     }
 }

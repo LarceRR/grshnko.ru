@@ -101,6 +101,7 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
           type="primary"
           className="generate-post-input"
           onChange={(e) => setInputTopic(e.target.value)}
+          placeholder="Введите тему"
         />
         <Button
           type="primary"

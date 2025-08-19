@@ -13,13 +13,16 @@ const EmojiWrapper: React.FC<IEmojiWrapperProps> = ({ post }) => {
       <div>
         {post &&
           post.reactions?.results.map((item, index) => {
+            const emojiUrl = getEmojiUrl(item.reaction.emoticon);
             return (
               <div key={index}>
-                <img
-                  width="20px"
-                  src={getEmojiUrl(item.reaction.emoticon) ?? ""}
-                  alt={item.reaction.emoticon}
-                />
+                {emojiUrl && ( // Only render img if emojiUrl exists
+                  <img
+                    width="20px"
+                    src={emojiUrl}
+                    alt={item.reaction.emoticon}
+                  />
+                )}
                 <span>{item.count}</span>
               </div>
             );

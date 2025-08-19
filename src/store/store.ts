@@ -5,6 +5,7 @@ import imagesReducer from "../features/imagesSlice";
 import characterReducer from "../features/characterSlice";
 import ai_responseSlice from "../features/aiResponceSlice";
 import serverStatusSlice from "../features/systemStatusSlice";
+import tabSlice from "../features/tabsSlide";
 
 export const store = configureStore({
   reducer: {
@@ -12,7 +13,8 @@ export const store = configureStore({
     images: imagesReducer,
     character: characterReducer,
     ai_response: ai_responseSlice,
-    serverStatus: serverStatusSlice
+    serverStatus: serverStatusSlice,
+    currentTab: tabSlice
   },
 });
 

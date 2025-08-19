@@ -8,6 +8,7 @@
     width: 100%;
 
     .post-item-image {
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -61,6 +62,7 @@
     }
 
     .post-item-message {
+        word-wrap: break-word;
         padding: 10px 10px 40px 10px;
         line-height: 25px;
     }
@@ -99,4 +101,8 @@
             color: var(--text-secondary);
         }
     }
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-image .ant-image-img {
+    height: 100%;
 }

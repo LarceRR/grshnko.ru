@@ -20,12 +20,12 @@ const ImageComponent: React.FC<IImageComponentProps> = ({
         outline: selectedImages.includes(image) ? "3px solid #2f77c8" : "",
       }}
     >
-      <Image
+      <img
         onClick={(e) => e.stopPropagation()}
         className="blured_image"
-        src={image.thumbnail.url}
+        src={image.url}
         alt="no image"
-      ></Image>
+      ></img>
       <div className="white-cover-image"></div>
       <Image className="image" src={image.url} alt="no image"></Image>
       <div

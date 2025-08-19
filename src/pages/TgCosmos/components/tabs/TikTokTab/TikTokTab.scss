@@ -1,0 +1,117 @@
+.tiktok {
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+
+    .tiktok__inner-wrapper {
+        display: flex;
+        height: auto;
+        gap: 20px;
+        flex-direction: column;
+    }
+
+    .tiktok__inner-wrapper__withDescription {
+        height: 100%;
+    }
+
+    .tiktok__inner-wrapper__description {
+        height: 100%;
+        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.5;
+
+        .channel-info__wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            i {
+                margin-left: 10px;
+            }
+        }
+    }
+
+    .tiktok-input-wrapper {
+        display: flex;
+        gap: 20px;
+        
+        input {
+        padding: 0px 6px;
+
+        .generate-post-button {
+            background-color: var(--button-primary-bg);
+            border: unset;
+            color: white;
+        }
+        
+        /* Стандартные браузеры */
+        &::placeholder {
+            color: gray; /* Замените на нужный цвет */
+            opacity: 1; /* Убедитесь, что opacity равен 1 */
+        }
+        
+        /* WebKit браузеры (Chrome, Safari, Edge) */
+        &::-webkit-input-placeholder {
+            color: gray; /* Замените на нужный цвет */
+            opacity: 1;
+        }
+        
+        /* Firefox 4-18 */
+        &:-moz-placeholder {
+            color: gray; /* Замените на нужный цвет */
+            opacity: 1;
+        }
+        
+        /* Firefox 19+ */
+        &::-moz-placeholder {
+            color: gray; /* Замените на нужный цвет */
+            opacity: 1;
+        }
+        
+        /* Internet Explorer 10-11 */
+        &:-ms-input-placeholder {
+            color: gray; /* Замените на нужный цвет */
+            opacity: 1;
+        }
+        
+        /* Edge */
+        &::-ms-input-placeholder {
+            color: gray; /* Замените на нужный цвет */
+            opacity: 1;
+        }
+    }
+    }
+
+    .tiktok-video-wrapper {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 20px;
+
+        @media screen and (max-width: 768px) {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video {
+            border-radius: 10px;
+            aspect-ratio: 9 / 16;
+            height: 450px;
+
+            @media screen and (max-width: 768px) {
+                height: 100%;
+                width: 100%;
+            }
+        }
+    }
+
+    .channel-info__wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+}

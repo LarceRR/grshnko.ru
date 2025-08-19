@@ -42,6 +42,12 @@
     border-radius: 6px; /* Закругление углов ползунка */ /* Отступ между ползунком и треком */
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 html {
     scroll-behavior: smooth;
     background-color: var(--background-color);
@@ -100,7 +106,44 @@ body {
   strong {
     font-weight: 700; /* Жирное начертание для элемента <strong> */
   }
+
+input {
+  /* Стандартные браузеры */
+  &::placeholder {
+      color: gray!important; 
+      opacity: 1;
+  }
   
+  /* WebKit браузеры (Chrome, Safari, Edge) */
+  &::-webkit-input-placeholder {
+      color: gray!important; 
+      opacity: 1;
+  }
+  
+  /* Firefox 4-18 */
+  &:-moz-placeholder {
+      color: gray!important; 
+      opacity: 1;
+  }
+  
+  /* Firefox 19+ */
+  &::-moz-placeholder {
+      color: gray!important; 
+      opacity: 1;
+  }
+  
+  /* Internet Explorer 10-11 */
+  &:-ms-input-placeholder {
+      color: gray!important; 
+      opacity: 1;
+  }
+  
+  /* Edge */
+  &::-ms-input-placeholder {
+      color: gray!important; 
+      opacity: 1;
+  }
+}  
 
 :root {
     /* 🎨 Основные цвета */

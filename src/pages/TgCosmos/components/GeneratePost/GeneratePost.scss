@@ -3,15 +3,24 @@
     gap: 30px;
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 10px 30px;
-    border-radius: 20px;
+    border-radius: 10px;
     background-color: var(--card-background);
     border: var(--input-border) solid 1px;
+    padding: 0px 0px 20px 0px;
     width: 100%;
     max-width: 1420px;
 
     & > div:nth-child(1) {
         width: 100%;
+    }
+
+    .tab-content {
+        padding-inline: 30px;
+
+        @media screen and (max-width: 767px) {
+            padding-inline: 15px;
+
+        }
     }
 
     .paraphrase {
@@ -45,6 +54,10 @@
             justify-content: space-between;
             gap: 10px;
 
+            input {
+                padding: 4px 6px;                
+            }
+
             .generate-post-button {
                 width: 100%;
             }
@@ -66,6 +79,11 @@
         border: var(--input-border) solid 1px;
         color: var(--text-color);
         border-radius: 5px;
+        padding: 14px;
+
+        p {
+            font-size: 16px;
+        }
 
         &:hover {
             border: unset;
@@ -75,7 +93,7 @@
     @media screen and (max-width: 1028px) {
         flex-direction: column;
         gap: 15px;
-        padding: 10px 15px;
+        padding: 0px 0px 10px 0px;
 
         .generate-post-control {
             width: 100%;
@@ -84,11 +102,33 @@
 
     .tabs {
         display: flex;
+        border-bottom: 1px solid var(--border-color);
         margin-bottom: 20px;
+        padding: 10px;
+        justify-content: space-around;
+
+        @media screen and (max-width: 767px) {
+            overflow-x: scroll;
+            gap: 20px;
+            padding: 10px 30px;
+            
+            // Стили для скроллбара
+            &::-webkit-scrollbar {
+                height: 2px; // Высота всего скроллбара
+            }
+            
+            &::-webkit-scrollbar-track {
+                height: 2px;
+            }
+            
+            &::-webkit-scrollbar-thumb {
+                height: 2px;
+            }
+        }
     }
 
     .tab-button {
-        width: 100%;
+        width: auto;
         padding: 10px 0px;
         background: none;
         border: none;
@@ -103,11 +143,21 @@
         }
 
         &.active {
-            color: #ffffff;
+            color: var(--nav-text-active);
             border-bottom: 2px solid var(--button-primary-bg);
 
             &:hover {
-                color: #ffffff;
+                color: var(--button-secondary-text);
+            }
+
+            @media screen and (max-width: 767px) {
+                color: var(--button-primary-bg);
+                border: unset;
+
+                // перекрываем hover именно для мобилки
+                &:hover {
+                color: var(--button-primary-bg);
+                }
             }
         }
     }
@@ -170,8 +220,8 @@
             border-radius: 5px;
 
             p {
-                font-size: 14px;
-                line-height: 22px;
+                font-size: 15px;
+                line-height: 30px;
             }
 
             @media screen and (max-width: 1028px) {

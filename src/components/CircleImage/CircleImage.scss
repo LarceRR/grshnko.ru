@@ -4,13 +4,19 @@
     align-items: center;
     justify-content: flex-start;
     width: 70px;
-    height: 100px;
+    height: auto;
     min-width: 60px;
+    cursor: pointer;
 
     img {
         width: 50px;
         height: 50px;
         border-radius: 50px;
+
+        @media screen and (max-width: 767px) {
+            width: 40px;
+            height: 40px;
+        }
     }
 
     span {
@@ -22,5 +28,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        @media screen and (max-width: 767px) {
+            margin-top: 5px;
+            max-width: 56px;
+            font-size: 12px;
+        }
     }
 }

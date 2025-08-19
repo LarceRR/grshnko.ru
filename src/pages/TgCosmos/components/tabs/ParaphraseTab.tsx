@@ -29,7 +29,7 @@ const ParaphraseTab: React.FC<IParaphraseTabProps> = () => {
         showCount
         className="generate-post-input"
         maxLength={5000}
-        style={{ height: "550px", resize: "none" }}
+        style={{ height: "200px", resize: "none" }}
         onChange={(e) => setParaphraseArticle(e.target.value)}
       />
     </div>

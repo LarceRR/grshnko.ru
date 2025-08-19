@@ -4,6 +4,7 @@ import CircleImage from "../../../../../components/CircleImage/CircleImage";
 import "./ChannelsTab.scss";
 import { Skeleton } from "antd";
 import { Message } from "../../../../../types/postTypes";
+import PostItem from "../../AllPosts/PostItem/PostItem";
 
 interface IChannelsTabProps {}
 
@@ -53,7 +54,7 @@ const ChannelsTab: React.FC<IChannelsTabProps> = () => {
   if (error) return <div>Ошибка загрузки</div>;
 
   return (
-    <div style={{ width: "100%", maxWidth: "629px" }}>
+    <div style={{ width: "100%" }}>
       {channels && channels.channels.length > 0 ? (
         <>
           <div className="channels-list">
@@ -63,8 +64,16 @@ const ChannelsTab: React.FC<IChannelsTabProps> = () => {
                 src={channel.avatar}
                 alt={channel.title}
                 size={50}
+                imageStyle={{
+                  border:
+                    channelId === channel.id
+                      ? "2px solid var(--input-focus)"
+                      : undefined,
+                }}
                 text={channel.title}
-                textColor="#000"
+                textStyle={{
+                  color: channelId === channel.id ? "black" : "gray",
+                }}
                 onClick={() => {
                   setChannelId(`${channel.id}`);
                   console.log(channel);
@@ -75,11 +84,8 @@ const ChannelsTab: React.FC<IChannelsTabProps> = () => {
           <div>
             {!isMessagesLoading && messages && (
               <div className="messages-list">
-                {messages.messages.map((message: Message) => (
-                  <span key={message.id}>
-                    {message.message}
-                    <br></br>
-                  </span>
+                {messages.messages.map((message: Message, id: number) => (
+                  <PostItem post={message} key={id} />
                 ))}
               </div>
             )}

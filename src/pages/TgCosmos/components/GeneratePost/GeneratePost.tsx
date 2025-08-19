@@ -1,23 +1,6 @@
-import React, { useState } from "react";
-import ExplainTab from "../tabs/ExplainTab";
-import ParaphraseTab from "../tabs/ParaphraseTab";
-import AiAnswer from "./AiAnswer/AiAnswer";
+import { useState } from "react";
+import { TabKey, TABS } from "../tabs/tabs-array";
 import "./GeneratePost.scss";
-import ChannelsTab from "../tabs/ChannelsTab/ChannelsTab";
-
-type TabKey = "explain" | "paraphrase" | "channels";
-
-interface TabConfig {
-  key: TabKey;
-  label: string;
-  Component: React.FC; // <-- ключевое уточнение
-}
-
-const TABS: TabConfig[] = [
-  { key: "explain", label: "Рассказать о теме", Component: ExplainTab },
-  { key: "paraphrase", label: "Перефразировать", Component: ParaphraseTab },
-  { key: "channels", label: "Каналы", Component: ChannelsTab }, // Заглушка для "Каналы"
-];
 
 export default function GeneratePost() {
   const [activeTab, setActiveTab] = useState<TabKey>("explain");
@@ -39,12 +22,13 @@ export default function GeneratePost() {
           ))}
         </div>
 
-        {activeTabConfig && <activeTabConfig.Component />}
+        {activeTabConfig && (
+          <div className="tab-content">
+            <activeTabConfig.Component />
+            <div className="divider"></div>
+          </div>
+        )}
       </div>
-
-      <div className="divider"></div>
-
-      <AiAnswer />
     </div>
   );
 }

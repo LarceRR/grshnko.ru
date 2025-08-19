@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import TopicGetter from "../GeneratePost/TopicGetter/TopicGetter";
-import CharacterSetter from "../GeneratePost/CharacterSetter/CharacterSetter";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import axios from "axios";
 import { setTopic } from "../../../../features/currentTopicSlice";
@@ -40,7 +39,6 @@ const ExplainTab: React.FC<IExplainTabProps> = () => {
         setInputTopic={setInputTopic}
         inputTopic={inputTopic}
       />
-      <CharacterSetter />
     </div>
   );
 };
