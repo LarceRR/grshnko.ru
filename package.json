@@ -8,10 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "release": "standard-version",
-    "release:minor": "standard-version --release-as minor postrelease",
-    "release:patch": "standard-version --release-as patch postrelease",
-    "postrelease": "git push --follow-tags origin main"
+    "release": "standard-version && git push --follow-tags origin main",
+    "release:minor": "standard-version --release-as minor && git push --follow-tags origin main",
+    "release:patch": "standard-version --release-as patch && git push --follow-tags origin main"
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
