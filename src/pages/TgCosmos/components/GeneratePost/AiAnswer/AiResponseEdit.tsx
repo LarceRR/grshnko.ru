@@ -23,7 +23,7 @@ export const AiResponseEdit: React.FC<AiResponseEditProps> = ({
   }, [isEditing]);
 
   return (
-    <div ref={wrapperRef} style={{ height: "100%", width: "100%" }}>
+    <div ref={wrapperRef} className="ai-response-edit__wrapper">
       <TextArea
         ref={textAreaRef}
         showCount
