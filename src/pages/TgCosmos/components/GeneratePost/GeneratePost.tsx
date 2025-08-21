@@ -11,15 +11,20 @@ export default function GeneratePost() {
     <div className="generate-post-wrapper">
       <div>
         <div className="tabs">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              className={`tab-button ${activeTab === tab.key ? "active" : ""}`}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {TABS.map(
+            (tab) =>
+              tab.enabled && (
+                <button
+                  key={tab.key}
+                  className={`tab-button ${
+                    activeTab === tab.key ? "active" : ""
+                  }`}
+                  onClick={() => setActiveTab(tab.key)}
+                >
+                  {tab.label}
+                </button>
+              )
+          )}
         </div>
 
         {activeTabConfig && (

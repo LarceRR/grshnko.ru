@@ -11,7 +11,7 @@ export interface TabConfig {
   label: string;
   Component: React.FC;
   aiAnswer: boolean;
-  
+  enabled: boolean;
 }
 
 export const TABS: TabConfig[] = [
@@ -20,23 +20,27 @@ export const TABS: TabConfig[] = [
     label: "Рассказать о теме",
     Component: ExplainTab,
     aiAnswer: true,
+    enabled: true,
   },
   {
     key: "paraphrase",
     label: "Перефразировать",
     Component: ParaphraseTab,
     aiAnswer: true,
+    enabled: true,
   },
   { 
     key: "channels", 
     label: "Каналы", 
     Component: ChannelsTab, 
-    aiAnswer: true 
-},
+    aiAnswer: true,
+    enabled: false,
+  },
   { 
     key: "tiktok", 
     label: "TikTok", 
     Component: TikTokTab, 
-    aiAnswer: true 
+    aiAnswer: true,
+    enabled: true,
     },
 ];

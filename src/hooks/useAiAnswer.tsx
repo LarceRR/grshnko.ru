@@ -4,6 +4,8 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import useAiController from "./useAiController";
 import { GenerateButtonConfig } from "../types/aiAnswer";
 import { setAiResponse } from "../features/aiResponceSlice";
+import { AIModelType } from "../pages/TgCosmos/components/GeneratePost/AiAnswer/ai-models-array";
+import { useNotify } from "./useNotify";
 
 export const useAiAnswer = () => {
   const { ai_response, ai_loading, ai_error, ai_isMarkdownLocked } =
@@ -12,16 +14,37 @@ export const useAiAnswer = () => {
   const dispatch = useAppDispatch();
 
   const [isEditing, setIsEditing] = useState(true);
+  const [aiPrompt, setAiPrompt] = useState<string>("");
+  const [model, setModel] = useState<AIModelType>({
+    modelId: "deepseek/deepseek-chat-v3-0324:free",
+    text: "DeepSeek: DeepSeek V3 0324 (free)",
+    icon: "/deepseek-white.svg",
+  });
   const textAreaWrapperRef = useRef<HTMLDivElement>(null);
 
-  const aiPrompt = `Объясни, что такое - ${topic.term} будто ты пишешь пост для телеграм-канала. От 600 до 800 символов. Тему поста и интересные детали выдели жирным, но выбирай ооочень точечно, чтобы было 10-20% жирного текста. Не добавляй свои комментарии. Представь, что ты лучший в мире эксперт в социальных сетях. Пост должен быть цепляющим. Аудитория возрастом от 15 до 70 лет. Ты должен быть серьезным. Не используй эмоджи. Твоя сфера - космос, природа, физика, химия, биология и прочие науки. Начни пост с определения. Добавь 5 лучших хештегов по теме (не пиши "Хештеги:")`;
+  const { notify, contextHolder } = useNotify();
 
   const { generatePost, cancelGeneration } = useAiController({
+    model: model,
     prompt: aiPrompt,
     onGenerating: () => console.log("Генерация началась"),
     onGenerated: (response) => console.log("Генерация завершена:", response),
-    onError: (error) => console.error("Произошла ошибка:", error),
+    onError: (error) => {
+      notify({
+        title: "Ошибка",
+        body: error.message,
+        type: "error",
+      });
+    },
   });
+
+  useEffect(() => {
+    setAiPrompt(
+      `Объясни, что такое - "${
+        topic.term ?? "ТЕМА НЕ ВЫБРАНА"
+      }" будто ты пишешь пост для телеграм-канала. От 600 до 800 символов. Тему поста и интересные детали выдели жирным, но выбирай ооочень точечно, чтобы было 10-20% жирного текста. Не добавляй свои комментарии. Представь, что ты лучший в мире эксперт в социальных сетях. Пост должен быть цепляющим. Аудитория возрастом от 15 до 70 лет. Ты должен быть серьезным. Не используй эмоджи. Твоя сфера - космос, природа, физика, химия, биология и прочие науки. Начни пост с определения. Добавь 5 лучших хештегов по теме (не пиши "Хештеги:")`
+    );
+  }, [topic.term]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -79,10 +102,11 @@ export const useAiAnswer = () => {
       };
     }
     return {
-      icon: <img src="/openai.svg" alt="OpenAI" />,
+      text: model.text,
+      icon: <img src={model.icon ?? "/openai.svg"} alt={model.text} />,
       loading: false,
     };
-  }, [ai_loading, ai_error]);
+  }, [ai_loading, ai_error, model]);
 
   return {
     aiResponse: ai_response,
@@ -90,7 +114,11 @@ export const useAiAnswer = () => {
     isError: ai_error,
     isMarkdownLocked: ai_isMarkdownLocked,
     isEditing,
+    contextHolder,
     textAreaWrapperRef,
+    aiPrompt,
+    setModel,
+    setAiPrompt,
     handleGenerate,
     handleToggleEdit,
     handleTextChange,

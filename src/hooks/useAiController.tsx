@@ -8,8 +8,10 @@ import {
   setIsAiAlreadyAsked,
 } from "../features/aiResponceSlice";
 import { useAppSelector } from "../store/hooks";
+import { AIModelType } from "../pages/TgCosmos/components/GeneratePost/AiAnswer/ai-models-array";
 
 interface UseAiControllerProps {
+  model: AIModelType;
   prompt: string;
   onGenerating?: () => void;
   onGenerated?: (response: string) => void;
@@ -17,6 +19,7 @@ interface UseAiControllerProps {
 }
 
 const useAiController = ({
+  model,
   prompt,
   onGenerating,
   onGenerated,
@@ -50,6 +53,7 @@ const useAiController = ({
       const url = new URL(`${import.meta.env.VITE_API_URL}generate`);
       url.searchParams.set("message", prompt);
       url.searchParams.set("personality", character);
+      url.searchParams.set("model", model.modelId);
 
       // Выполняем запрос к серверу с поддержкой отмены
       const response = await fetch(url.toString(), {
@@ -58,7 +62,16 @@ const useAiController = ({
 
       // Проверяем статус ответа
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json(); // читаем JSON с сервера
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          // игнорируем ошибки парсинга JSON
+        }
+        throw new Error(errorMessage);
       }
 
       // Проверяем поддержку ReadableStream

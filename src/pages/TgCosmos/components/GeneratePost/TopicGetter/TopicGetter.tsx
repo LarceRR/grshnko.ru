@@ -1,11 +1,10 @@
 import { Input } from "antd";
 import { Ban, ArrowRight, Plus } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch } from "../../../../../store/hooks";
 import { setTopic } from "../../../../../features/currentTopicSlice";
 import Button from "../../../../../components/custom-components/custom-button";
-import Checkbox from "../../../../../components/custom-components/custom-checkbox/custom-checkbox";
 
 interface ITopicGetterProps {
   loading: boolean;
@@ -24,7 +23,6 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
   setInputTopic,
   inputTopic,
 }) => {
-  const [isSplitterChecked, setIsSplitterChecked] = useState(false);
   const dispatch = useAppDispatch();
 
   const setCustomTopic = () => {
@@ -77,7 +75,7 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
       >
         Выбрать тему
       </Button>
-      <Button
+      {/* <Button
         type="primary"
         className="generate-post-button"
         style={{ marginTop: "15px" }}
@@ -95,7 +93,7 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
           onChange={() => setIsSplitterChecked(!isSplitterChecked)}
           disabled
         ></Checkbox>
-      </div>
+      </div> */}
       <div className="generate-post-button-splitter">
         <Input
           type="primary"
