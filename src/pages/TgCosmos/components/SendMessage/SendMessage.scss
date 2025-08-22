@@ -10,6 +10,13 @@
     width: 100%;
     max-width: 1420px;
 
+    @media screen and (max-width: 767px) {
+        flex-direction: column-reverse;
+        align-items: center;
+        text-align: center;
+        
+    }
+
     .send-post__error-message {
         width: 100%;
         display: flex;

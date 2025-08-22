@@ -91,6 +91,16 @@
         align-items: flex-start;
         gap: 20px;
 
+        .tiktok-video-wrapper__video {
+            aspect-ratio: 9 / 16;
+            height: 450px;
+            position: relative;
+
+            @media screen and (max-width: 767px) {
+                height: auto;
+            }
+        }
+
         @media screen and (max-width: 768px) {
             flex-direction: column;
             align-items: center;
@@ -99,8 +109,6 @@
 
         video {
             border-radius: 10px;
-            aspect-ratio: 9 / 16;
-            height: 450px;
 
             @media screen and (max-width: 768px) {
                 height: 100%;

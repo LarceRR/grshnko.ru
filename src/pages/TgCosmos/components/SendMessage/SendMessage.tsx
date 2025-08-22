@@ -4,14 +4,20 @@ import { Ban } from "lucide-react";
 import { useAppSelector } from "../../../../store/hooks";
 import axios, { AxiosError } from "axios";
 import Button from "../../../../components/custom-components/custom-button";
+import { useNotify } from "../../../../hooks/useNotify";
+import SendPostNotification from "./SendPostNotification/SendPostNotification";
 
 const SendMessage = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<AxiosError | null>(null);
+
+  const { notify, contextHolder } = useNotify();
+
+  const currentVideo = useAppSelector((state) => state.currentVideo.video);
   const { ai_response, ai_loading } = useAppSelector(
     (state) => state.ai_response
   );
   const { selectedImages } = useAppSelector((state) => state.images);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<AxiosError | null>(null);
 
   const handleSendPost = async () => {
     if (ai_response) {
@@ -20,9 +26,15 @@ const SendMessage = () => {
         const formData = new URLSearchParams();
         formData.append("message", ai_response);
 
+        // Отправка изображений
         const photosArray = selectedImages?.map((image) => image.url) || [];
         if (photosArray.length > 0) {
           formData.append("photos", JSON.stringify(photosArray));
+        }
+
+        // Отправка информации о видео, если оно есть
+        if (currentVideo && Object.keys(currentVideo).length > 0) {
+          formData.append("videos", JSON.stringify(currentVideo.fullUrl) || "");
         }
 
         const response = await axios.post(
@@ -36,6 +48,17 @@ const SendMessage = () => {
         );
 
         console.log(response.data);
+        notify({
+          title: "Пост успешно отправлен!",
+          body: (
+            <SendPostNotification
+              aiText={ai_response || ""}
+              videosSent={response.data.details.videosSent}
+              photosSent={response.data.details.photosSent}
+            />
+          ),
+          type: "success",
+        });
         setLoading(false);
         setError(null);
       } catch (err) {
@@ -52,6 +75,7 @@ const SendMessage = () => {
 
   return (
     <div className="send-post-wrapper">
+      {contextHolder}
       <span className="send-post__error-message">
         {error &&
           "Произошла ошибка при отправке поста: " +

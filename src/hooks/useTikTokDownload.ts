@@ -9,7 +9,11 @@ export const useTikTokDownload = (queryUrl: string) => {
         params: { url: queryUrl, download: 1 },
         responseType: "blob",
       });
-      return URL.createObjectURL(res.data);
+      console.log(res)
+      return {
+        data: URL.createObjectURL(res.data),
+        res: res,
+      };
     },
     enabled: !!queryUrl,
     refetchOnWindowFocus: false,

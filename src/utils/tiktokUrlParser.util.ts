@@ -17,9 +17,9 @@
 
 import { IChannelInfo } from "../types/tiktok";
 
-export const getChannelInfo = (url: string): IChannelInfo => {
+export const getChannelInfo = (data: any): IChannelInfo => {
   try {
-    const { origin, pathname } = new URL(url);
+    const { origin, pathname } = new URL(data.url);
     // Remove empty segments and join back the path parts
     const pathSegments = pathname.split("/").filter(Boolean);
 
@@ -30,7 +30,8 @@ export const getChannelInfo = (url: string): IChannelInfo => {
 
     return {
         username: username,
-        channelUrl: channelLink
+        channelUrl: channelLink,
+        fullUrl: data.fullUrl
     };
   } catch {
     // If an invalid URL is passed, return empty string

@@ -18,7 +18,7 @@ export const useAiAnswer = () => {
   const [model, setModel] = useState<AIModelType>({
     modelId: "deepseek/deepseek-chat-v3-0324:free",
     text: "DeepSeek: DeepSeek V3 0324 (free)",
-    icon: "/deepseek-white.svg",
+    icon: "/models logotypes/deepseek-white.svg",
   });
   const textAreaWrapperRef = useRef<HTMLDivElement>(null);
 

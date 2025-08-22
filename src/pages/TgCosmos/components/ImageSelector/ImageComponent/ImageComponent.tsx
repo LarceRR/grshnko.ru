@@ -1,6 +1,7 @@
 import React from "react";
 import { IImage } from "../../../../../features/imagesSlice";
 import { Image } from "antd";
+import SelectableBadge from "../../SelectableBadge/SelectableBadge";
 
 interface IImageComponentProps {
   handleSelectImage: (image: IImage) => void;
@@ -13,11 +14,14 @@ const ImageComponent: React.FC<IImageComponentProps> = ({
   image,
   selectedImages,
 }) => {
+  const isSelected = selectedImages.includes(image);
+  const selectedIndex = selectedImages.indexOf(image);
+
   return (
     <div
       className="image-selector-gallery-image"
       style={{
-        outline: selectedImages.includes(image) ? "3px solid #2f77c8" : "",
+        outline: isSelected ? "3px solid #2f77c8" : "",
       }}
     >
       <img
@@ -25,20 +29,14 @@ const ImageComponent: React.FC<IImageComponentProps> = ({
         className="blured_image"
         src={image.url}
         alt="no image"
-      ></img>
+      />
       <div className="white-cover-image"></div>
-      <Image className="image" src={image.url} alt="no image"></Image>
-      <div
-        className="selected-image"
+      <Image className="image" src={image.url} alt="no image" />
+      <SelectableBadge
+        selected={isSelected}
+        index={selectedIndex}
         onClick={() => handleSelectImage(image)}
-        style={{
-          backgroundColor: selectedImages.includes(image) ? "#2f77c8" : "",
-        }}
-      >
-        {selectedImages.includes(image)
-          ? selectedImages.indexOf(image) + 1
-          : ""}
-      </div>
+      />
     </div>
   );
 };

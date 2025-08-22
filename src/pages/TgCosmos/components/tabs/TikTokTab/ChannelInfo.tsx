@@ -19,6 +19,10 @@ export const ChannelInfo: React.FC<ChannelInfoProps> = ({ channelInfo }) => {
         label="Ссылка на источник (тикток)"
         information={channelInfo.channelUrl}
       />
+      <InfoString
+        label="Прямая ссылка на видео"
+        information={channelInfo.fullUrl}
+      />
     </div>
   );
 };

@@ -8,6 +8,8 @@ interface IExternalLinkProps {
 }
 
 const ExternalLink: React.FC<IExternalLinkProps> = ({ link, label }) => {
+  if (!link) return null;
+
   return (
     <a
       className="external-link"
