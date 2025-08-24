@@ -1,30 +1,41 @@
-// src/features/counterSlice.ts
+// src/features/currentVideoSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IChannelInfo } from "../types/tiktok";
 
 interface IVideoState {
-  video: IChannelInfo
+  videos: IChannelInfo[];
+  loading: boolean;
+  error: string;
+  selectedVideos: IChannelInfo[];
 }
 
 const initialState: IVideoState = {
-  video: {
-    username: "",
-    channelUrl: "",
-    fullUrl: "",
-    error: ""
-  },
-}
+  videos: [],
+  loading: false,
+  error: "",
+  selectedVideos: [],
+};
 
 export const currentVideoSlice = createSlice({
   name: "video_info",
   initialState,
   reducers: {
-    setVideo: (state, action: PayloadAction<IChannelInfo>) => {
-      state.video = action.payload;
-    }
+    setVideos: (state, action: PayloadAction<IChannelInfo[]>) => {
+      state.videos = action.payload;
+    },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
+    },
+    setSelectedVideos: (state, action: PayloadAction<IChannelInfo[]>) => {
+      state.selectedVideos = action.payload;
+    },
   },
 });
 
-export const { setVideo } = currentVideoSlice.actions;
+export const { setVideos, setLoading, setError, setSelectedVideos } =
+  currentVideoSlice.actions;
 
 export default currentVideoSlice.reducer;

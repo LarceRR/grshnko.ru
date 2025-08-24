@@ -11,78 +11,111 @@ import {
 } from ".";
 import SelectableBadge from "../../SelectableBadge/SelectableBadge";
 import { useAppDispatch, useAppSelector } from "../../../../../store/hooks";
-import { setVideo } from "../../../../../features/currentVideoSlice";
+import { setSelectedVideos } from "../../../../../features/currentVideoSlice";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/swiper-bundle.css";
+
 export const TikTokTab: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [queryUrl, setQueryUrl] = useState<string>("");
   const dispatch = useAppDispatch();
-  const currentVideo = useAppSelector((state) => state.currentVideo.video);
-  const [channelInfo, setChannelInfo] = useState<IChannelInfo | null>(
-    currentVideo
+  const selectedVideos = useAppSelector(
+    (state) => state.currentVideo.selectedVideos
+  );
+  const [currentDownload, setCurrentDownload] = useState<IChannelInfo | null>(
+    null
   );
   const { data, isLoading, isError } = useTikTokDownload(queryUrl);
+
+  // Сброс текущего видео при изменении ссылки
   useEffect(() => {
-    if (!queryUrl) setChannelInfo(null);
+    if (!queryUrl) setCurrentDownload(null);
   }, [queryUrl]);
+
+  // После загрузки видео добавляем его в массив
   useEffect(() => {
-    if (!isLoading && !isError && queryUrl) {
-      setChannelInfo(
-        getChannelInfo(JSON.parse(data?.res.headers["x-video-url"]))
-      );
+    if (!isLoading && !isError && queryUrl && data?.res?.headers) {
+      const info = getChannelInfo(JSON.parse(data.res.headers["x-video-url"]));
+      setCurrentDownload(info);
+
+      // Проверяем, есть ли уже видео с таким fullUrl
+      const exists = selectedVideos.some((v) => v.fullUrl === info.fullUrl);
+      if (!exists) {
+        dispatch(setSelectedVideos([...selectedVideos, info]));
+      }
+
+      // Сбрасываем инпут и запрос
+      setVideoUrl("");
+      setQueryUrl("");
     }
-  }, [isLoading, isError, queryUrl]);
+  }, [isLoading, isError, queryUrl, data]);
+
   const handleDownload = () => {
     if (videoUrl.trim()) setQueryUrl(videoUrl.trim());
   };
-  const handleToggleVideo = () => {
-    if (!channelInfo) return;
-    const isSelected =
-      currentVideo &&
-      JSON.stringify(currentVideo) === JSON.stringify(channelInfo);
-    dispatch(setVideo(isSelected ? {} : channelInfo));
+
+  const handleRemoveVideo = (fullUrl: string) => {
+    dispatch(
+      setSelectedVideos(selectedVideos.filter((v) => v.fullUrl !== fullUrl))
+    );
   };
-  const isSelected =
-    currentVideo &&
-    channelInfo &&
-    JSON.stringify(currentVideo) === JSON.stringify(channelInfo);
+
   return (
     <div className="tiktok">
-      {" "}
       <div className="tiktok__inner-wrapper">
-        {" "}
         <div className="tiktok__inner-wrapper__withDescription">
-          {" "}
           <TikTokUrlInput
             videoUrl={videoUrl}
             isLoading={isLoading}
             onUrlChange={setVideoUrl}
             onDownload={handleDownload}
             placeholder="Введите ссылку на тикток видео"
-          />{" "}
-        </div>{" "}
+          />
+        </div>
+
         <div className="tiktok-video-wrapper">
-          {" "}
-          {data?.data && (
+          {/* Одно видео */}
+          {selectedVideos.length === 1 && (
             <div className="tiktok-video-wrapper__video">
-              {" "}
-              <TikTokVideoPlayer videoUrl={data?.data} />{" "}
+              <TikTokVideoPlayer videoUrl={selectedVideos[0].fullUrl!} />
               <SelectableBadge
-                selected={!!isSelected}
-                onClick={handleToggleVideo}
-              />{" "}
+                selected={true}
+                onClick={() => handleRemoveVideo(selectedVideos[0].fullUrl!)}
+              />
+              <ChannelInfo channelInfo={selectedVideos[0]} />
             </div>
-          )}{" "}
-          <StatusMessage
-            isLoading={isLoading}
-            isError={isError}
-            hasQueryUrl={!!queryUrl}
-            channelInfo={channelInfo}
-          />{" "}
-          {!isLoading && !isError && channelInfo && (
-            <ChannelInfo channelInfo={channelInfo} />
-          )}{" "}
-        </div>{" "}
-      </div>{" "}
+          )}
+
+          {/* Слайдер если видео больше одного */}
+          {selectedVideos.length > 1 && (
+            <Swiper spaceBetween={10} slidesPerView={1}>
+              {selectedVideos.map((video) => (
+                <SwiperSlide key={video.fullUrl}>
+                  <div className="tiktok-video-wrapper__video">
+                    <TikTokVideoPlayer videoUrl={video.fullUrl!} />
+                    <SelectableBadge
+                      selected={true}
+                      onClick={() => handleRemoveVideo(video.fullUrl!)}
+                    />
+                    <ChannelInfo channelInfo={video} />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+
+          {/* Статус загрузки */}
+          {selectedVideos.length === 0 && (
+            <StatusMessage
+              isLoading={isLoading}
+              isError={isError}
+              hasQueryUrl={!!queryUrl}
+              channelInfo={currentDownload}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };

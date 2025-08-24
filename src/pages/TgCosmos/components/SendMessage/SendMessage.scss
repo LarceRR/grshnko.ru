@@ -1,14 +1,21 @@
 .send-post-wrapper {
     display: flex;
     gap: 30px;
-    align-items: flex-start;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: flex-start;
     padding: 20px 30px;
     border-radius: 10px;
     background-color: var(--card-background);
     border: var(--input-border) solid 1px;
     width: 100%;
     max-width: 1420px;
+    flex-direction: row-reverse;
+
+    .error-message {
+        color: var(--notification-error-text);
+        font-size: 16px;
+        text-align: center;
+    }
 
     @media screen and (max-width: 767px) {
         flex-direction: column-reverse;
@@ -27,6 +34,6 @@
     }
 
     .send-post-button {
-        background-color: var(--button-primary-bg)!important;
+        background-color: var(--button-primary-bg);
     }
 }

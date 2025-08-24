@@ -10,6 +10,10 @@
         flex-direction: column;
     }
 
+    .swiper {
+        width: 100%;
+    }
+
     .tiktok__inner-wrapper__withDescription {
         height: 100%;
     }
@@ -93,11 +97,16 @@
 
         .tiktok-video-wrapper__video {
             aspect-ratio: 9 / 16;
+            display: flex;
             height: 450px;
             position: relative;
+            justify-content: space-between;
+            width: 100%;
+            gap: 20px;
 
             @media screen and (max-width: 767px) {
                 height: auto;
+                flex-direction: column;
             }
         }
 
