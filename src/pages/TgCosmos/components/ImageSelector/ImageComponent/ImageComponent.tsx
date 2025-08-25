@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { IImage } from "../../../../../features/imagesSlice";
 import { Image } from "antd";
 import SelectableBadge from "../../SelectableBadge/SelectableBadge";
@@ -16,6 +16,8 @@ const ImageComponent: React.FC<IImageComponentProps> = ({
 }) => {
   const isSelected = selectedImages.includes(image);
   const selectedIndex = selectedImages.indexOf(image);
+
+  console.log(image);
 
   return (
     <div
