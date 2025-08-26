@@ -11,7 +11,7 @@ const SendMessage = () => {
   const [error, setError] = useState<Error | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [infoText, setInfoText] = useState<string>("");
-  const [loadingDone, setLoadingDone] = useState(false);
+  const [_, setLoadingDone] = useState(false);
 
   const { notify, contextHolder } = useNotify();
 
