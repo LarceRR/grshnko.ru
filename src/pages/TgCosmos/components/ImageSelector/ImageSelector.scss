@@ -42,12 +42,22 @@
             position: relative;
             cursor: pointer;
 
+            .selected-image {
+                right: 8px;
+                left: unset;
+            }
+
             & > .ant-image:nth-child(1) {
                 width: 100%;
                 height: 100%;
             }
 
             & > .ant-image:nth-child(2) {
+                width: 100%;
+                height: 100%;
+            }
+
+            .ant-image {
                 width: 100%;
                 height: 100%;
             }

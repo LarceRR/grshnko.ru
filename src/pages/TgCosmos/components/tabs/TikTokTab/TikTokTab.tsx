@@ -49,7 +49,7 @@ export const TikTokTab: React.FC = () => {
       setVideoUrl("");
       setQueryUrl("");
     }
-  }, [isLoading, isError, queryUrl, data]);
+  }, [isLoading, isError, queryUrl, data, selectedVideos, dispatch]);
 
   const handleDownload = () => {
     if (videoUrl.trim()) setQueryUrl(videoUrl.trim());
@@ -59,6 +59,16 @@ export const TikTokTab: React.FC = () => {
     dispatch(
       setSelectedVideos(selectedVideos.filter((v) => v.fullUrl !== fullUrl))
     );
+  };
+
+  const handleVideoMeta = (
+    fullUrl: string,
+    meta: { duration: number; width: number; height: number }
+  ) => {
+    const updated = selectedVideos.map((v) =>
+      v.fullUrl === fullUrl ? { ...v, videoMeta: meta } : v
+    );
+    dispatch(setSelectedVideos(updated));
   };
 
   return (
@@ -78,7 +88,12 @@ export const TikTokTab: React.FC = () => {
           {/* Одно видео */}
           {selectedVideos.length === 1 && (
             <div className="tiktok-video-wrapper__video">
-              <TikTokVideoPlayer videoUrl={selectedVideos[0].fullUrl!} />
+              <TikTokVideoPlayer
+                videoUrl={selectedVideos[0].fullUrl!}
+                onMeta={(meta) =>
+                  handleVideoMeta(selectedVideos[0].fullUrl!, meta)
+                }
+              />
               <SelectableBadge
                 selected={true}
                 onClick={() => handleRemoveVideo(selectedVideos[0].fullUrl!)}
@@ -93,7 +108,10 @@ export const TikTokTab: React.FC = () => {
               {selectedVideos.map((video) => (
                 <SwiperSlide key={video.fullUrl}>
                   <div className="tiktok-video-wrapper__video">
-                    <TikTokVideoPlayer videoUrl={video.fullUrl!} />
+                    <TikTokVideoPlayer
+                      videoUrl={video.fullUrl!} // ИСПРАВЛЕНО: используем video.fullUrl вместо selectedVideos[0].fullUrl
+                      onMeta={(meta) => handleVideoMeta(video.fullUrl!, meta)}
+                    />
                     <SelectableBadge
                       selected={true}
                       onClick={() => handleRemoveVideo(video.fullUrl!)}

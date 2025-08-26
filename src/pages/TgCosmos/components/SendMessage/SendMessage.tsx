@@ -10,6 +10,7 @@ const SendMessage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [progress, setProgress] = useState<number>(0);
+  const [infoText, setInfoText] = useState<string>("");
   const [loadingDone, setLoadingDone] = useState(false);
 
   const { notify, contextHolder } = useNotify();
@@ -25,28 +26,21 @@ const SendMessage = () => {
   const handleSendPost = async () => {
     if (!ai_response) return;
 
-    // Сбрасываем состояние перед новой отправкой
     setLoading(true);
     setProgress(0);
+    setInfoText("");
     setLoadingDone(false);
     setError(null);
 
     const formData = new URLSearchParams();
     formData.append("message", ai_response);
 
-    // Отправка изображений
-    const photosArray = selectedImages?.map((image) => image.url) || [];
-    if (photosArray.length > 0) {
+    const photosArray = selectedImages?.map((i) => i.url) || [];
+    if (photosArray.length)
       formData.append("photos", JSON.stringify(photosArray));
-    }
 
-    // Формируем массив ссылок на видео
-    const videoUrls = selectedVideos
-      .map((video) => video.fullUrl)
-      .filter((url): url is string => !!url); // фильтруем undefined/null
-    if (videoUrls.length > 0) {
-      formData.append("videos", JSON.stringify(videoUrls));
-    }
+    const videoUrls = selectedVideos.map((v) => v.fullUrl).filter(Boolean);
+    if (videoUrls.length) formData.append("videos", JSON.stringify(videoUrls));
 
     try {
       const response = await fetch(
@@ -58,11 +52,7 @@ const SendMessage = () => {
         }
       );
 
-      if (!response.body) {
-        console.error("Нет SSE потока");
-        setLoading(false);
-        return;
-      }
+      if (!response.body) throw new Error("Нет SSE потока");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -75,30 +65,40 @@ const SendMessage = () => {
         chunk.split("\n\n").forEach((msg) => {
           if (!msg.trim()) return;
 
-          const [rawEvent, rawData] = msg.split("\n");
-          const event = rawEvent.replace("event: ", "").trim();
-          const data = JSON.parse(rawData.replace("data: ", ""));
+          const line = msg.split("\n").find((l) => l.startsWith("data: "));
+          if (!line) return;
 
-          if (event === "progress") {
-            setProgress(data.progress);
-          } else if (event === "done") {
+          const data = JSON.parse(line.replace("data: ", ""));
+
+          // Обновляем прогресс и info
+          if (data.progress !== undefined) {
+            setProgress(Math.round(data.progress));
+            setInfoText(data.info || "");
+          }
+
+          // Завершение загрузки
+          if (data.info === "Done" && data.details) {
+            setLoading(false);
             setLoadingDone(true);
+
             notify({
               title: "Пост успешно отправлен!",
               body: (
                 <SendPostNotification
-                  aiText={ai_response || ""}
+                  textSent={data.details.message}
                   videosSent={data.details.videosSent}
                   photosSent={data.details.photosSent}
                 />
               ),
               type: "success",
             });
+          }
+
+          // Ошибка
+          if (data.error) {
+            setError(new Error(data.error));
             setLoading(false);
-          } else if (event === "error") {
             setLoadingDone(true);
-            setError(new Error(data.error || "Неизвестная ошибка"));
-            setLoading(false);
           }
         });
       }
@@ -112,7 +112,7 @@ const SendMessage = () => {
 
   const renderButtonText = () => {
     if (error) return "Ошибка";
-    if (progress > 0 && !loadingDone) return `${Math.round(progress * 100)}%`;
+    if (loading && progress > 0) return `${progress}% ${infoText}`;
     if (ai_loading) return "Генерация поста";
     return "Отправить пост";
   };

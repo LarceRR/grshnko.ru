@@ -2,18 +2,18 @@ import React from "react";
 import "./SendPostNotification.scss";
 
 interface SendPostNotificationProps {
-  aiText: string;
+  textSent: string;
   videosSent: number;
   photosSent: number;
 }
 
 const SendPostNotification: React.FC<SendPostNotificationProps> = ({
-  aiText,
+  textSent,
   videosSent,
   photosSent,
 }) => {
   // Очищаем текст от звездочек
-  const cleanText = aiText.replace(/\*/g, "");
+  const cleanText = textSent.replace(/\*/g, "");
 
   return (
     <div className="send-post-notification">

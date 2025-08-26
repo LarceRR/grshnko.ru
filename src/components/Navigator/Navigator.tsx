@@ -30,11 +30,13 @@ const Navbar: React.FC = () => {
   } else {
     // console.log(items);
     return (
-      <nav className="navigator-wrapper">
-        {items.map((item: IMenuItem) => (
-          <div key={item.key}>{item.label}</div>
-        ))}
-      </nav>
+      <div className="navigator-wrapper">
+        <nav>
+          {items.map((item: IMenuItem) => (
+            <div key={item.key}>{item.label}</div>
+          ))}
+        </nav>
+      </div>
     );
   }
 };

@@ -10,7 +10,7 @@ export const items = [
   {
     label: (
       <CustomNavLink to="/">
-        <Home size={26} />
+        <Home size={22} />
         <span>TA CRM</span>
       </CustomNavLink>
     ),
@@ -19,7 +19,7 @@ export const items = [
   {
     label: (
       <CustomNavLink to="/other">
-        <Ellipsis size={26} />
+        <Ellipsis size={22} />
         <span>Другое</span>
       </CustomNavLink>
     ),

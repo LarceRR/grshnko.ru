@@ -96,9 +96,8 @@
         gap: 20px;
 
         .tiktok-video-wrapper__video {
-            aspect-ratio: 9 / 16;
             display: flex;
-            height: 450px;
+            height: 280px;
             position: relative;
             justify-content: space-between;
             width: 100%;
@@ -107,6 +106,13 @@
             @media screen and (max-width: 767px) {
                 height: auto;
                 flex-direction: column;
+                justify-content: flex-start;
+
+                video {
+                    height: 100%;
+                    width: 100%;
+                    max-height: 300px;
+                }
             }
         }
 

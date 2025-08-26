@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { IImage } from "../../../../../features/imagesSlice";
 import { Image } from "antd";
 import SelectableBadge from "../../SelectableBadge/SelectableBadge";
@@ -14,10 +14,12 @@ const ImageComponent: React.FC<IImageComponentProps> = ({
   image,
   selectedImages,
 }) => {
+  const [error, setError] = useState(false);
+
   const isSelected = selectedImages.includes(image);
   const selectedIndex = selectedImages.indexOf(image);
 
-  console.log(image);
+  if (error) return null; // если не загрузилась — не рендерим
 
   return (
     <div
@@ -30,10 +32,17 @@ const ImageComponent: React.FC<IImageComponentProps> = ({
         onClick={(e) => e.stopPropagation()}
         className="blured_image"
         src={image.url}
-        alt="no image"
+        alt="blurred preview"
+        onError={() => setError(true)}
       />
       <div className="white-cover-image"></div>
-      <Image className="image" src={image.url} alt="no image" />
+      <Image
+        className="image"
+        src={image.url}
+        alt="main"
+        onError={() => setError(true)}
+        preview={false}
+      />
       <SelectableBadge
         selected={isSelected}
         index={selectedIndex}

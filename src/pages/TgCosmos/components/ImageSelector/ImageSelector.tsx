@@ -6,7 +6,6 @@ import useGetImages from "../../../../hooks/useGetImages";
 import { IImage, setSelectedImages } from "../../../../features/imagesSlice";
 import { useDispatch } from "react-redux";
 import ImageComponent from "./ImageComponent/ImageComponent";
-import { useEffect } from "react";
 
 const ImageSelector = () => {
   const topic = useAppSelector((state) => state.topic.topic.eng_term);
@@ -15,10 +14,6 @@ const ImageSelector = () => {
   );
   const dispatch = useDispatch();
   const { fetchImages } = useGetImages();
-
-  useEffect(() => {
-    console.log(images);
-  }, [images]);
 
   const handleSelectImage = (image: IImage) => {
     if (selectedImages.includes(image)) {
@@ -54,7 +49,7 @@ const ImageSelector = () => {
           {images && topic ? (
             images.map((image: IImage, index: number) => (
               <ImageComponent
-                key={index} // Используем index вместо уникального ID
+                key={index}
                 image={image}
                 handleSelectImage={handleSelectImage}
                 selectedImages={selectedImages}
