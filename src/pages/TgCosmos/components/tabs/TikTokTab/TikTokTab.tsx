@@ -33,14 +33,52 @@ export const TikTokTab: React.FC = () => {
     if (!queryUrl) setCurrentDownload(null);
   }, [queryUrl]);
 
+  // Функция для безопасного парсинга заголовка
+  const parseVideoHeader = (rawHeader: string): IChannelInfo | null => {
+    try {
+      // Пытаемся декодировать и распарсить
+      const decoded = decodeURIComponent(rawHeader);
+      const parsed = JSON.parse(decoded);
+      return getChannelInfo(parsed);
+    } catch (error) {
+      console.error("Ошибка парсинга заголовка видео:", error);
+
+      // Альтернативная попытка: если это уже объект, а не строка
+      try {
+        if (typeof rawHeader === "object") {
+          return getChannelInfo(rawHeader);
+        }
+
+        // Пытаемся очистить строку от лишних символов
+        const cleaned = rawHeader.replace(/^%+/, "").replace(/%+$/, "");
+        const decoded = decodeURIComponent(cleaned);
+        const parsed = JSON.parse(decoded);
+        return getChannelInfo(parsed);
+      } catch (secondError) {
+        console.error("Вторая попытка парсинга также не удалась:", secondError);
+        return null;
+      }
+    }
+  };
+
   // После загрузки видео добавляем его в массив
   useEffect(() => {
     if (!isLoading && !isError && queryUrl && data?.res?.headers) {
       const rawHeader = data.res.headers["x-video-url"];
-      const info = getChannelInfo(JSON.parse(decodeURIComponent(rawHeader)));
-      setCurrentDownload(info);
 
-      // console.log(info);
+      if (!rawHeader) {
+        console.error("Заголовок X-Video-Url отсутствует в ответе");
+        return;
+      }
+
+      const info = parseVideoHeader(rawHeader);
+
+      if (!info) {
+        console.error("Не удалось распарсить информацию о видео");
+        return;
+      }
+
+      setCurrentDownload(info);
 
       // Проверяем, есть ли уже видео с таким fullUrl
       const exists = selectedVideos.some((v) => v.fullUrl === info.fullUrl);
@@ -112,7 +150,7 @@ export const TikTokTab: React.FC = () => {
                 <SwiperSlide key={video.fullUrl}>
                   <div className="tiktok-video-wrapper__video">
                     <TikTokVideoPlayer
-                      videoUrl={video.fullUrl!} // ИСПРАВЛЕНО: используем video.fullUrl вместо selectedVideos[0].fullUrl
+                      videoUrl={video.fullUrl!}
                       onMeta={(meta) => handleVideoMeta(video.fullUrl!, meta)}
                     />
                     <SelectableBadge
