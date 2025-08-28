@@ -36,8 +36,11 @@ export const TikTokTab: React.FC = () => {
   // После загрузки видео добавляем его в массив
   useEffect(() => {
     if (!isLoading && !isError && queryUrl && data?.res?.headers) {
-      const info = getChannelInfo(JSON.parse(data.res.headers["x-video-url"]));
+      const rawHeader = data.res.headers["x-video-url"];
+      const info = getChannelInfo(JSON.parse(decodeURIComponent(rawHeader)));
       setCurrentDownload(info);
+
+      // console.log(info);
 
       // Проверяем, есть ли уже видео с таким fullUrl
       const exists = selectedVideos.some((v) => v.fullUrl === info.fullUrl);

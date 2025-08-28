@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, ReactNode } from "react";
 import "./CircleImage.scss";
 
 interface ICircleImageProps {
@@ -11,6 +11,8 @@ interface ICircleImageProps {
   onClick?: () => void; // callback при клике
   imageStyle?: CSSProperties;
   textStyle?: CSSProperties;
+  className?: string;
+  children?: ReactNode;
 }
 
 const CircleImage: React.FC<ICircleImageProps> = ({
@@ -20,11 +22,14 @@ const CircleImage: React.FC<ICircleImageProps> = ({
   onClick,
   imageStyle,
   textStyle,
+  className,
+  children,
 }) => {
   return (
-    <div className="circle-image" onClick={onClick}>
+    <div className={`circle-image ` + className} onClick={onClick}>
       {src && <img src={src} alt={alt} style={imageStyle} />}
       {text && <span style={textStyle}>{text}</span>}
+      {children}
     </div>
   );
 };

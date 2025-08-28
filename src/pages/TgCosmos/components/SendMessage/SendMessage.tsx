@@ -1,17 +1,26 @@
 import { useState } from "react";
 import "./SendMessage.scss";
-import { Ban } from "lucide-react";
+import { Ban, SendHorizonal } from "lucide-react";
 import { useAppSelector } from "../../../../store/hooks";
 import Button from "../../../../components/custom-components/custom-button";
 import { useNotify } from "../../../../hooks/useNotify";
 import SendPostNotification from "./SendPostNotification/SendPostNotification";
+import ChannelsTab from "../tabs/ChannelsTab/ChannelsTab";
+import {
+  defaultChannel,
+  TelegramChannel,
+} from "../../../../types/telegram-channel";
+import { Modal } from "antd";
 
 const SendMessage = () => {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [progress, setProgress] = useState<number>(0);
-  const [infoText, setInfoText] = useState<string>("");
+  const [progress, setProgress] = useState(0);
+  const [infoText, setInfoText] = useState("");
   const [_, setLoadingDone] = useState(false);
+  const [selectedChannel, setSelectedChannel] =
+    useState<TelegramChannel>(defaultChannel);
+  const [isModalOpen, setModalOpen] = useState(false);
 
   const { notify, contextHolder } = useNotify();
 
@@ -26,6 +35,7 @@ const SendMessage = () => {
   const handleSendPost = async () => {
     if (!ai_response) return;
 
+    setModalOpen(false);
     setLoading(true);
     setProgress(0);
     setInfoText("");
@@ -34,7 +44,12 @@ const SendMessage = () => {
 
     const formData = new URLSearchParams();
     formData.append("message", ai_response);
-
+    formData.append(
+      "channel",
+      selectedChannel?.username
+        ? `@${selectedChannel.username}`
+        : `${selectedChannel.id}`
+    );
     const photosArray = selectedImages?.map((i) => i.url) || [];
     if (photosArray.length)
       formData.append("photos", JSON.stringify(photosArray));
@@ -96,7 +111,11 @@ const SendMessage = () => {
 
           // Ошибка
           if (data.error) {
-            setError(new Error(data.error));
+            notify({
+              title: "Ошибка отправки поста!",
+              body: data.error,
+              type: "error",
+            });
             setLoading(false);
             setLoadingDone(true);
           }
@@ -111,32 +130,77 @@ const SendMessage = () => {
   };
 
   const renderButtonText = () => {
-    if (error) return "Ошибка";
+    if (error) return "Нажмите для повтора";
     if (loading && progress > 0) return `${progress}% ${infoText}`;
     if (ai_loading) return "Генерация поста";
-    return "Отправить пост";
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <div>
+          <span>Отправить пост</span>
+          <p style={{ fontSize: 12 }}>
+            {selectedChannel.username
+              ? `в @${selectedChannel.username}`
+              : `в ID: ${selectedChannel.id}`}
+          </p>
+        </div>
+        <SendHorizonal size={20} />
+      </div>
+    );
   };
 
   return (
     <div className="send-post-wrapper">
       {contextHolder}
+      <div className="send-post-wrapper__subwrapper">
+        <Modal
+          open={isModalOpen}
+          onCancel={() => setModalOpen(false)}
+          width={"auto"}
+          centered
+          cancelButtonProps={{
+            ghost: true,
+          }}
+          className="send-post-modal"
+          cancelText="Отмена"
+          okText={
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <div>
+                <span>Отправить пост</span>
+                <p style={{ fontSize: 12 }}>
+                  {selectedChannel.username
+                    ? `в @${selectedChannel.username}`
+                    : `в ID: ${selectedChannel.id}`}
+                </p>
+              </div>
+              <SendHorizonal size={20} />
+            </div>
+          }
+          okButtonProps={{
+            style: {
+              background: "var(--button-primary-bg)",
+            },
+          }}
+          onOk={handleSendPost}
+        >
+          <ChannelsTab
+            selectedChannel={selectedChannel}
+            onClick={(channel: TelegramChannel) => setSelectedChannel(channel)}
+            loadOnlyMyChannels={false}
+          />
+        </Modal>
 
-      <Button
-        type="primary"
-        className={`send-post-button ${error ? "send-post-button--error" : ""}`}
-        onClick={handleSendPost}
-        disabled={!ai_response || loading || ai_loading}
-        loading={loading || ai_loading}
-        icon={error ? <Ban width={20} /> : null}
-      >
-        {renderButtonText()}
-      </Button>
-
-      {error && (
-        <div className="error-message">
-          Ошибка при отправке поста: {error.message}
-        </div>
-      )}
+        <Button
+          type="primary"
+          className="send-post-button"
+          error={error?.message}
+          onClick={() => setModalOpen(true)}
+          disabled={!ai_response || loading || ai_loading}
+          loading={loading || ai_loading}
+          icon={error ? <Ban width={20} /> : null}
+        >
+          {renderButtonText()}
+        </Button>
+      </div>
     </div>
   );
 };

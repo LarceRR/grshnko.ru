@@ -1,6 +1,7 @@
 import React from "react";
 import { IChannelInfo } from "../../../../../types/tiktok";
 import InfoString from "../../InfoString/InfoString";
+import DecodeText from "../../DecodeText/DecodeText";
 
 interface ChannelInfoProps {
   channelInfo: IChannelInfo | null;
@@ -9,7 +10,7 @@ interface ChannelInfoProps {
 export const ChannelInfo: React.FC<ChannelInfoProps> = ({ channelInfo }) => {
   if (!channelInfo) return null;
 
-  const { username, channelUrl, fullUrl, videoMeta } = channelInfo;
+  const { username, channelUrl, fullUrl, videoMeta, description } = channelInfo;
 
   return (
     <div className="channel-info__wrapper">
@@ -40,6 +41,10 @@ export const ChannelInfo: React.FC<ChannelInfoProps> = ({ channelInfo }) => {
           />
         </>
       )}
+      <InfoString
+        label="Описание"
+        information={<DecodeText text={description || ""} />}
+      />
     </div>
   );
 };

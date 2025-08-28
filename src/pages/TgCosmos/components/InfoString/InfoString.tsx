@@ -1,15 +1,19 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import "./InfoString.scss";
 import { ExternalLinkIcon } from "lucide-react";
 
 interface IInfoStringProps {
-  label?: string | "no label";
-  information?: string | "no information";
+  label?: string;
+  information?: string | ReactNode;
 }
 
-const InfoString: React.FC<IInfoStringProps> = ({ label, information }) => {
-  const isLink = information?.startsWith("http");
-  const isLong = information && information.length > 50;
+const InfoString: React.FC<IInfoStringProps> = ({
+  label = "no label",
+  information = "no information",
+}) => {
+  const isString = typeof information === "string";
+  const isLink = isString && information.startsWith("http");
+  const isLong = isString && information.length > 50;
 
   return (
     <div className="info-string-wrapper">
@@ -18,7 +22,7 @@ const InfoString: React.FC<IInfoStringProps> = ({ label, information }) => {
       <span className="info-string__value">
         {isLink ? (
           <a
-            href={information}
+            href={information as string}
             target="_blank"
             rel="noopener noreferrer"
             className="external-link"

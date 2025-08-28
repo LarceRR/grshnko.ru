@@ -9,7 +9,7 @@ export type TabKey = "explain" | "paraphrase" | "channels" | "tiktok";
 export interface TabConfig {
   key: TabKey;
   label: string;
-  Component: React.FC;
+  Component:  React.FC<any>;
   aiAnswer: boolean;
   enabled: boolean;
 }

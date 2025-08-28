@@ -4,6 +4,7 @@ export interface IChannelInfo {
   error?: string;
   fullUrl?: string;
   videoMeta?: IVideoMeta
+  description?: string;
 }
 
 export interface IVideoMeta {

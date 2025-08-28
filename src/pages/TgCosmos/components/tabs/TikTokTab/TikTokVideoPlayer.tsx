@@ -16,7 +16,6 @@ export const TikTokVideoPlayer: React.FC<TikTokVideoPlayerProps> = ({
     e: React.SyntheticEvent<HTMLVideoElement, Event>
   ) => {
     const video = e.currentTarget;
-    console.log(video);
     if (onMeta) {
       onMeta({
         duration: video.duration,
