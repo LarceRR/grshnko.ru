@@ -1,10 +1,22 @@
+// App.tsx
 import { Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import TgCosmos from "./pages/TgCosmos/TgCosmos";
 import Other from "./pages/Other/Other";
 import AllPosts from "./pages/TgCosmos/components/AllPosts/AllPosts";
-import AuthPage from "./pages/AuthPage/AuthPage";
+import { AuthPage } from "./pages/AuthPage/AuthPage";
+import { AppDispatch } from "./store/store";
+import { fetchUser } from "./features/authSlice";
 
 export const App = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    // Проверяем сессию и подгружаем пользователя при заходе
+    dispatch(fetchUser());
+  }, [dispatch]);
+
   return (
     <div className="router-wrapper">
       <Routes>
@@ -16,12 +28,3 @@ export const App = () => {
     </div>
   );
 };
-
-// Мой проект - телеграмм канал, который каждый день публикует по 4-5 постов о разных космических и физических явлениях.
-
-// Напиши описание или подпись к посту в Телеграм в нескольких предложениях для поста. Если идет перечисление - используй эмоджи с цифрами для пунктов, используй лучшие хештеги телеграмма для этого поста. Первое предложение заголовка должно зацепить читателя (разжечь его любопытство), и, пожалуйста, не начинай предложение со слов «Вам интересно?». Новые абзацы с новой строки. Тема поста - Звездный нуклеосинтез. Не заканчивай пост вопросом. Отвечай только постом.
-// Минимум 600 и максимум 800 символов. Записать весь вывод на русском.
-
-// 10% иронии
-
-// Сгенерируй мне 10 терминов о космосе, физике и химией, но связанных между собой. Ответ должен быть в JSON {"terms": [здесь объекты с id и term]}

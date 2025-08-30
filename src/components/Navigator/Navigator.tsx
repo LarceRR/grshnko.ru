@@ -5,9 +5,12 @@ import "./Navigator.scss";
 import useTheme from "../../hooks/useTheme";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { IMenuItem, items } from "./MobileNavigatorMenu";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 const Navbar: React.FC = () => {
   const { size } = useWindowSize();
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const [theme, toggleTheme] = useTheme();
 
@@ -25,6 +28,7 @@ const Navbar: React.FC = () => {
           unCheckedChildren={theme}
           onChange={toggleTheme}
         />
+        {user && <div>{user.username}</div>}
       </nav>
     );
   } else {

@@ -1,47 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const AuthPage = () => {
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store/store";
+import { fetchUser } from "../../features/authSlice";
+
+export const AuthPage = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const refreshToken = searchParams.get("u");
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!refreshToken) return;
 
     const refreshSession = async () => {
       try {
-        // Обновляем токены
         await axios.post(
           "https://core.grshnko.ru/api/sessions/refresh",
           { refreshToken },
           { withCredentials: true }
         );
 
-        // Получаем данные пользователя
-        const res = await axios.get("https://core.grshnko.ru/api/sessions/me", {
-          withCredentials: true, // HttpOnly cookie автоматически отправляется
-        });
+        await dispatch(fetchUser());
 
-        console.log("User info:", res.data.user);
-
-        // Можно сохранить в глобальный state или context
-        // После успешного входа редирект
         navigate("/");
       } catch (err) {
-        console.error("Не удалось обновить сессию", err);
+        console.error(err);
         window.location.href = "https://core.grshnko.ru/";
-      } finally {
-        setLoading(false);
       }
     };
 
     refreshSession();
-  }, [refreshToken, navigate]);
+  }, [refreshToken, navigate, dispatch]);
 
-  return <div>{loading ? "Идет вход..." : "Проблемы с авторизацией"}</div>;
+  return <div>Идет вход...</div>;
 };
-
-export default AuthPage;
