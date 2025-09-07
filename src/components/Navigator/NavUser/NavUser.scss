@@ -1,0 +1,106 @@
+.nav-user {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  &__dropdown-label {
+    width: 100%;
+  }
+
+  .underline {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  &__details {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  &__name {
+    font-weight: 500;
+  }
+
+  &__email {
+    font-size: 0.85rem;
+    color: gray;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-background);
+    border: var(--input-border) solid 1px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: var(--card-background);
+    border: var(--input-border) solid 1px;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    min-width: 260px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+
+    /* Плавное появление */
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+
+    &.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    &-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.3rem;
+      transition: all 0.2s;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.7;
+      }
+
+      &.danger {
+        span {
+          color: var(--button-danger-bg);
+        }
+      }
+
+      & .nav-user__dropdown-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}

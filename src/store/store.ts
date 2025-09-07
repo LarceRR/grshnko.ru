@@ -6,7 +6,6 @@ import characterReducer from "../features/characterSlice";
 import ai_responseSlice from "../features/aiResponceSlice";
 import serverStatusSlice from "../features/systemStatusSlice";
 import tabSlice from "../features/tabsSlide";
-import authReducer from "../features/authSlice";
 import currentVideoSlice from "../features/currentVideoSlice";
 
 export const store = configureStore({
@@ -18,7 +17,6 @@ export const store = configureStore({
     serverStatus: serverStatusSlice,
     currentTab: tabSlice,
     currentVideo: currentVideoSlice,
-    auth: authReducer,
   },
 });
 

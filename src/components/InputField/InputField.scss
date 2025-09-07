@@ -1,0 +1,40 @@
+.input-wrapper {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-42%);
+  background: none;
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+}
+
+
+.auth__input {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  outline: none;
+}
+
+.auth__error {
+  text-align: center;
+  color: var(--notification-error-text);
+}
+
+.auth__input-error {
+  border: 1px solid var(--color-red);
+}
+
+
+.auth__input::placeholder {
+  color: #aaa;
+}

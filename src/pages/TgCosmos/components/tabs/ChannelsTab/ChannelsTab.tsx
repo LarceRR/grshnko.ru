@@ -6,6 +6,7 @@ import { Skeleton } from "antd";
 import { Pin } from "lucide-react";
 import "./ChannelsTab.scss";
 import { TelegramChannel } from "../../../../../types/telegram-channel";
+import { API_URL } from "../../../../../config";
 
 interface IChannelsTabProps {
   onClick: (channel: TelegramChannel) => void;
@@ -37,9 +38,9 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
         lastChannel: lastChannelId,
       });
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}getAllChannels?${queryParams}`
-      );
+      const res = await fetch(`${API_URL}getAllChannels?${queryParams}`, {
+        credentials: "include",
+      });
 
       if (!res.ok) throw new Error("Failed to fetch channels");
       return res.json();
@@ -135,9 +136,7 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
                 justifyContent: "center",
                 padding: "20px",
               }}
-            >
-              <Skeleton.Avatar active size={50} shape="circle" />
-            </div>
+            ></div>
           }
           scrollableTarget="channels-list__wrapper"
           endMessage={

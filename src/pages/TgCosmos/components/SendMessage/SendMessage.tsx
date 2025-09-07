@@ -11,6 +11,7 @@ import {
   TelegramChannel,
 } from "../../../../types/telegram-channel";
 import { Modal } from "antd";
+import { API_URL } from "../../../../config";
 
 const SendMessage = () => {
   const [loading, setLoading] = useState(false);
@@ -33,7 +34,16 @@ const SendMessage = () => {
   const { selectedImages } = useAppSelector((state) => state.images);
 
   const handleSendPost = async () => {
-    if (!ai_response) return;
+    if (ai_response || selectedImages.length || selectedVideos.length) {
+      // Тут идёт дальнейшая логика
+    } else {
+      notify({
+        type: "error",
+        title: "Нет контента.",
+        body: "Введите текст или добавьте фото/видео.",
+      });
+      return;
+    }
 
     setModalOpen(false);
     setLoading(true);
@@ -58,16 +68,37 @@ const SendMessage = () => {
     if (videoUrls.length) formData.append("videos", JSON.stringify(videoUrls));
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}sendMessage`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: formData.toString(),
-        }
-      );
+      const response = await fetch(`${API_URL}sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString(),
+        credentials: "include",
+      });
 
-      if (!response.body) throw new Error("Нет SSE потока");
+      // Проверяем content-type ответа
+      const contentType = response.headers.get("content-type");
+
+      // Если ответ в формате JSON (скорее всего ошибка)
+      if (contentType?.includes("application/json")) {
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Используем текст ошибки от сервера
+          throw new Error(data.error || `Ошибка ${response.status}`);
+        }
+        // Если статус OK но JSON - обрабатываем как успех
+        // (если такое возможно в вашем API)
+      }
+
+      // Если это не JSON, проверяем статус ответа
+      if (!response.ok) {
+        throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
+      }
+
+      // Проверяем, что тело ответа существует для SSE
+      if (!response.body) {
+        throw new Error("Нет SSE потока");
+      }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -83,54 +114,70 @@ const SendMessage = () => {
           const line = msg.split("\n").find((l) => l.startsWith("data: "));
           if (!line) return;
 
-          const data = JSON.parse(line.replace("data: ", ""));
+          try {
+            const data = JSON.parse(line.replace("data: ", ""));
 
-          // Обновляем прогресс и info
-          if (data.progress !== undefined) {
-            setProgress(Math.round(data.progress));
-            setInfoText(data.info || "");
-          }
+            // Обновляем прогресс и info
+            if (data.progress !== undefined) {
+              setProgress(Math.round(data.progress));
+              setInfoText(data.info || "");
+            }
 
-          // Завершение загрузки
-          if (data.info === "Done" && data.details) {
-            setLoading(false);
-            setLoadingDone(true);
+            // Завершение загрузки
+            if (data.info === "Done" && data.details) {
+              setLoading(false);
+              setLoadingDone(true);
 
-            notify({
-              title: "Пост успешно отправлен!",
-              body: (
-                <SendPostNotification
-                  textSent={data.details.message}
-                  videosSent={data.details.videosSent}
-                  photosSent={data.details.photosSent}
-                />
-              ),
-              type: "success",
-            });
-          }
+              notify({
+                title: "Пост успешно отправлен!",
+                body: (
+                  <SendPostNotification
+                    textSent={data.details.message}
+                    videosSent={data.details.videosSent}
+                    photosSent={data.details.photosSent}
+                  />
+                ),
+                type: "success",
+              });
+            }
 
-          // Ошибка
-          if (data.error) {
-            notify({
-              title: "Ошибка отправки поста!",
-              body: data.error,
-              type: "error",
-            });
-            setLoading(false);
-            setLoadingDone(true);
+            // Ошибка в SSE потоке
+            if (data.error) {
+              notify({
+                title: "Ошибка отправки поста!",
+                body: data.error, // Используем текст ошибки от сервера
+                type: "error",
+              });
+              setLoading(false);
+              setLoadingDone(true);
+            }
+          } catch (parseError) {
+            console.error("Ошибка парсинга SSE данных", parseError);
           }
         });
       }
     } catch (err) {
       console.error("Ошибка отправки поста", err);
+
+      // Используем текст ошибки от сервера
+      const errorMessage =
+        err instanceof Error ? err.message : "Неизвестная ошибка";
+
       setError(err instanceof Error ? err : new Error("Неизвестная ошибка"));
       setLoadingDone(true);
       setLoading(false);
+
+      // Показываем уведомление с текстом ошибки от сервера
+      notify({
+        title: "Ошибка отправки поста!",
+        body: errorMessage,
+        type: "error",
+      });
     }
   };
 
   const renderButtonText = () => {
-    if (error) return "Нажмите для повтора";
+    if (error) return `${error.message || "Повторите попытку"} `;
     if (loading && progress > 0) return `${progress}% ${infoText}`;
     if (ai_loading) return "Генерация поста";
     return (
@@ -194,7 +241,7 @@ const SendMessage = () => {
           className="send-post-button"
           error={error?.message}
           onClick={() => setModalOpen(true)}
-          disabled={!ai_response || loading || ai_loading}
+          disabled={loading || ai_loading}
           loading={loading || ai_loading}
           icon={error ? <Ban width={20} /> : null}
         >

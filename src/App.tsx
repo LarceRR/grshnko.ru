@@ -1,29 +1,58 @@
-// App.tsx
 import { Route, Routes } from "react-router-dom";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import TgCosmos from "./pages/TgCosmos/TgCosmos";
 import Other from "./pages/Other/Other";
 import AllPosts from "./pages/TgCosmos/components/AllPosts/AllPosts";
-import { AuthPage } from "./pages/AuthPage/AuthPage";
-import { AppDispatch } from "./store/store";
-import { fetchUser } from "./features/authSlice";
+import AuthPage from "./pages/AuthPage/AuthPage";
+import Navigator from "./components/Navigator/Navigator";
+import ProtectedRoute from "./components/ProtectedRoute";
+import useTheme from "./hooks/useTheme";
+import Profile from "./pages/Profile/Profile";
 
 export const App = () => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  useEffect(() => {
-    // Проверяем сессию и подгружаем пользователя при заходе
-    dispatch(fetchUser());
-  }, [dispatch]);
-
+  const [__, _] = useTheme();
   return (
     <div className="router-wrapper">
       <Routes>
-        <Route path="/" element={<TgCosmos />} />
-        <Route path="/tgcosmos/allPosts" element={<AllPosts />} />
-        <Route path="/other" element={<Other />} />
-        <Route path="/auth/callback" element={<AuthPage />} />
+        {/* Страница авторизации не защищена */}
+        <Route path="/login" element={<AuthPage />} />
+
+        {/* Приватные страницы */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <TgCosmos />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tgcosmos/allPosts"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <AllPosts />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/other"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <Other />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );

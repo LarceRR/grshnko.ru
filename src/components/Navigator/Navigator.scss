@@ -4,6 +4,7 @@
     position: relative;
     transition: all 0.1s ease-in-out;
     justify-content: space-between;
+    max-width: 1420px;
 
     @media screen and (max-width: 1028px) {
         position: fixed;
@@ -25,6 +26,7 @@
             font-weight: 700;
             color: var(--text-color);
             transition: all 0.2s ease-in-out;
+            text-decoration: none;
         }
 
         .nav-link-active {

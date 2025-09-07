@@ -8,8 +8,7 @@ import {
   setLoading,
   setSelectedImages,
 } from "../features/imagesSlice";
-
-const url = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config";
 
 // Define the custom hook
 const useGetImages = () => {
@@ -33,7 +32,10 @@ const useGetImages = () => {
 
     try {
       const response = await axios.get<IImage[]>(
-        `${url}getImages?query=${query}`
+        `${API_URL}getImages?query=${query}`,
+        {
+          withCredentials: true,
+        }
       );
       dispatch(setImages(response.data));
       setError(null);

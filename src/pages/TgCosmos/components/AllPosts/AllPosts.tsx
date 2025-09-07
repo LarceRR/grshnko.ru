@@ -4,6 +4,7 @@ import "./AllPosts.scss";
 import "dayjs/locale/ru";
 import PostItem from "./PostItem/PostItem";
 import { useQuery } from "@tanstack/react-query";
+import { API_URL } from "../../../../config";
 
 const AllPosts = () => {
   interface ApiResponse {
@@ -17,9 +18,9 @@ const AllPosts = () => {
   } = useQuery<ApiResponse>({
     queryKey: ["getAllPosts"],
     queryFn: () =>
-      fetch(
-        `${import.meta.env.VITE_API_URL}getAllMessages?channel=@saycosmos`
-      ).then((res) => res.json()),
+      fetch(`${API_URL}getAllMessages?channel=@saycosmos`).then((res) =>
+        res.json()
+      ),
   });
 
   useEffect(() => {

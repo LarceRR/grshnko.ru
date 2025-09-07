@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Message, Messages } from "../types/postTypes";
 import { useDispatch } from "react-redux";
 import { ITelegram, updateServerStatus } from "../features/systemStatusSlice";
+import { API_URL } from "../config";
 
 export interface IAxiosServerResponse {
   messages: Message[];
@@ -24,7 +25,10 @@ const usePostController = () => {
 
     try {
       const response = await axios.get<IAxiosServerResponse>(
-        `${import.meta.env.VITE_API_URL}getAllMessages?channel=@saycosmos`
+        `${API_URL}getAllMessages?channel=@saycosmos`,
+        {
+          withCredentials: true,
+        }
       );
       setPosts(response.data); // Устанавливаем данные из ответа
       // console.log(response);
@@ -42,7 +46,7 @@ const usePostController = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}getPostPhotos`,
+        `${API_URL}getPostPhotos`,
         { messageId: message.id, channel: "@saycosmos" }, // Передаем message в теле запроса
         {
           headers: {
@@ -73,7 +77,7 @@ const usePostController = () => {
 
     try {
       const response = await axios.get<IAxiosServerResponse>(
-        `${import.meta.env.VITE_API_URL}getAllMessages?channel=@saycosmos`
+        `${API_URL}getAllMessages?channel=@saycosmos`
       );
 
       setPosts(response.data); // Устанавливаем все посты

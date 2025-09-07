@@ -3,6 +3,7 @@ import TopicGetter from "../GeneratePost/TopicGetter/TopicGetter";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import axios from "axios";
 import { setTopic } from "../../../../features/currentTopicSlice";
+import { API_URL } from "../../../../config";
 
 interface IExplainTabProps {}
 
@@ -16,7 +17,9 @@ const ExplainTab: React.FC<IExplainTabProps> = () => {
   const getTopic = () => {
     setLoading(true);
     axios
-      .get(import.meta.env.VITE_API_URL + "getRandomTerm")
+      .get(API_URL + "getRandomTerm", {
+        withCredentials: true,
+      })
       .then((response) => {
         dispatch(setTopic(response.data.term));
         setLoading(false);

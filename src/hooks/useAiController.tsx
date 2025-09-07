@@ -9,6 +9,7 @@ import {
 } from "../features/aiResponceSlice";
 import { useAppSelector } from "../store/hooks";
 import { AIModelType } from "../pages/TgCosmos/components/GeneratePost/AiAnswer/ai-models-array";
+import { API_URL } from "../config";
 
 interface UseAiControllerProps {
   model: AIModelType;
@@ -50,7 +51,7 @@ const useAiController = ({
       onGenerating?.();
 
       // Формируем URL запроса
-      const url = new URL(`${import.meta.env.VITE_API_URL}generate`);
+      const url = new URL(`${API_URL}generate`);
       url.searchParams.set("message", prompt);
       url.searchParams.set("personality", character);
       url.searchParams.set("model", model.modelId);
@@ -58,6 +59,7 @@ const useAiController = ({
       // Выполняем запрос к серверу с поддержкой отмены
       const response = await fetch(url.toString(), {
         signal: abortControllerRef.current.signal,
+        credentials: "include",
       });
 
       // Проверяем статус ответа
