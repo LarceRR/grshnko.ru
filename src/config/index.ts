@@ -5,4 +5,4 @@ const API_URLS: Record<string, string | undefined> = {
   staging: import.meta.env.VITE_STAGING_API_URL,
 };
 
-export const API_URL = `${API_URLS[import.meta.env.MODE] ?? ""}`;
+export const API_URL = `${API_URLS[import.meta.env.VITE_MODE] ?? ""}`;
