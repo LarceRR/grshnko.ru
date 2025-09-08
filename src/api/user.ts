@@ -27,3 +27,17 @@ export const logoutUser = async (): Promise<void> => {
     throw error;
   }
 };
+
+export const updateUser = async (_: string, data: Partial<User>) => {
+  const keys = Object.keys(data) as (keyof User)[];
+  const res = await fetch(`${API_URL}user/${keys[0]}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Ошибка обновления пользователя");
+  }
+  return res.json();
+};

@@ -2,6 +2,9 @@
 
 export interface User {
   id: string;
+  firstName: string;
+  lastName: string;
+  birthDate?: string | null;
   username: string;
   email: string;
   role?: string;

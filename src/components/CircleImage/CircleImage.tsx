@@ -26,7 +26,10 @@ const CircleImage: React.FC<ICircleImageProps> = ({
   children,
 }) => {
   return (
-    <div className={`circle-image ` + className} onClick={onClick}>
+    <div
+      className={`circle-image ` + className ? className : ""}
+      onClick={onClick}
+    >
       {src && <img src={src} alt={alt} style={imageStyle} />}
       {text && <span style={textStyle}>{text}</span>}
       {children}

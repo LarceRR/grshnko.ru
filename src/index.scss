@@ -250,10 +250,8 @@ input {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    margin-top: 30px;
 
     @media screen and (max-width: 1028px) {
-      margin-bottom: 80px;
       margin-top: 0px;
     }
 }

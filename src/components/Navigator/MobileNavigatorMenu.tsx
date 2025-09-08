@@ -1,28 +1,37 @@
-import { Ellipsis, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import CustomNavLink from "../custom-components/custom-link";
+import CircleImage from "../CircleImage/CircleImage";
+import { API_URL } from "../../config";
+import { useQueryClient } from "@tanstack/react-query";
+import { User } from "../../types/user";
 
-export interface IMenuItem {
-  label: React.ReactNode;
-  key: string;
+export function useMenuItems() {
+  const queryClient = useQueryClient();
+  const user = queryClient.getQueryData<User>(["user"]);
+
+  const items = [
+    {
+      label: (
+        <CustomNavLink to="/">
+          <Home size={22} />
+          <span>TA CRM</span>
+        </CustomNavLink>
+      ),
+      key: "0",
+    },
+    {
+      label: (
+        <CustomNavLink to="/profile">
+          <CircleImage
+            src={`${API_URL}cdn/avatar/${user?.username}`}
+            imageStyle={{ width: 24, height: 24, borderRadius: "50%" }}
+          />
+          <span>{user?.username}</span>
+        </CustomNavLink>
+      ),
+      key: "1",
+    },
+  ];
+
+  return items;
 }
-
-export const items = [
-  {
-    label: (
-      <CustomNavLink to="/">
-        <Home size={22} />
-        <span>TA CRM</span>
-      </CustomNavLink>
-    ),
-    key: "0",
-  },
-  {
-    label: (
-      <CustomNavLink to="/other">
-        <Ellipsis size={22} />
-        <span>Другое</span>
-      </CustomNavLink>
-    ),
-    key: "1",
-  },
-];

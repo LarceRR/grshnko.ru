@@ -1,33 +1,111 @@
-.profile-card {
+
+.profile-block {
   background: var(--card-background);
   color: var(--text-color);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 24px;
-  max-width: 420px;
-  margin: 0 auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  
+  .profile-info-block {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
+    padding: 30px 40px;
+    gap: 32px; /* Расстояние между элементами, можно менять */
+    width: 100%;
 
-  .profile-header {
-    display: flex;
+    @media screen and (max-width:1028px) {
+      grid-template-columns: repeat(2, minmax(100px, 1fr));
+    }
+
+    .profile-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .profile-label {
+        font-size: 14px;
+        color: var(--secondary-text-color);
+        opacity: .7;
+      }
+
+      .profile-value {
+        font-size: 16px;
+      }
+    }
+  }
+
+  @media screen and (max-width:1028px) {
     align-items: center;
-    margin-bottom: 20px;
+  }
+  
+}
+
+.profile-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  h1 {
+      font-size: 22px;
+      text-align: left;
+      padding: 20px;
+      width: 100%;
+      border-bottom: 1px solid var(--border-color);
+
+    @media screen and (max-width:1028px) {
+      font-size: 20px;
+    }
+  }
+
+  .profile-header, .profile-block {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+
+    .profile-block__body {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      padding: 20px 40px;
+
+      @media screen and (max-width:1028px) {
+        flex-direction: column;
+      }
+    }
+
+    @media screen and (max-width:1028px) {
+      flex-direction: column;
+    }
   }
 
   .profile-avatar {
-    width: 72px;
-    height: 72px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     border: 2px solid var(--border-color);
     object-fit: cover;
-    margin-right: 16px;
+
+    @media screen and (max-width:1028px) {
+      width: 80px;
+      height: 80px;
+    }
   }
 
   .profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    @media screen and (max-width:1028px) {
+      align-items: center;
+    }
+
     .profile-username {
-      margin: 0;
-      font-size: 1.5rem;
-      color: var(--text-color);
+        width: auto;
+        display: flex;
+        gap: 4px;
+        line-height: 20px;
 
       .verified {
         margin-left: 8px;
@@ -37,7 +115,6 @@
     }
 
     .profile-email {
-      margin: 4px 0;
       color: var(--text-secondary);
     }
 
@@ -77,4 +154,12 @@
       }
     }
   }
+}
+
+.profile-value {
+  display: block;        /* или inline-block */
+  overflow: hidden;      /* скрываем лишний текст */
+  text-overflow: ellipsis; /* показываем "..." */
+  white-space: nowrap;   /* запрещаем перенос на новую строку */
+  max-width: 100%;       /* ограничиваем ширину родителем */
 }

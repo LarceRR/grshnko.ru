@@ -27,7 +27,7 @@ export const TABS: TabConfig[] = [
     label: "Перефразировать",
     Component: ParaphraseTab,
     aiAnswer: true,
-    enabled: true,
+    enabled: false,
   },
   { 
     key: "channels", 
