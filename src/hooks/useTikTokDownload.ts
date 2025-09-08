@@ -8,14 +8,10 @@ export const useTikTokDownload = (queryUrl: string) => {
     queryFn: async () => {
       const res = await axios.get(`${API_URL}download-tiktok`, {
         params: { url: queryUrl, download: 1 },
-        responseType: "blob",
         withCredentials: true,
       });
       console.log(res)
-      return {
-        data: URL.createObjectURL(res.data),
-        res: res,
-      };
+      return res.data.videoUrl;
     },
     enabled: !!queryUrl,
     refetchOnWindowFocus: false,

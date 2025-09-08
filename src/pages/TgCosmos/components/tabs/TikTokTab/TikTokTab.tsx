@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "./TikTokTab.scss";
 import { IChannelInfo } from "../../../../../types/tiktok";
 import { useTikTokDownload } from "../../../../../hooks/useTikTokDownload";
-import { getChannelInfo } from "../../../../../utils/tiktokUrlParser.util";
 import {
   ChannelInfo,
   StatusMessage,
@@ -26,6 +25,7 @@ export const TikTokTab: React.FC = () => {
   const [currentDownload, setCurrentDownload] = useState<IChannelInfo | null>(
     null
   );
+
   const { data, isLoading, isError } = useTikTokDownload(queryUrl);
 
   // Сброс текущего видео при изменении ссылки
@@ -33,54 +33,18 @@ export const TikTokTab: React.FC = () => {
     if (!queryUrl) setCurrentDownload(null);
   }, [queryUrl]);
 
-  // Функция для безопасного парсинга заголовка
-  const parseVideoHeader = (rawHeader: string): IChannelInfo | null => {
-    try {
-      // Пытаемся декодировать и распарсить
-      const decoded = decodeURIComponent(rawHeader);
-      const parsed = JSON.parse(decoded);
-      return getChannelInfo(parsed);
-    } catch (error) {
-      console.error("Ошибка парсинга заголовка видео:", error);
-
-      // Альтернативная попытка: если это уже объект, а не строка
-      try {
-        if (typeof rawHeader === "object") {
-          return getChannelInfo(rawHeader);
-        }
-
-        // Пытаемся очистить строку от лишних символов
-        const cleaned = rawHeader.replace(/^%+/, "").replace(/%+$/, "");
-        const decoded = decodeURIComponent(cleaned);
-        const parsed = JSON.parse(decoded);
-        return getChannelInfo(parsed);
-      } catch (secondError) {
-        console.error("Вторая попытка парсинга также не удалась:", secondError);
-        return null;
-      }
-    }
-  };
-
   // После загрузки видео добавляем его в массив
   useEffect(() => {
-    if (!isLoading && !isError && queryUrl && data?.res?.headers) {
-      const rawHeader = data.res.headers["x-video-url"];
-
-      if (!rawHeader) {
-        console.error("Заголовок X-Video-Url отсутствует в ответе");
-        return;
-      }
-
-      const info = parseVideoHeader(rawHeader);
-
-      if (!info) {
-        console.error("Не удалось распарсить информацию о видео");
-        return;
-      }
+    console.log(selectedVideos[0]);
+    if (!isLoading && !isError && data) {
+      const info: IChannelInfo = {
+        fullUrl: data.fullUrl,
+        url: data.url,
+        description: data.description,
+      };
 
       setCurrentDownload(info);
 
-      // Проверяем, есть ли уже видео с таким fullUrl
       const exists = selectedVideos.some((v) => v.fullUrl === info.fullUrl);
       if (!exists) {
         dispatch(setSelectedVideos([...selectedVideos, info]));
@@ -90,7 +54,7 @@ export const TikTokTab: React.FC = () => {
       setVideoUrl("");
       setQueryUrl("");
     }
-  }, [isLoading, isError, queryUrl, data, selectedVideos, dispatch]);
+  }, [isLoading, isError, data, selectedVideos, dispatch]);
 
   const handleDownload = () => {
     if (videoUrl.trim()) setQueryUrl(videoUrl.trim());

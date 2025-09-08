@@ -1,6 +1,6 @@
 export interface IChannelInfo {
   username?: string;
-  channelUrl?: string;
+  url?: string;
   error?: string;
   fullUrl?: string;
   videoMeta?: IVideoMeta

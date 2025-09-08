@@ -97,7 +97,7 @@
 
         .tiktok-video-wrapper__video {
             display: flex;
-            height: 280px;
+            height: auto;
             position: relative;
             justify-content: space-between;
             width: 100%;
@@ -124,6 +124,7 @@
 
         video {
             border-radius: 10px;
+            max-height: 330px;
 
             @media screen and (max-width: 768px) {
                 height: 100%;

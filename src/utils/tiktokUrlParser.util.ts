@@ -31,7 +31,7 @@ export const getChannelInfo = (data: any): IChannelInfo => {
 
     return {
         username: username,
-        channelUrl: channelLink,
+        url: channelLink,
         fullUrl: data.fullUrl,
         description: data.description
     };

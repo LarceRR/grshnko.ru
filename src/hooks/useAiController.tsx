@@ -31,42 +31,40 @@ const useAiController = ({
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const generatePost = useCallback(async () => {
-    // Отменяем предыдущий запрос, если он существует
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
 
-    // Создаем новый AbortController для текущего запроса
     abortControllerRef.current = new AbortController();
 
     try {
-      // Устанавливаем начальные состояния
       dispatch(setAiLoading(true));
       dispatch(setIsAiAlreadyAsked(true));
       dispatch(setAiResponse(""));
       dispatch(setAiError(""));
       dispatch(setAiIsMarkdownLocked(false));
 
-      // Вызываем колбэк начала генерации
       onGenerating?.();
 
-      // Формируем URL запроса
-      const url = new URL(`${API_URL}generate`);
-      url.searchParams.set("message", prompt);
-      url.searchParams.set("personality", character);
-      url.searchParams.set("model", model.modelId);
-
-      // Выполняем запрос к серверу с поддержкой отмены
-      const response = await fetch(url.toString(), {
+      const response = await fetch(`${API_URL}generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: prompt,
+          personality: character,
+          model: model.modelId,
+          generatorType: "custom", // можно менять если нужен preset
+        }),
         signal: abortControllerRef.current.signal,
         credentials: "include",
       });
 
-      // Проверяем статус ответа
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
-          const errorData = await response.json(); // читаем JSON с сервера
+          const errorData = await response.json();
           if (errorData.message) {
             errorMessage = errorData.message;
           }
@@ -76,7 +74,6 @@ const useAiController = ({
         throw new Error(errorMessage);
       }
 
-      // Проверяем поддержку ReadableStream
       if (!response.body) {
         throw new Error("ReadableStream не поддерживается");
       }
@@ -85,36 +82,24 @@ const useAiController = ({
       const decoder = new TextDecoder("utf-8");
       let accumulatedData = "";
 
-      // Читаем данные по чанкам
       while (true) {
         const { done, value } = await reader.read();
+        if (done) break;
 
-        if (done) {
-          break;
-        }
-
-        // Декодируем чанк и добавляем его к накопленным данным
         const chunk = decoder.decode(value, { stream: true });
         accumulatedData += chunk;
 
-        // Обновляем состояние с новыми данными
         dispatch(setAiResponse(accumulatedData));
       }
 
-      // Завершаем загрузку и разрешаем редактирование
       dispatch(setAiLoading(false));
       dispatch(setIsAiAlreadyAsked(false));
       dispatch(setAiIsMarkdownLocked(false));
 
-      // Вызываем колбэк успешной генерации
       onGenerated?.(accumulatedData);
     } catch (err) {
-      // Игнорируем ошибки отмены запроса
-      if (err instanceof Error && err.name === "AbortError") {
-        return;
-      }
+      if (err instanceof Error && err.name === "AbortError") return;
 
-      // Обрабатываем другие ошибки
       console.error("Ошибка при генерации поста:", err);
 
       dispatch(setAiLoading(false));
@@ -128,19 +113,21 @@ const useAiController = ({
       dispatch(setAiError(errorMessage));
       dispatch(setAiIsMarkdownLocked(false));
 
-      // Вызываем колбэк ошибки
-      if (err instanceof Error) {
-        onError?.(err);
-      } else {
-        onError?.(new Error(String(err)));
-      }
+      if (err instanceof Error) onError?.(err);
+      else onError?.(new Error(String(err)));
     } finally {
-      // Очищаем ссылку на AbortController
       abortControllerRef.current = null;
     }
-  }, [prompt, character, dispatch, onGenerating, onGenerated, onError]);
+  }, [
+    prompt,
+    character,
+    dispatch,
+    model.modelId,
+    onGenerating,
+    onGenerated,
+    onError,
+  ]);
 
-  // Функция для отмены текущей генерации
   const cancelGeneration = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();

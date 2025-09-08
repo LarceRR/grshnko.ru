@@ -10,15 +10,13 @@ interface ChannelInfoProps {
 export const ChannelInfo: React.FC<ChannelInfoProps> = ({ channelInfo }) => {
   if (!channelInfo) return null;
 
-  const { username, channelUrl, fullUrl, videoMeta, description } = channelInfo;
+  const { url, fullUrl, videoMeta, description } = channelInfo;
+  console.log(channelInfo);
 
   return (
     <div className="channel-info__wrapper">
-      <InfoString label="Имя пользователя в тиктоке" information={username} />
-      <InfoString
-        label="Ссылка на источник (тикток)"
-        information={channelUrl}
-      />
+      {/* <InfoString label="Имя пользователя в тиктоке" information={username} /> */}
+      <InfoString label="Ссылка на источник (тикток)" information={url} />
       <InfoString label="Прямая ссылка на видео" information={fullUrl} />
 
       {videoMeta && (
