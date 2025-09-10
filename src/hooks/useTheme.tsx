@@ -1,4 +1,5 @@
 import { useLayoutEffect, useState } from "react";
+import { setFavicon } from "../utils/favicon";
 
 export type ThemeType = "light" | "dark";
 
@@ -21,6 +22,12 @@ const useTheme = (): [ThemeType, () => void] => {
   useLayoutEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("app-theme", theme);
+
+    if (theme === "dark") {
+      setFavicon("/favicon/dark.png");
+    } else {
+      setFavicon("/favicon/light.png");
+    }
   }, [theme]);
 
   const toggleTheme = () => {
