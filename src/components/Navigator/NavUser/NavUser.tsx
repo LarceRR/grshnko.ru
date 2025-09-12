@@ -22,7 +22,7 @@ const NavUser: React.FC<NavUserProps> = ({
     retry: false,
   });
 
-  const [open, setOpen] = useState(true); // Изменил на false по умолчанию
+  const [open, setOpen] = useState(false); // Изменил на false по умолчанию
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number | null>(null);
   const navigate = useNavigate();
