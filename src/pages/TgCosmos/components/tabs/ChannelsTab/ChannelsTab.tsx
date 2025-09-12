@@ -176,7 +176,7 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
                       ? "var(--text-color)"
                       : "gray",
                 }}
-                className={channel.isPinned ? "isPinned" : ""}
+                className={channel.isPinned ? "channel-item isPinned" : "channel-item "}
                 onClick={() => onClick(channel)}
               />
             ))}

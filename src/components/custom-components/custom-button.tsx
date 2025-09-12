@@ -31,7 +31,7 @@ const Button: React.FC<IButtonProps> = ({
       className={className}
       style={{
         ...style,
-        backgroundColor: error ? "red" : "var(--button-primary-bg)!important",
+        backgroundColor: error ? "var(--color-red)" : "var(--button-primary-bg)!important",
         opacity: disabled ? 0.5 : 1,
         paddingInline: "15px",
       }}

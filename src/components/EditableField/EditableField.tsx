@@ -1,41 +1,45 @@
-import React, { useState } from "react";
+// EditableField.tsx
+import React, { useState, useEffect } from "react";
+import "./EditableField.scss";
 
 const EditableField: React.FC<{
   label: string;
   value: any;
-  onSave: (val: string) => Promise<void>;
-}> = ({ label, value, onSave }) => {
-  const [edit, setEdit] = useState(false);
-  const [val, setVal] = useState(value);
-  const [loading, setLoading] = useState(false);
+  style?: React.CSSProperties;
+  onChange: (val: string) => void;
+}> = ({ label, value, onChange, style }) => {
+  const [currentValue, setCurrentValue] = useState(value);
 
-  const handleSave = async () => {
-    try {
-      setLoading(true);
-      await onSave(val);
-      setEdit(false);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    setCurrentValue(value);
+  }, [value]);
+
+  const handleBlur = () => {
+    if (currentValue !== value) {
+      onChange(currentValue);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleBlur();
+    } else if (e.key === "Escape") {
+      setCurrentValue(value);
     }
   };
 
   return (
     <div className="editable-field">
-      <strong>{label}:</strong>
-      {edit ? (
-        <>
-          <input value={val} onChange={(e) => setVal(e.target.value)} />
-          <button onClick={handleSave} disabled={loading}>
-            Сохранить
-          </button>
-          <button onClick={() => setEdit(false)}>Отмена</button>
-        </>
-      ) : (
-        <>
-          <span>{value || "—"}</span>
-          <button onClick={() => setEdit(true)}>Изменить</button>
-        </>
-      )}
+      <h6 className="editable-field__label">{label}</h6>
+      <input
+        value={currentValue}
+        onChange={(e) => setCurrentValue(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyPress}
+        autoFocus
+        placeholder={currentValue ? "" : "Нет данных"}
+        style={style}
+      />
     </div>
   );
 };

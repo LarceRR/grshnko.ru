@@ -1,4 +1,4 @@
-import { Home } from "lucide-react";
+import { Bell, Home } from "lucide-react";
 import CustomNavLink from "../custom-components/custom-link";
 import CircleImage from "../CircleImage/CircleImage";
 import { API_URL } from "../../config";
@@ -23,13 +23,22 @@ export function useMenuItems() {
       label: (
         <CustomNavLink to="/profile">
           <CircleImage
-            src={`${API_URL}cdn/avatar/${user?.username}`}
+            src={`${API_URL}cdn/avatar/${user?.avatarUrl}`}
             imageStyle={{ width: 24, height: 24, borderRadius: "50%" }}
           />
           <span>{user?.username}</span>
         </CustomNavLink>
       ),
       key: "1",
+    },
+    {
+      label: (
+        <CustomNavLink to="/notifications">
+          <Bell size={22} />
+          <span>Уведомления</span>
+        </CustomNavLink>
+      ),
+      key: "2",
     },
   ];
 

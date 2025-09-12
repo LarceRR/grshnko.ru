@@ -44,7 +44,7 @@ export const AiAnswer: React.FC = () => {
           icon={<RefreshCcw size={20} />}
           loading={isLoading}
           style={{
-            backgroundColor: isError ? "red" : "var(--button-primary-bg)",
+            backgroundColor: isError ? "var(--color-red)" : "var(--button-primary-bg)",
           }}
         />
       </AiAnswerHeader>

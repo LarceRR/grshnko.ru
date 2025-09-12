@@ -8,9 +8,12 @@ import UserInfo from "./UserInfo";
 import { Modal } from "antd";
 import UserEditableFields from "./UserEditableFields";
 import { useState } from "react";
+import { LogOut, Pen } from "lucide-react";
+import { useUser } from "../../hooks/useUser";
 
 const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { logout } = useUser();
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
@@ -29,13 +32,19 @@ const Profile = () => {
   return (
     <div className="profile-card">
       <div className="profile-header profile-block">
-        <h1>Профиль</h1>
-        <button onClick={() => setIsModalOpen(true)}>Редактировать</button>
+        <h1>Профиль
+          <button onClick={logout} style={{
+            background: "var(--color-red)",
+          }}>
+            <LogOut size={16} />
+            Выйти
+          </button>
+        </h1>
         <div className="profile-block__body">
           <img
             className="profile-avatar"
             src={
-              `${API_URL}cdn/avatar/${user.username}` || "/default-avatar.png"
+              `${API_URL}cdn/avatar/${user.avatarUrl}` || "/default-avatar.png"
             }
             alt={user.username}
           />
@@ -51,10 +60,16 @@ const Profile = () => {
       </div>
 
       <div className="profile-block">
-        <h1>Персональная информация</h1>
+        <h1>
+          Персональная информация
+          <button onClick={() => setIsModalOpen(true)}>
+            <Pen size={16} />
+            Редактировать
+          </button>
+        </h1>
         <div className="profile-info-block">
-          <UserInfo title="Имя" content="" />
-          <UserInfo title="Фамилия" content="" />
+          <UserInfo title="Имя" content={user.firstName} />
+          <UserInfo title="Фамилия" content={user.lastName} />
 
           <UserInfo
             title="Дата рождения"
@@ -68,7 +83,7 @@ const Profile = () => {
             title="Группа"
             content={
               <UserRoleIcon
-                role={user.role || ""}
+                role={user.role}
                 displayMode="full"
                 className="profile-role-icon"
                 style={{
@@ -103,14 +118,19 @@ const Profile = () => {
         </div>
       </div>
 
-      {user.role === "ADMIN" && (
+      {user?.role?.key === "ADMIN" && (
         <div className="profile-block">
           <h1>Панель администратора</h1>
           <div>админ-действия</div>
         </div>
       )}
-      <Modal open={isModalOpen} onCancel={() => setIsModalOpen(false)}>
-        <UserEditableFields />
+      <Modal
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        okButtonProps={{ style: { display: "none" } }}
+        cancelButtonProps={{ style: { display: "none" } }}
+      >
+        <UserEditableFields closeModal={() => setIsModalOpen(false)} />
       </Modal>
     </div>
   );

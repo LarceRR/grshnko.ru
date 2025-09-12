@@ -70,7 +70,7 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
         className="generate-post-button"
         onClick={handleGetTopic}
         loading={loading}
-        style={{ backgroundColor: topicError ? "red" : "" }}
+        style={{ backgroundColor: topicError ? "var(--color-red)" : "" }}
         icon={topicError ? <Ban width={20} /> : null}
       >
         Выбрать тему

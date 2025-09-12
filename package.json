@@ -23,6 +23,7 @@
     "axios": "^1.7.9",
     "dayjs": "^1.11.13",
     "emoji-dictionary": "^1.0.12",
+    "framer-motion": "^12.5.0",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.477.0",

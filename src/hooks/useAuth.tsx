@@ -5,7 +5,7 @@ import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 
 type LoginPayload = {
-  email: string;
+  login: string;
   password: string;
 };
 

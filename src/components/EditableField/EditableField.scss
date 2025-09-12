@@ -1,0 +1,93 @@
+.editable-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #333;
+  position: relative;
+  flex: 1;
+  width: 100%;
+
+  &__label {
+    position: absolute;
+    color: var(--text-color);
+    left: 10px;
+    top: -4px;
+    font-size: 12px;
+    font-weight: normal;
+    background: unset;
+    border: unset;
+  }
+
+  span {
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    color: #222;
+  }
+
+  input {
+    margin-top: 16px;
+    padding: 12px 10px;
+    border: unset;
+    outline: none;
+    width: 100%;
+    min-width: 200px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+    border-radius: 5px;
+    background-color: var(--background-color);
+    border: var(--input-border) solid 1px;
+    color: var(--text-color);
+
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+  }
+
+  button {
+    padding: 6px 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    &:first-of-type {
+      background: #3b82f6;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: #2563eb;
+      }
+    }
+
+    &:last-of-type {
+      background: #e5e7eb;
+      color: #333;
+
+      &:hover {
+        background: #d1d5db;
+      }
+    }
+  }
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-picker .ant-picker-input >input {
+    margin-top: 0px;
+}
+:where(.css-dev-only-do-not-override-240cud).ant-picker .ant-picker-clear >*, :where(.css-dev-only-do-not-override-240cud).ant-picker .ant-picker-suffix {
+    padding: unset;
+    border: unset;
+    background-color: unset;
+    color: unset;
+    margin-top: unset;
+}

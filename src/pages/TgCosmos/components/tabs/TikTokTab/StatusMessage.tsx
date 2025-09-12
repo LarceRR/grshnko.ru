@@ -35,7 +35,7 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
   return (
     <span
       className="tiktok__inner-wrapper__description"
-      style={{ color: isError ? "red" : "inherit" }}
+      style={{ color: isError ? "var(--color-red)" : "inherit" }}
     >
       {message}
     </span>

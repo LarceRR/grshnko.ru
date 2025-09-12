@@ -9,7 +9,6 @@ export const useUser = () => {
   const {
     data: user,
     isLoading,
-    error,
   } = useQuery<User | null>({
     queryKey: ["user"],
     queryFn: getUser,
@@ -17,7 +16,11 @@ export const useUser = () => {
   });
 
   // ✅ Мутация для обновления юзера
-  const { mutateAsync: updateUser, isPending: isUpdating } = useMutation({
+  const {
+    mutateAsync: updateUser,
+    isPending: isUpdating,
+    error: updateError,
+  } = useMutation({
     mutationFn: (data: Partial<User>) => {
       return updateUserApi(user!.id, data);
     },
@@ -42,7 +45,7 @@ export const useUser = () => {
   return {
     user,
     isLoading,
-    error,
+    updateError,
     updateUser, // 👈 вызывать так: await updateUser({ firstName: "Иван" })
     isUpdating, // 👈 можно показать лоадер
     logout,

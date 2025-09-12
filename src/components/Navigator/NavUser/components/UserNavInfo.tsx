@@ -24,7 +24,7 @@ const UserNavInfo = () => {
       <span className="nav-user__name">{user.username}</span>
       <span className="nav-user__email">{user.email}</span>
       <UserRoleIcon
-        role={user.role || ""}
+        role={user.role}
         style={{
           position: "absolute",
           right: -2,

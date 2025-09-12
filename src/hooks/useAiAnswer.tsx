@@ -98,7 +98,7 @@ export const useAiAnswer = () => {
       return {
         text: "Сгенерировать снова",
         icon: <CloudAlert width={20} />,
-        style: { backgroundColor: "red" },
+        style: { backgroundColor: "var(--color-red)" },
       };
     }
     return {

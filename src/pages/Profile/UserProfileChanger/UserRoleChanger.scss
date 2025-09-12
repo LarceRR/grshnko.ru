@@ -1,0 +1,54 @@
+.user-role-changer {
+
+    .ant-select-arrow {
+        svg {
+            transition: all 0.2s ease-in-out;
+        }
+    }
+
+    .ant-select-selector {
+        padding: 12px 10px;
+        border: unset;
+        outline: none;
+        width: 100%;
+        min-width: 200px;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+        border-radius: 5px!important;
+        background-color: var(--background-color)!important;
+        border: var(--input-border) solid 1px!important;
+        color: var(--text-color)!important;
+    }
+
+    &__role {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        span:nth-child(1) {
+            font-weight: 900;
+        }
+
+        span:nth-child(2) {
+            font-size: 12px;
+        }
+    }
+
+    .ant-select-selection-item {
+        color: var(--text-color)!important;
+    }
+}
+
+    .ant-select-item-option-selected {
+        &::after {
+            content: "";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: var(--button-primary-bg)!important;
+            border-radius: 50%;
+        }
+    }

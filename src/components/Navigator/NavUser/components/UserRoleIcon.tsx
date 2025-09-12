@@ -1,29 +1,14 @@
 import React, { CSSProperties } from "react";
+import { Role } from "../../../../types/user";
 
 interface UserRoleIconProps {
-  role: "ADMIN" | "USER" | "MODERATOR" | "PREMIUM" | "BOT" | string;
+  role?: Role;
   style?: CSSProperties;
   className?: string;
   displayMode?: "short" | "full"; // короткий/полный вид (символ или текст)
-  showFullName?: boolean; // новый проп: показывать полное название роли
-  variant?: "background" | "text"; // новый проп: цветной фон или цветной текст
+  showFullName?: boolean; // показывать полное название роли
+  variant?: "background" | "text"; // цветной фон или цветной текст
 }
-
-const roleColors: Record<UserRoleIconProps["role"], string> = {
-  ADMIN: "#FF4D4F",
-  USER: "#1890FF",
-  MODERATOR: "#52C41A",
-  PREMIUM: "#FAAD14",
-  BOT: "#722ED1",
-};
-
-const roleFullNames: Record<UserRoleIconProps["role"], string> = {
-  ADMIN: "Администратор",
-  USER: "Пользователь",
-  MODERATOR: "Модератор",
-  PREMIUM: "Премиум",
-  BOT: "Бот",
-};
 
 const UserRoleIcon: React.FC<UserRoleIconProps> = ({
   role,
@@ -33,16 +18,16 @@ const UserRoleIcon: React.FC<UserRoleIconProps> = ({
   showFullName = false,
   variant = "background",
 }) => {
-  const color = roleColors[role] || "#d9d9d9";
+  if (!role) {
+    return null; // если роли нет — ничего не рендерим
+  }
 
   // Определяем, что отображать внутри
-  let text = "";
-  if (showFullName) {
-    text = roleFullNames[role] || role;
-  } else if (displayMode === "full") {
-    text = role;
+  let text: string;
+  if (showFullName || displayMode === "full") {
+    text = role.name || "";
   } else {
-    text = role.charAt(0);
+    text = role.key?.charAt(0) || "?";
   }
 
   const isBackground = variant === "background";
@@ -54,8 +39,8 @@ const UserRoleIcon: React.FC<UserRoleIconProps> = ({
         padding: isBackground && displayMode === "full" ? "5px 6px" : 0,
         height: isBackground && displayMode === "full" ? "auto" : 24,
         borderRadius: isBackground ? 6 : 0,
-        backgroundColor: isBackground ? color : "transparent",
-        color: isBackground ? "#fff" : color,
+        backgroundColor: isBackground ? role.color || "#999" : "transparent",
+        color: isBackground ? "#fff" : role.color || "#333",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -63,7 +48,7 @@ const UserRoleIcon: React.FC<UserRoleIconProps> = ({
         fontWeight: 600,
         ...style,
       }}
-      title={roleFullNames[role] || role}
+      title={role.name || ""}
       className={className}
     >
       {text}

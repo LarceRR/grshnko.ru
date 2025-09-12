@@ -35,7 +35,7 @@ const ImageSelector = () => {
           <div className="image-selector-result__header-buttons">
             <Button
               className="get-new-images"
-              style={{ backgroundColor: error ? "red" : "" }}
+              style={{ backgroundColor: error ? "var(--color-red)" : "" }}
               onClick={fetchImages}
               loading={loading}
               icon={error ? <Ban width={20} /> : undefined}

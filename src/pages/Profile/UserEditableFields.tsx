@@ -1,64 +1,158 @@
-import React from "react";
+import React, { useState } from "react";
 import { useUser } from "../../hooks/useUser";
 import EditableField from "../../components/EditableField/EditableField";
 import EditableAvatar from "./EditableAvatar";
+import { Button, DatePicker } from "antd";
+import dayjs, { Dayjs } from "dayjs";
+import UserRoleChanger from "./UserProfileChanger/UserRoleChanger";
+import { Role } from "../../types/user";
+import { useNotify } from "../../hooks/useNotify";
 
-const UserEditableFields: React.FC = () => {
-  const { user, isLoading, updateUser } = useUser();
+interface UserUpdates {
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string;
+  email?: string;
+  role?: Role;
+  bio?: string;
+  avatar?: File | null;
+}
+
+const UserEditableFields: React.FC<{closeModal: () => void}> = ({closeModal} ) => {
+  const { user, isLoading, updateUser, updateError } = useUser();
+  const [userUpdates, setUserUpdates] = useState<UserUpdates>({});
+  const {notify, contextHolder} = useNotify()
+
+  const handleFieldChange = (
+    field: keyof UserUpdates,
+    value: string | File | null | Dayjs
+  ) => {
+    setUserUpdates((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleUpdateUser = async () => {
+    if (!user) return;
+
+    try {
+      await updateUser(userUpdates);
+      notify({ title: "Успех", body: "Профиль успешно обновлен", type: "success" });
+      setUserUpdates({}); // очищаем изменения после успешного апдейта
+      closeModal();
+    } catch (err) {
+      console.error("Ошибка при обновлении пользователя:", err);
+      notify({ title: "Ошибка", body: "Возникла ошибка при изменении профиля.", type: "error" });
+    }
+  };
 
   if (isLoading) return <div>Загрузка...</div>;
   if (!user) return <div>Пользователь не найден</div>;
 
   return (
     <div className="user-editable-fields">
+      {contextHolder}
       <h2>Редактирование профиля</h2>
 
       {/* Аватар */}
       <EditableAvatar
         avatarUrl={user.avatarUrl}
-        onSave={(file) => {
-          const formData = new FormData();
-          formData.append("userId", user.id);
-          if (file) {
-            formData.append("avatar", file);
-          }
-          return fetch(`/api/user/avatar`, {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-          }).then((res) => {
-            if (!res.ok) throw new Error("Ошибка загрузки аватара");
-          });
+        onSave={async (file) => {
+          handleFieldChange("avatar", file);
         }}
       />
 
-      {/* Имя */}
+      {/* О себе */}
       <EditableField
-        label="Имя"
-        value={user.firstName || ""}
-        onSave={(val) => updateUser({ firstName: val })}
+        label="О себе"
+        value={user.bio || ""}
+        onChange={(val) => handleFieldChange("bio", val)}
       />
 
-      {/* Фамилия */}
-      <EditableField
-        label="Фамилия"
-        value={user.lastName || ""}
-        onSave={(val) => updateUser({ lastName: val })}
-      />
+      <UserRoleChanger user={user} onRoleChange={(role) => handleFieldChange("role", role || "")}/>
 
-      {/* Дата рождения */}
-      <EditableField
-        label="Дата рождения"
-        value={user.birthDate || ""}
-        onSave={(val) => updateUser({ birthDate: val })}
-      />
+      <div className="user-editable-fields__fields">
+        {/* Имя */}
+        <EditableField
+          label="Имя"
+          value={user.firstName || ""}
+          onChange={(val) => handleFieldChange("firstName", val)}
+        />
 
-      {/* Почта */}
-      <EditableField
-        label="Электронная почта"
-        value={user.email || ""}
-        onSave={(val) => updateUser({ email: val })}
-      />
+        {/* Фамилия */}
+        <EditableField
+          label="Фамилия"
+          value={user.lastName || ""}
+          onChange={(val) => handleFieldChange("lastName", val)}
+        />
+
+        {/* Дата рождения с DatePicker */}
+        <div style={{ flex: 1 }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: 4,
+              fontSize: 12,
+              marginLeft: 12,
+            }}
+          >
+            Дата рождения
+          </label>
+          <DatePicker
+            style={{
+              width: "100%",
+              height: 40,
+              backgroundColor: "var(--background-color)",
+              border: "1px solid var(--border-color)",
+            }}
+            value={
+              userUpdates.birthDate
+                ? dayjs(userUpdates.birthDate)
+                : user.birthDate
+                ? dayjs(user.birthDate)
+                : null
+            }
+            onChange={(date) => {
+              if (date) {
+                const isoString = dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS[+00:00]");
+                // console.log(isoString); 
+                handleFieldChange("birthDate", isoString);
+              }
+            }}
+            disabledDate={(current: Dayjs) => {
+              // запрещаем даты после сегодня и до 1920 года
+              const today = dayjs();
+              const minDate = dayjs("1920-01-01");
+              return (
+                current.isAfter(today, "day") ||
+                current.isBefore(minDate, "day")
+              );
+            }}
+          />
+        </div>
+
+        {/* Почта */}
+        <EditableField
+          label="Электронная почта"
+          value={user.email || ""}
+          onChange={(val) => handleFieldChange("email", val)}
+        />
+      </div>
+
+      <Button
+        onClick={() => handleUpdateUser()}
+        className="save-button"
+        loading={isLoading}
+        style={{
+          background: updateError
+            ? "var(--button-danger-bg)"
+            : "var(--button-primary-bg)!important",
+        }}
+      >
+        {updateError
+          ? updateError.message
+          : isLoading
+          ? "Сохранение..."
+          : "Сохранить"}
+      </Button>
     </div>
   );
 };

@@ -56,8 +56,8 @@ const SendMessage = () => {
     formData.append("message", ai_response);
     formData.append(
       "channel",
-      selectedChannel?.username
-        ? `@${selectedChannel.username}`
+      selectedChannel?.entity?.username
+        ? `@${selectedChannel?.entity?.username}`
         : `${selectedChannel.id}`
     );
     const photosArray = selectedImages?.map((i) => i.url) || [];
@@ -185,8 +185,8 @@ const SendMessage = () => {
         <div>
           <span>Отправить пост</span>
           <p style={{ fontSize: 12 }}>
-            {selectedChannel.username
-              ? `в @${selectedChannel.username}`
+            {selectedChannel?.entity?.username
+              ? `в @${selectedChannel?.entity?.username}`
               : `в ID: ${selectedChannel.id}`}
           </p>
         </div>
@@ -214,8 +214,8 @@ const SendMessage = () => {
               <div>
                 <span>Отправить пост</span>
                 <p style={{ fontSize: 12 }}>
-                  {selectedChannel.username
-                    ? `в @${selectedChannel.username}`
+                  {selectedChannel?.entity?.username
+                    ? `в @${selectedChannel?.entity?.username}`
                     : `в ID: ${selectedChannel.id}`}
                 </p>
               </div>

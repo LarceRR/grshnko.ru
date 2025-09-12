@@ -53,6 +53,15 @@ export const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <h1>Notifications</h1>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );

@@ -7,7 +7,7 @@ const ThemeSwitcher = () => {
   return (
     <div onClick={toggleTheme} className="theme-switcher">
       {theme === "light" ? <Sun size={16} /> : <Moon size={16} />}
-      <span>Сменить тему на {theme === "light" ? "темную" : "светлую"}</span>
+      <span>Тема: {theme === "light" ? "светлая" : "тёмная"}</span>
     </div>
   );
 };

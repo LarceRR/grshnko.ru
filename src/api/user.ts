@@ -28,16 +28,26 @@ export const logoutUser = async (): Promise<void> => {
   }
 };
 
-export const updateUser = async (_: string, data: Partial<User>) => {
-  const keys = Object.keys(data) as (keyof User)[];
-  const res = await fetch(`${API_URL}user/${keys[0]}`, {
+export const updateUser = async (userId: string, data: Partial<User>) => {
+  const formData = new FormData();
+  formData.append("userId", userId);
+
+  // перебираем поля, которые реально пришли
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      formData.append(key, value as any);
+    }
+  });
+
+  const res = await fetch(`${API_URL}api/user/update`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: formData,
     credentials: "include",
   });
+
   if (!res.ok) {
     throw new Error("Ошибка обновления пользователя");
   }
+
   return res.json();
 };

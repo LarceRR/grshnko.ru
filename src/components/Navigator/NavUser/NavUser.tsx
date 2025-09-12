@@ -7,14 +7,22 @@ import "./NavUser.scss";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../../config";
 
-const NavUser = () => {
+interface NavUserProps {
+  showAvatar?: boolean;
+  style?: React.CSSProperties;
+}
+
+const NavUser: React.FC<NavUserProps> = ({
+  showAvatar = true,
+  style
+}) => {
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
     retry: false,
   });
 
-  const [open, setOpen] = useState(false); // Изменил на false по умолчанию
+  const [open, setOpen] = useState(true); // Изменил на false по умолчанию
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number | null>(null);
   const navigate = useNavigate();
@@ -61,22 +69,23 @@ const NavUser = () => {
 
   return (
     <div
+      style={style}
       className="nav-user"
       ref={dropdownRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <div className="nav-user__info">
-        <div className="nav-user__avatar">
+        {showAvatar && <div className="nav-user__avatar">
           {user.avatarUrl ? (
             <img
-              src={`${API_URL}cdn/avatar/${user.username}`}
+              src={`${API_URL}cdn/avatar/${user.avatarUrl}`}
               alt={user.username}
             />
           ) : (
             <UserOutlined color="var(--text-color)" />
           )}
-        </div>
+        </div>}
       </div>
 
       <div className={`nav-user__dropdown ${open ? "visible" : ""}`}>

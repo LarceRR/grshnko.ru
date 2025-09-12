@@ -4,7 +4,7 @@ import InputField from "../InputField/InputField";
 import type { SwiperClass } from "swiper/react";
 import { useAuth } from "../../hooks/useAuth";
 
-type FormData = { email: string; password: string };
+type FormData = { login: string; password: string };
 
 interface AuthFormProps {
   notify: any;
@@ -14,10 +14,10 @@ interface AuthFormProps {
 
 const AuthForm: FC<AuthFormProps> = ({ notify, swiper, isUserLoading }) => {
   const [formData, setFormData] = useState<FormData>({
-    email: "",
+    login: "",
     password: "",
   });
-  const [errors, setErrors] = useState<{ email?: boolean; password?: boolean }>(
+  const [errors, setErrors] = useState<{ login?: boolean; password?: boolean }>(
     {}
   );
   const { login, loginLoading } = useAuth();
@@ -28,11 +28,11 @@ const AuthForm: FC<AuthFormProps> = ({ notify, swiper, isUserLoading }) => {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: { email?: boolean; password?: boolean } = {};
+    const newErrors: { login?: boolean; password?: boolean } = {};
     let valid = true;
-    if (!formData.email) {
+    if (!formData.login) {
       notify({ title: "Ошибка", body: "Email обязателен", type: "error" });
-      newErrors.email = true;
+      newErrors.login = true;
       valid = false;
     }
     if (!formData.password) {
@@ -51,7 +51,7 @@ const AuthForm: FC<AuthFormProps> = ({ notify, swiper, isUserLoading }) => {
     try {
       await login(formData);
       notify({ title: "Успех", body: "Вы успешно вошли", type: "success" });
-      setFormData({ email: "", password: "" });
+      setFormData({ login: "", password: "" });
     } catch (err: any) {
       notify({
         title: "Ошибка входа",
@@ -64,12 +64,12 @@ const AuthForm: FC<AuthFormProps> = ({ notify, swiper, isUserLoading }) => {
   return (
     <form className="auth__form" onSubmit={onSubmit} noValidate>
       <InputField
-        name="email"
-        placeholder="Email"
-        type="email"
-        value={formData.email}
-        onChange={(val) => handleInputChange("email", val)}
-        error={errors.email}
+        name="login"
+        placeholder="Login"
+        type="login"
+        value={formData.login}
+        onChange={(val) => handleInputChange("login", val)}
+        error={errors.login}
       />
       <InputField
         name="password"
