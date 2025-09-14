@@ -1,8 +1,7 @@
-import React, { useMemo, useRef, useEffect } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
+import React, { useMemo, useRef } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import CircleImage from "../../../../../components/CircleImage/CircleImage";
-import { Skeleton } from "antd";
+import { Skeleton, Button } from "antd";
 import { Pin } from "lucide-react";
 import "./ChannelsTab.scss";
 import { TelegramChannel } from "../../../../../types/telegram-channel";
@@ -46,10 +45,8 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
       return res.json();
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.channels || lastPage.channels.length === 0) {
+      if (!lastPage.channels || lastPage.channels.length === 0)
         return undefined;
-      }
-
       const lastChannel = lastPage.channels[lastPage.channels.length - 1];
       return lastChannel.id || undefined;
     },
@@ -77,42 +74,15 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
     });
   }, [allChannels]);
 
-  // Debug scroll events (optional, remove after confirming fix)
-  useEffect(() => {
-    const handleScroll = () => {
-      // console.log("Wrapper scrolled!");
-      // Optional: Log when near bottom
-      const wrapper = containerRef.current;
-      if (wrapper) {
-        const { scrollTop, scrollHeight, clientHeight } = wrapper;
-        if (scrollTop + clientHeight >= scrollHeight - 100) {
-          // console.log("Near bottom, should trigger fetchNextPage!");
-        }
-      }
-    };
-
-    const wrapper = containerRef.current;
-    if (wrapper) {
-      wrapper.addEventListener("scroll", handleScroll);
-    }
-
-    return () => {
-      if (wrapper) {
-        wrapper.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, []);
-
   if (error) return <div>Ошибка загрузки</div>;
 
   return (
     <div
       className="channels-list__wrapper"
-      id="channels-list__wrapper"
       ref={containerRef}
-      style={{ height: "500px", overflow: "auto", marginTop: 30 }} // Adjusted height for modal
+      style={{ maxHeight: "500px", overflow: "auto", marginTop: 30 }}
     >
-      {isLoading && sortedChannels.length <= 0 ? (
+      {isLoading && sortedChannels.length === 0 ? (
         <div className="channels-list">
           {Array.from({ length: 10 }).map((_, idx) => (
             <Skeleton.Avatar
@@ -125,24 +95,7 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
           ))}
         </div>
       ) : sortedChannels.length > 0 ? (
-        <InfiniteScroll
-          dataLength={sortedChannels.length}
-          next={fetchNextPage}
-          hasMore={!!hasNextPage && !isFetchingNextPage}
-          loader={
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "20px",
-              }}
-            ></div>
-          }
-          scrollableTarget="channels-list__wrapper"
-          endMessage={
-            <p style={{ textAlign: "center", padding: "20px" }}>Загрузка...</p>
-          }
-        >
+        <>
           <div className="channels-list">
             {sortedChannels.map((channel: TelegramChannel, i: number) => (
               <CircleImage
@@ -177,13 +130,27 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
                       : "gray",
                 }}
                 className={
-                  channel.isPinned ? "channel-item isPinned" : "channel-item "
+                  channel.isPinned ? "channel-item isPinned" : "channel-item"
                 }
                 onClick={() => onClick(channel)}
               />
             ))}
           </div>
-        </InfiniteScroll>
+
+          {hasNextPage && (
+            <div
+              style={{ display: "flex", justifyContent: "center", padding: 20 }}
+            >
+              <Button
+                type="primary"
+                loading={isFetchingNextPage}
+                onClick={() => fetchNextPage()}
+              >
+                Показать ещё
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <div style={{ padding: "20px", textAlign: "center", color: "gray" }}>
           Нет доступных каналов
