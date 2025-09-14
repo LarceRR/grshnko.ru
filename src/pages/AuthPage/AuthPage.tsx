@@ -18,7 +18,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
-    queryFn: getUser,
+    queryFn: () => getUser(),
     retry: false,
     staleTime: 0, // Всегда проверять актуальность
   });

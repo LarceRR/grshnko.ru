@@ -1,3 +1,7 @@
+import { User } from "./user";
+
+export type PostUser = Pick<User, "id" | "username" | "avatarUrl">;
+
 export interface ScheduledPost {
   id: string;
   userId: string;
@@ -9,6 +13,7 @@ export interface ScheduledPost {
   status: "PENDING" | "SENT" | "CANCELLED" | "FAILED";
   createdAt: string;
   updatedAt?: string;
+  user?: PostUser;
 }
 
 export const STATUS_MAP: Record<
@@ -17,6 +22,6 @@ export const STATUS_MAP: Record<
 > = {
   PENDING: { label: "В ожидании", color: "#F9C74F" },
   SENT: { label: "Отправлено", color: "#4CAF50" },
-  CANCELLED: { label: "Отменено", color: "#DA3633" },
-  FAILED: { label: "Ошибка", color: "#FF7B72" },
+  CANCELLED: { label: "Отменено", color: "#FF7B72" },
+  FAILED: { label: "Ошибка", color: "#DA3633" },
 };

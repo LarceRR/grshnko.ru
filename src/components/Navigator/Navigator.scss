@@ -1,19 +1,16 @@
 .navigator-wrapper {
     display: flex;
     flex-direction: row;
-    position: relative;
     transition: all 0.1s ease-in-out;
     justify-content: space-between;
     max-width: 1420px;
 
     @media screen and (max-width: 1028px) {
         position: fixed;
-        z-index: 999;
-        bottom: 0px;
-        width: 100%;
-        background: unset;
+        bottom: 10px;
         left: 0;
-        padding: 0px 3px 3px 3px;
+        width: 100%;
+        z-index: 999;
     }
 
     & > div {
@@ -61,7 +58,6 @@
             height: auto;
             margin: 0 auto;
             border-radius: 10px;
-            box-shadow: 0px 3px 15px 7px rgb(0 0 0 / 36%);
 
             & > div {
                 display: flex;
@@ -84,6 +80,7 @@
                     padding: 5px 10px;
                     font-weight: 700;
                     opacity: .5;
+                    max-width: 50px;
                     color: var(--nav-text-color);
                     transition: all 0.2s ease-in-out;
                     display: flex;

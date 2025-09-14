@@ -26,9 +26,9 @@ const Navbar: React.FC = () => {
     return (
       <div className="navigator-wrapper">
         <nav>
-          {items.map((item) => (
-            <div key={item.key}>{item.label}</div>
-          ))}
+          {items.map(
+            (item) => item.enabled && <div key={item.key}>{item.label}</div>
+          )}
         </nav>
       </div>
     );

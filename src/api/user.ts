@@ -3,7 +3,7 @@ import axios from "axios";
 import { API_URL } from "../config";
 import { User } from "../types/user";
 
-export const getUser = async (): Promise<User | null> => {
+export const getUser = async (_username?: string): Promise<User | null> => {
   try {
     const res = await axios.get(`${API_URL}api/sessions/me`, {
       withCredentials: true,

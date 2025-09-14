@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+// pages/SheduledPosts/SheduledPosts.tsx
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getScheduledPosts,
   deleteScheduledPost,
-  createScheduledPost,
+  updateScheduledPost,
 } from "../../api/sheduledPosts";
 import { ScheduledPost, STATUS_MAP } from "../../types/sheduledPost";
 import {
@@ -12,13 +13,26 @@ import {
   useReactTable,
   getCoreRowModel,
 } from "@tanstack/react-table";
-import { Modal, Input, Space } from "antd";
 import "./SheduledPosts.scss";
-import { Pen, Repeat2, Trash } from "lucide-react";
-import { toDatetimeLocalValue } from "../../utils/date";
+import PostActions from "./PostActions";
+import EditPostModal from "./EditPostModal";
+import { API_URL } from "../../config";
+import { User } from "../../types/user";
+import { getUser } from "../../api/user";
+import { useNavigate } from "react-router";
+import TableText from "./TableText";
+import { useNotify } from "../../hooks/useNotify";
+import TableMedia from "./TableMedia/TableMedia";
+import debounce from "lodash.debounce";
+import SheduledPostFilter from "./SheduledPostsFilter";
 
 const SheduledPosts = ({ userId }: { userId?: string }) => {
   const queryClient = useQueryClient();
+  const { data: user } = useQuery<User | null>({
+    queryKey: ["user"],
+    queryFn: () => getUser(),
+  });
+
   const {
     data: posts = [],
     isLoading,
@@ -29,33 +43,78 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
     retry: false,
   });
 
+  const navigate = useNavigate();
   const [editingPost, setEditingPost] = useState<ScheduledPost | null>(null);
-  const [searchText, _] = useState("");
+  const { notify, contextHolder } = useNotify();
+  const [filteredPosts, setFilteredPosts] = useState<ScheduledPost[]>([]);
 
-  // Фильтрация по поиску
-  const filteredPosts = useMemo(() => {
-    if (!searchText) return posts;
-    return posts.filter(
-      (p) =>
-        p.text?.toLowerCase().includes(searchText.toLowerCase()) ||
-        p.chatId.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [posts, searchText]);
+  // --- Дебаунс для фильтрации текста ---
+  const handleFilterDebounced = useMemo(
+    () =>
+      debounce((posts: ScheduledPost[]) => {
+        setFilteredPosts(posts);
+      }, 200),
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      handleFilterDebounced.cancel();
+    };
+  }, [handleFilterDebounced]);
 
   const columns = useMemo<ColumnDef<ScheduledPost>[]>(
     () => [
       {
         header: "Текст",
         accessorKey: "text",
+        cell: ({ getValue }) => {
+          const text = getValue<string>();
+          return <TableText text={text} />;
+        },
       },
       {
-        header: "Канал",
-        accessorKey: "chatId",
+        header: "Медиа",
+        accessorFn: (row) => ({ photos: row.photos, videos: row.videos }),
+        cell: ({ getValue }) => {
+          const { photos, videos } = getValue<{
+            photos: string[];
+            videos: string[];
+          }>();
+          return <TableMedia photos={photos} videos={videos} />;
+        },
       },
+      { header: "Канал", accessorKey: "chatId" },
       {
         header: "Дата публикации",
         accessorKey: "timestamp",
         cell: (info) => new Date(info.getValue() as string).toLocaleString(),
+      },
+      {
+        header: "Пользователь",
+        accessorKey: "user",
+        cell: ({ getValue }) => {
+          const sheduledPostUser = getValue<ScheduledPost["user"]>();
+          return sheduledPostUser ? (
+            <div
+              className="user-info"
+              onClick={() => navigate(`/profile/${sheduledPostUser.username}`)}
+              style={{ cursor: "pointer" }}
+            >
+              <img
+                className="user-avatar"
+                src={`${API_URL}cdn/avatar/${sheduledPostUser?.avatarUrl}`}
+              />
+              <span>
+                {user?.id === sheduledPostUser.id
+                  ? "Вы"
+                  : sheduledPostUser.username}
+              </span>
+            </div>
+          ) : (
+            `-`
+          );
+        },
       },
       {
         header: "Статус",
@@ -76,68 +135,71 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
       {
         id: "actions",
         header: "Действия",
-        cell: ({ row }) => {
-          const post = row.original;
-          return (
-            <div className="actions">
-              <Space>
-                {post.status !== "SENT" && (
-                  <Trash
-                    onClick={async () => {
-                      await deleteScheduledPost(post.id);
-                      queryClient.invalidateQueries({
-                        queryKey: ["getScheduledPosts", userId],
-                      });
-                    }}
-                    size={16}
-                    color="var(--color-red)"
-                    style={{ cursor: "pointer" }}
-                  />
-                )}
-                <Pen
-                  onClick={() => setEditingPost(post)}
-                  size={16}
-                  color="var(--color-orange)"
-                  style={{ cursor: "pointer" }}
-                />
-                <Repeat2
-                  onClick={async () => {
-                    await createScheduledPost({
-                      userId: post.userId,
-                      channelId: post.chatId,
-                      text: post.text,
-                      photos: post.photos,
-                      videos: post.videos,
-                      timestamp: post.timestamp,
-                    });
-                    queryClient.invalidateQueries({
-                      queryKey: ["getScheduledPosts", userId],
-                    });
-                  }}
-                  size={16}
-                  color="var(--color-green)"
-                  style={{ cursor: "pointer" }}
-                />
-              </Space>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <PostActions
+            post={row.original}
+            userId={userId}
+            onEdit={(post) => setEditingPost(post)}
+            onDelete={async (id) => {
+              try {
+                await deleteScheduledPost(id);
+                queryClient.invalidateQueries({
+                  queryKey: ["getScheduledPosts", userId],
+                });
+                notify({
+                  type: "info",
+                  title: "Информация",
+                  body: `Пост ${id} отменен`,
+                });
+              } catch (error: any) {
+                notify({
+                  type: "error",
+                  title: "Ошибка",
+                  body: error.response?.data?.error || "Неизвестная ошибка",
+                });
+              }
+            }}
+            onRepeat={async (post) => {
+              try {
+                await updateScheduledPost(post.id, {
+                  channelId: post.chatId,
+                  text: post.text,
+                  photos: post.photos,
+                  videos: post.videos,
+                  timestamp: post.timestamp,
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ["getScheduledPosts", userId],
+                });
+                notify({
+                  type: "success",
+                  title: "Успех",
+                  body: `Пост ${post.id} обновлен`,
+                });
+              } catch (error: any) {
+                notify({
+                  type: "error",
+                  title: "Ошибка",
+                  body: error.response?.data?.error || "Неизвестная ошибка",
+                });
+              }
+            }}
+          />
+        ),
       },
     ],
-    [queryClient, userId]
+    [queryClient, userId, navigate, notify, user]
   );
 
   const table = useReactTable({
-    data: filteredPosts,
+    data: filteredPosts.length ? filteredPosts : posts,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // --- Рендер модалки редактирования ---
   const handleSave = async () => {
     if (!editingPost) return;
-    await createScheduledPost({
-      userId: editingPost.userId,
+    await updateScheduledPost(editingPost.id, {
       channelId: editingPost.chatId,
       text: editingPost.text,
       photos: editingPost.photos,
@@ -145,17 +207,27 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
       timestamp: editingPost.timestamp,
     });
     setEditingPost(null);
-    queryClient.invalidateQueries({
-      queryKey: ["getScheduledPosts", userId],
-    });
+    queryClient.invalidateQueries({ queryKey: ["getScheduledPosts", userId] });
   };
 
   if (isLoading) return <div>Загрузка отложенных постов...</div>;
   if (isError) return <div>Ошибка при загрузке постов</div>;
 
-  return (
+  const rowsToRender = table.getRowModel().rows;
+
+  return posts.length === 0 ? (
+    <div>Отложенных постов нет</div>
+  ) : (
     <div className="sheduled-posts">
-      <h2>Отложенные посты</h2>
+      {contextHolder}
+      <div className="sheduled-posts-header">
+        <h2>Отложенные посты</h2>
+        <SheduledPostFilter
+          userId={userId}
+          onFilter={(posts) => handleFilterDebounced(posts)}
+        />
+      </div>
+
       <div className="sheduled-posts-wrapper">
         <table className="sheduled-table">
           <thead>
@@ -173,8 +245,15 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
+            {rowsToRender.map((row, rowIndex) => (
+              <tr
+                key={row.id}
+                style={{
+                  opacity: 0,
+                  animation: `fadeIn 0.3s ease forwards`,
+                  animationDelay: `${rowIndex * 40}ms`,
+                }}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -185,47 +264,12 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
           </tbody>
         </table>
 
-        <Modal
-          title="Редактировать отложенный пост"
-          open={!!editingPost}
+        <EditPostModal
+          post={editingPost}
           onCancel={() => setEditingPost(null)}
-          onOk={handleSave}
-          okText="Сохранить"
-          cancelText="Отмена"
-        >
-          {editingPost && (
-            <div className="modal-content">
-              <Input
-                placeholder="Текст"
-                value={editingPost.text}
-                onChange={(e) =>
-                  setEditingPost({ ...editingPost, text: e.target.value })
-                }
-                style={{ marginBottom: "1rem" }}
-              />
-              <Input
-                placeholder="Канал"
-                value={editingPost.chatId}
-                onChange={(e) =>
-                  setEditingPost({ ...editingPost, chatId: e.target.value })
-                }
-                style={{ marginBottom: "1rem" }}
-              />
-              <Input
-                placeholder="Дата публикации"
-                type="datetime-local"
-                value={toDatetimeLocalValue(editingPost.timestamp)}
-                onChange={(e) => {
-                  const localDate = new Date(e.target.value); // локальное время
-                  setEditingPost({
-                    ...editingPost,
-                    timestamp: localDate.toISOString(), // сохраняем в UTC
-                  });
-                }}
-              />
-            </div>
-          )}
-        </Modal>
+          onSave={handleSave}
+          onChange={setEditingPost}
+        />
       </div>
     </div>
   );

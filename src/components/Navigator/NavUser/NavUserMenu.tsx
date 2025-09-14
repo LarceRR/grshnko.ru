@@ -7,6 +7,7 @@ import {
 import { useUser } from "../../../hooks/useUser";
 import UserNavInfo from "./components/UserNavInfo";
 import ThemeSwitcher from "../../ThemeSwitcher/ThemeSwitcher";
+import { MonitorCog } from "lucide-react";
 
 export interface NavUserMenuItem {
   key: string;
@@ -17,10 +18,11 @@ export interface NavUserMenuItem {
   danger?: boolean;
   closeOnClick?: boolean;
   onClick?: () => void;
+  enabled?: boolean;
 }
 
 export const useNavUserMenu = (): NavUserMenuItem[] => {
-  const { logout } = useUser();
+  const { logout, user } = useUser();
 
   return [
     {
@@ -28,6 +30,7 @@ export const useNavUserMenu = (): NavUserMenuItem[] => {
       label: <UserNavInfo />,
       closeOnClick: false,
       underline: true,
+      enabled: true,
     },
     {
       key: "profile",
@@ -35,17 +38,28 @@ export const useNavUserMenu = (): NavUserMenuItem[] => {
       icon: <UserOutlined />,
       link: "/profile",
       closeOnClick: false,
+      enabled: true,
     },
     {
       key: "settings",
       label: "Настройки",
       icon: <SettingOutlined />,
       closeOnClick: true,
+      enabled: true,
+    },
+    {
+      key: "system",
+      label: "Система",
+      icon: <MonitorCog size={16} />,
+      link: "/system",
+      closeOnClick: true,
+      enabled: user?.role?.key === "ADMIN",
     },
     {
       key: "themeSwitcher",
       label: <ThemeSwitcher />,
       closeOnClick: false,
+      enabled: true,
     },
     {
       key: "logout",
@@ -53,6 +67,7 @@ export const useNavUserMenu = (): NavUserMenuItem[] => {
       icon: <LogoutOutlined />,
       danger: true,
       closeOnClick: true,
+      enabled: true,
       onClick: logout,
     },
   ];

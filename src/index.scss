@@ -251,13 +251,36 @@ input, textarea {
     max-width: 1420px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 10px;
 
     @media screen and (max-width: 1028px) {
-      margin-bottom: 80px;
+      margin-bottom: 50px;
     }
 }
   
 :where(.css-dev-only-do-not-override-240cud).ant-btn-variant-outlined {
   border: none;
+}
+
+.ant-input, .ant-select-selector {
+  background-color: var(--input-background)!important;
+  color: var(--text-color)!important;
+  border: 1px solid var(--input-border)!important;
+}
+
+.ant-select-selection-placeholder {
+  color: var(--text-color)!important;
+  opacity: 0.6;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

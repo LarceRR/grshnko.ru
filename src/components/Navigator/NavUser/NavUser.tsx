@@ -15,7 +15,7 @@ interface NavUserProps {
 const NavUser: React.FC<NavUserProps> = ({ showAvatar = true, style }) => {
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
-    queryFn: getUser,
+    queryFn: () => getUser(),
     retry: false,
   });
 
@@ -88,28 +88,31 @@ const NavUser: React.FC<NavUserProps> = ({ showAvatar = true, style }) => {
       </div>
 
       <div className={`nav-user__dropdown ${open ? "visible" : ""}`}>
-        {menuItems.map((item: NavUserMenuItem) => (
-          <div
-            key={item.key}
-            className={`nav-user__dropdown-item ${
-              item.danger ? "danger" : ""
-            } ${item.underline ? "underline" : ""}`}
-            onClick={() => {
-              if (item.link) {
-                navigate(item.link); // переход по ссылке
-                setOpen(false); // закрыть дропдаун
-              } else {
-                item.onClick?.(); // вызвать кастомное действие
-                if (item.closeOnClick) setOpen(false);
-              }
-            }}
-          >
-            {item.icon && (
-              <span className="nav-user__dropdown-icon">{item.icon}</span>
-            )}
-            <span className="nav-user__dropdown-label">{item.label}</span>
-          </div>
-        ))}
+        {menuItems.map(
+          (item: NavUserMenuItem) =>
+            item.enabled && (
+              <div
+                key={item.key}
+                className={`nav-user__dropdown-item ${
+                  item.danger ? "danger" : ""
+                } ${item.underline ? "underline" : ""}`}
+                onClick={() => {
+                  if (item.link) {
+                    navigate(item.link); // переход по ссылке
+                    setOpen(false); // закрыть дропдаун
+                  } else {
+                    item.onClick?.(); // вызвать кастомное действие
+                    if (item.closeOnClick) setOpen(false);
+                  }
+                }}
+              >
+                {item.icon && (
+                  <span className="nav-user__dropdown-icon">{item.icon}</span>
+                )}
+                <span className="nav-user__dropdown-label">{item.label}</span>
+              </div>
+            )
+        )}
       </div>
     </div>
   );

@@ -9,14 +9,29 @@ import { AppVersion } from "./components/AppVersion/AppVersion";
 interface ITgCosmosProps {}
 
 const TgCosmos: React.FC<ITgCosmosProps> = () => {
+  const blocks = [
+    <GeneratePost key="generate" />,
+    <AiAnswer key="ai" />,
+    <ImageSelector key="images" />,
+    <SendMessage key="send" />,
+    <AppVersion key="version" />,
+  ];
+
   return (
     <div className="tg-cosmos-wrapper">
-      {/* <DashboardHeader /> */}
-      <GeneratePost />
-      <AiAnswer />
-      <ImageSelector />
-      <SendMessage />
-      <AppVersion />
+      {blocks.map((block, index) => (
+        <div
+          key={index}
+          className="tg-cosmos-block"
+          style={{
+            opacity: 0,
+            animation: `fadeIn 0.4s ease forwards`,
+            animationDelay: `${index * 40}ms`,
+          }}
+        >
+          {block}
+        </div>
+      ))}
     </div>
   );
 };

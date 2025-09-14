@@ -5,7 +5,7 @@ import UserRoleIcon from "./UserRoleIcon";
 const UserNavInfo = () => {
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
-    queryFn: getUser,
+    queryFn: () => getUser(),
     retry: false,
   });
 

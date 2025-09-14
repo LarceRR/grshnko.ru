@@ -4,6 +4,7 @@ import { API_URL } from "../config";
 import { ScheduledPost } from "../types/sheduledPost";
 import { toLocalISOString } from "../utils/date";
 
+// --- существующие функции ---
 export const createScheduledPost = async (data: {
   userId?: string;
   channelId: string;
@@ -60,5 +61,25 @@ export const searchScheduledPosts = async (filters: {
     params: filters,
     withCredentials: true,
   });
+  return res.data;
+};
+
+// --- новая функция для редактирования поста ---
+export const updateScheduledPost = async (id: string, data: {
+  channelId?: string;
+  text?: string;
+  photos?: string[];
+  videos?: string[];
+  timestamp?: string; // ISO string
+}): Promise<ScheduledPost> => {
+  const payload = {
+    ...data,
+    timestamp: data.timestamp ? toLocalISOString(data.timestamp) : undefined,
+  };
+
+  const res = await axios.patch(`${API_URL}api/schedule/${id}`, payload, {
+    withCredentials: true,
+  });
+
   return res.data;
 };

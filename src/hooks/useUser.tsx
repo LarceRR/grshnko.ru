@@ -6,12 +6,9 @@ export const useUser = () => {
   const queryClient = useQueryClient();
 
   // ✅ Получаем юзера через useQuery
-  const {
-    data: user,
-    isLoading,
-  } = useQuery<User | null>({
+  const { data: user, isLoading } = useQuery<User | null>({
     queryKey: ["user"],
-    queryFn: getUser,
+    queryFn: () => getUser(),
     retry: false,
   });
 
