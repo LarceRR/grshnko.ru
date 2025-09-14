@@ -87,7 +87,9 @@ body {
     font-weight: 700; /* Жирное начертание для элемента <strong> */
   }
 
-input {
+input, textarea {
+  font-size: 16px!important;
+  
   /* Стандартные браузеры */
   &::placeholder {
       color: gray!important; 

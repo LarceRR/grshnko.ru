@@ -11,7 +11,6 @@ export const ChannelInfo: React.FC<ChannelInfoProps> = ({ channelInfo }) => {
   if (!channelInfo) return null;
 
   const { url, fullUrl, videoMeta, description } = channelInfo;
-  console.log(channelInfo);
 
   return (
     <div className="channel-info__wrapper">

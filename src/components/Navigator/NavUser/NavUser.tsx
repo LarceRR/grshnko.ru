@@ -12,10 +12,7 @@ interface NavUserProps {
   style?: React.CSSProperties;
 }
 
-const NavUser: React.FC<NavUserProps> = ({
-  showAvatar = true,
-  style
-}) => {
+const NavUser: React.FC<NavUserProps> = ({ showAvatar = true, style }) => {
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
@@ -76,16 +73,18 @@ const NavUser: React.FC<NavUserProps> = ({
       onMouseLeave={handleMouseLeave}
     >
       <div className="nav-user__info">
-        {showAvatar && <div className="nav-user__avatar">
-          {user.avatarUrl ? (
-            <img
-              src={`${API_URL}cdn/avatar/${user.avatarUrl}`}
-              alt={user.username}
-            />
-          ) : (
-            <UserOutlined color="var(--text-color)" />
-          )}
-        </div>}
+        {showAvatar && (
+          <div className="nav-user__avatar">
+            {user.avatarUrl ? (
+              <img
+                src={`${API_URL}cdn/avatar/${user.avatarUrl}`}
+                alt={user.username}
+              />
+            ) : (
+              <UserOutlined color="var(--text-color)" />
+            )}
+          </div>
+        )}
       </div>
 
       <div className={`nav-user__dropdown ${open ? "visible" : ""}`}>

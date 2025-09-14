@@ -41,9 +41,11 @@
     .tiktok-input-wrapper {
         display: flex;
         gap: 20px;
+        flex-direction: column;
         
         input {
-        padding: 0px 6px;
+            padding: 0px 6px;
+            height: 32px!important;
 
         .generate-post-button {
             background-color: var(--button-primary-bg);

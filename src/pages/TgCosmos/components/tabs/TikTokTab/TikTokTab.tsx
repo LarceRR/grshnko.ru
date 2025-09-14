@@ -35,7 +35,6 @@ export const TikTokTab: React.FC = () => {
 
   // После загрузки видео добавляем его в массив
   useEffect(() => {
-    console.log(selectedVideos[0]);
     if (!isLoading && !isError && data) {
       const info: IChannelInfo = {
         fullUrl: data.fullUrl,
