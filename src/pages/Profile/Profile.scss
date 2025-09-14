@@ -190,11 +190,13 @@
 }
 
 .profile-value {
-  display: block;        /* или inline-block */
-  overflow: hidden;      /* скрываем лишний текст */
-  text-overflow: ellipsis; /* показываем "..." */
-  white-space: nowrap;   /* запрещаем перенос на новую строку */
-  max-width: 100%;       /* ограничиваем ширину родителем */
+  display: block;
+  max-width: 100%;
+
+  /* ключевые изменения */
+  white-space: normal;     /* разрешаем перенос строк */
+  word-break: break-word;  /* переносим слова при необходимости */
+  overflow-wrap: anywhere; /* ещё надёжнее в новых браузерах */
 }
 
 .user-editable-fields {

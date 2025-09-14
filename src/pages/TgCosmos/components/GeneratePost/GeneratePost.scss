@@ -54,6 +54,18 @@
             justify-content: space-between;
             gap: 10px;
 
+            .generate-post-input-wrapper {
+                width: 100%;
+                position: relative;
+
+                svg {
+                    position: absolute;
+                    right: 10px;
+                    top: 10px;
+                    z-index: 10;
+                }
+            }
+
             input {
                 padding: 4px 6px;                
             }

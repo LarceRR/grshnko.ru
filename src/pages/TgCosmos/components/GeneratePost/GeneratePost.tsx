@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { TabKey, TABS } from "../tabs/tabs-array";
 import "./GeneratePost.scss";
 
 export default function GeneratePost() {
   const [activeTab, setActiveTab] = useState<TabKey>("explain");
+  const navigate = useNavigate();
 
   const activeTabConfig = TABS.find((tab) => tab.key === activeTab);
 
@@ -19,7 +21,13 @@ export default function GeneratePost() {
                   className={`tab-button ${
                     activeTab === tab.key ? "active" : ""
                   }`}
-                  onClick={() => setActiveTab(tab.key)}
+                  onClick={() => {
+                    if (tab.navigateTo) {
+                      navigate(tab.navigateTo); // если есть navigateTo — переходим
+                    } else {
+                      setActiveTab(tab.key); // иначе просто меняем активный таб
+                    }
+                  }}
                 >
                   {tab.label}
                 </button>
@@ -27,9 +35,9 @@ export default function GeneratePost() {
           )}
         </div>
 
-        {activeTabConfig && (
+        {activeTabConfig && !activeTabConfig.navigateTo && (
           <div className="tab-content">
-            <activeTabConfig.Component />
+            {activeTabConfig.Component && <activeTabConfig.Component />}
             <div className="divider"></div>
           </div>
         )}

@@ -7,6 +7,7 @@ import Navigator from "./components/Navigator/Navigator";
 import ProtectedRoute from "./components/ProtectedRoute";
 import useTheme from "./hooks/useTheme";
 import Profile from "./pages/Profile/Profile";
+import SheduledPosts from "./pages/SheduledPosts/SheduledPosts";
 
 export const App = () => {
   const [__, _] = useTheme();
@@ -59,6 +60,15 @@ export const App = () => {
             <ProtectedRoute>
               <Navigator />
               <h1>Notifications</h1>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sheduled-posts"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <SheduledPosts />
             </ProtectedRoute>
           }
         />

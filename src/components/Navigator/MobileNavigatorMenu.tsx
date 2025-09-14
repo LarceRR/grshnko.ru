@@ -14,7 +14,7 @@ export function useMenuItems() {
       label: (
         <CustomNavLink to="/">
           <Home size={22} />
-          <span>TA CRM</span>
+          <span>Главная</span>
         </CustomNavLink>
       ),
       key: "0",

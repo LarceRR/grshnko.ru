@@ -1,5 +1,5 @@
 import { Input } from "antd";
-import { Ban, ArrowRight, Plus } from "lucide-react";
+import { Ban, ArrowRight, Plus, X } from "lucide-react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch } from "../../../../../store/hooks";
@@ -95,12 +95,18 @@ const TopicGetter: React.FC<ITopicGetterProps> = ({
         ></Checkbox>
       </div> */}
       <div className="generate-post-button-splitter">
-        <Input
-          type="primary"
-          className="generate-post-input"
-          onChange={(e) => setInputTopic(e.target.value)}
-          placeholder="Введите тему"
-        />
+        <div className="generate-post-input-wrapper">
+          <Input
+            type="primary"
+            value={inputTopic}
+            className="generate-post-input"
+            onChange={(e) => setInputTopic(e.target.value)}
+            placeholder="Введите тему"
+          />
+          {inputTopic && (
+            <X onClick={() => setInputTopic("")} size={16} color="#C9D1D9" />
+          )}
+        </div>
         <Button
           type="primary"
           className="generate-post-button"

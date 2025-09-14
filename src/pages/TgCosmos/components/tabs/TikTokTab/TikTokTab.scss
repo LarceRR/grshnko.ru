@@ -42,6 +42,15 @@
         display: flex;
         gap: 20px;
         flex-direction: column;
+
+        .tiktok-input {
+            position: relative;
+            svg {
+                position: absolute;
+                right: 6px;
+                top: 8px;
+            }
+        }
         
         input {
             padding: 0px 6px;

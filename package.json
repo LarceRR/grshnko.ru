@@ -19,6 +19,7 @@
     "@tailwindcss/vite": "^4.0.8",
     "@tanstack/react-query": "^5.84.2",
     "@tanstack/react-query-devtools": "^5.84.2",
+    "@tanstack/react-table": "^8.21.3",
     "antd": "^5.24.2",
     "axios": "^1.7.9",
     "dayjs": "^1.11.13",

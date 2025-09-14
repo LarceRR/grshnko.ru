@@ -1,0 +1,95 @@
+.sheduled-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sheduled-posts-wrapper {
+    display: flex;
+    background: var(--background-color);
+    color: var(--text-color);
+    flex-direction: column;
+    gap: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.sheduled-table {
+  width: 100%;
+  border-collapse: collapse;
+border-radius: 6px;
+overflow-x: auto;
+
+  th, td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--divider-color);
+    text-align: center;
+
+    @media screen and (max-width: 1024px) {
+        padding: 0.9rem;
+        font-size: 0.6rem;
+        text-align: center;
+
+        span {
+            font-size: 0.6rem!important;
+        }
+    }
+  }
+
+  tr:nth-child(even) {
+    background-color: var(--card-background);
+  }
+
+  tr:hover .actions {
+    opacity: 1;
+  }
+
+  @media screen and (max-width: 1024px) {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  justify-content: center;
+  transition: opacity 0.2s;
+
+  @media screen and (max-width: 1024px) {
+    gap: 0.25rem;
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  @media screen and (max-width: 1024px) {
+    gap: 0.25rem;
+  }
+}
+
+.ant-modal-content {
+  background-color: var(--card-background);
+  color: var(--text-color);
+}
+
+.ant-input {
+  background-color: var(--input-background);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+}
+
+.ant-btn-primary {
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+.ant-btn-danger {
+  background-color: var(--button-danger-bg);
+  color: var(--button-danger-text);
+}

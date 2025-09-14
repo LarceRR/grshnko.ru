@@ -80,13 +80,13 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
   // Debug scroll events (optional, remove after confirming fix)
   useEffect(() => {
     const handleScroll = () => {
-      console.log("Wrapper scrolled!");
+      // console.log("Wrapper scrolled!");
       // Optional: Log when near bottom
       const wrapper = containerRef.current;
       if (wrapper) {
         const { scrollTop, scrollHeight, clientHeight } = wrapper;
         if (scrollTop + clientHeight >= scrollHeight - 100) {
-          console.log("Near bottom, should trigger fetchNextPage!");
+          // console.log("Near bottom, should trigger fetchNextPage!");
         }
       }
     };
@@ -176,7 +176,9 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
                       ? "var(--text-color)"
                       : "gray",
                 }}
-                className={channel.isPinned ? "channel-item isPinned" : "channel-item "}
+                className={
+                  channel.isPinned ? "channel-item isPinned" : "channel-item "
+                }
                 onClick={() => onClick(channel)}
               />
             ))}

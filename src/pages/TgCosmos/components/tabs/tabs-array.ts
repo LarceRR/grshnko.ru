@@ -4,14 +4,15 @@ import ParaphraseTab from "../tabs/ParaphraseTab";
 import ChannelsTab from "../tabs/ChannelsTab/ChannelsTab";
 import { TikTokTab } from "./TikTokTab/TikTokTab";
 
-export type TabKey = "explain" | "paraphrase" | "channels" | "tiktok";
+export type TabKey = "explain" | "paraphrase" | "channels" | "tiktok" | "sheduledPosts";
 
 export interface TabConfig {
   key: TabKey;
   label: string;
-  Component:  React.FC<any>;
+  Component?:  React.FC<any>;
   aiAnswer: boolean;
   enabled: boolean;
+  navigateTo?: string
 }
 
 export const TABS: TabConfig[] = [
@@ -40,6 +41,13 @@ export const TABS: TabConfig[] = [
     key: "tiktok", 
     label: "TikTok", 
     Component: TikTokTab, 
+    aiAnswer: true,
+    enabled: true,
+    },
+  { 
+    key: "sheduledPosts", 
+    label: "Отложенные посты", 
+    navigateTo: "/sheduled-posts",
     aiAnswer: true,
     enabled: true,
     },

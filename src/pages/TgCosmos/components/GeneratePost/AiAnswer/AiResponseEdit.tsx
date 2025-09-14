@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Input } from "antd";
 import { AiResponseEditProps } from "../../../../../types/aiAnswer";
+import { X } from "lucide-react";
 
 const { TextArea } = Input;
 
@@ -35,6 +36,7 @@ export const AiResponseEdit: React.FC<AiResponseEditProps> = ({
         autoSize={{ minRows: 6, maxRows: 12 }}
         onBlur={onBlur}
       />
+      {content && <X onClick={() => onChange("")} size={16} color="#C9D1D9" />}
     </div>
   );
 };
