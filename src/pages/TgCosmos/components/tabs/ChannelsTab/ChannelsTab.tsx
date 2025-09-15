@@ -44,6 +44,7 @@ export const ChannelsTab: React.FC<IChannelsTabProps> = ({
       if (!res.ok) throw new Error("Failed to fetch channels");
       return res.json();
     },
+    refetchOnWindowFocus: false,
     getNextPageParam: (lastPage) => {
       if (!lastPage.channels || lastPage.channels.length === 0)
         return undefined;

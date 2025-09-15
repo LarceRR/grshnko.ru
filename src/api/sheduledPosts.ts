@@ -11,11 +11,12 @@ export const createScheduledPost = async (data: {
   text?: string;
   photos?: string[];
   videos?: string[];
-  timestamp: string; // ISO string
+  timestamp?: string; // ISO string
+  utcOffset?: number;
 }): Promise<ScheduledPost> => {
   const res = await axios.post(`${API_URL}api/schedule`, {
     ...data,
-    timestamp: toLocalISOString(data.timestamp),
+    utcOffset: new Date().getTimezoneOffset(),
   }, {
     withCredentials: true,
   });
