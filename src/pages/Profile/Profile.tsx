@@ -72,13 +72,12 @@ const Profile = () => {
     <div className="profile-block" key="personal-info">
       <h1>
         Персональная информация
-        {/* Кнопка "Редактировать" показывается только если это профиль авторизованного пользователя */}
-        {authUser?.permissions.includes("USER_CHANGE_ROLE") ||
-          (user.id === authUser?.id && (
-            <button onClick={() => setIsModalOpen(true)}>
-              <Pen size={16} /> Редактировать
-            </button>
-          ))}
+        {(authUser?.permissions.includes("USER_CHANGE_ROLE") ||
+          user.id === authUser?.id) && (
+          <button onClick={() => setIsModalOpen(true)}>
+            <Pen size={16} /> Редактировать
+          </button>
+        )}
       </h1>
       <div className="profile-info-block">
         <UserInfo title="Имя" content={user.firstName} />
