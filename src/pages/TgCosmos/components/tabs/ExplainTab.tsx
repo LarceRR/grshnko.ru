@@ -25,10 +25,10 @@ const ExplainTab: React.FC<IExplainTabProps> = () => {
         setLoading(false);
         setTopicError(false);
       })
-      .catch((error) => {
+      .catch((_) => {
         setLoading(false);
         setTopicError(true);
-        console.log(error);
+        // console.log(error);
       });
   };
 

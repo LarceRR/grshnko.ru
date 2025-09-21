@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Image, Modal } from "antd";
 import "./TableMedia.scss";
 import { VideoOff, ImageOff } from "lucide-react";
-import { API_URL } from "../../../config";
 
 interface TableMediaProps {
   photos?: string[];
@@ -29,19 +28,6 @@ const TableMedia: React.FC<TableMediaProps> = ({
     setBrokenPhotos((prev) => [...new Set([...prev, src])]);
   };
 
-  // НОВАЯ ФУНКЦИЯ для преобразования SRC для видео
-  const formatVideoSrc = (originalSrc: string): string => {
-    // Проверяем, является ли ссылка локальным путем
-    if (originalSrc && originalSrc.startsWith("/temp/")) {
-      // Убираем '/temp/' из начала строки
-      const videoIdWithExtension = originalSrc.replace("/temp/", "");
-      // Формируем полный URL для запроса к вашему бэкенду
-      return `${API_URL}cdn/video/${videoIdWithExtension}`;
-    }
-    // Если это не локальный путь, возвращаем как есть (например, ссылка с TikTok)
-    return originalSrc;
-  };
-
   // Объединяем медиа для превью
   const allMedia = [...photos, ...videos];
   const maxPreview = 3;
@@ -65,8 +51,7 @@ const TableMedia: React.FC<TableMediaProps> = ({
             ) : (
               <video
                 key={`video-${index}`}
-                // ИЗМЕНЕНО: используем нашу новую функцию
-                src={formatVideoSrc(media)}
+                src={media}
                 muted
                 onError={() => handleVideoError(media)}
               />
@@ -138,8 +123,7 @@ const TableMedia: React.FC<TableMediaProps> = ({
             ) : (
               <video
                 key={`modal-video-${index}`}
-                // ИЗМЕНЕНО: используем нашу новую функцию и здесь
-                src={formatVideoSrc(video)}
+                src={video}
                 controls
                 onError={() => handleVideoError(video)}
               />

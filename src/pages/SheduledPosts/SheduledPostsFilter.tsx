@@ -6,6 +6,7 @@ import { searchScheduledPosts } from "../../api/sheduledPosts";
 import { STATUS_MAP } from "../../types/sheduledPost";
 import { Filter } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import RefreshButton from "../../components/RefreshButton";
 
 const { RangePicker } = DatePicker;
 
@@ -99,6 +100,7 @@ const SheduledPostFilter: React.FC<SheduledPostFilterProps> = ({
       </Select>
       <RangePicker
         showTime
+        // open
         value={
           filters.timestampFrom && filters.timestampTo
             ? [dayjs(filters.timestampFrom), dayjs(filters.timestampTo)]
@@ -136,14 +138,16 @@ const SheduledPostFilter: React.FC<SheduledPostFilterProps> = ({
   return (
     <>
       {/* Кнопка открытия фильтров */}
-      <Button
-        type="text"
-        onClick={() => setIsModalVisible(true)}
-        className="filter-button"
-      >
-        <span>Фильтры</span>
-        <Filter size={24} color="var(--text-color)" />
-      </Button>
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <RefreshButton queryKey={["getScheduledPosts", userId]} countdown={5} />
+        <Button
+          type="text"
+          onClick={() => setIsModalVisible(true)}
+          className="filter-button"
+        >
+          <Filter size={24} color="var(--text-color)" />
+        </Button>
+      </div>
 
       <Modal
         title="Фильтры"

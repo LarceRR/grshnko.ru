@@ -9,6 +9,7 @@ import useTheme from "./hooks/useTheme";
 import Profile from "./pages/Profile/Profile";
 import SheduledPosts from "./pages/SheduledPosts/SheduledPosts";
 import System from "./pages/System/System";
+import UsersList from "./pages/System/system-pages/UsersListPage/UsersListPage";
 
 export const App = () => {
   const [__, _] = useTheme();
@@ -74,11 +75,20 @@ export const App = () => {
           }
         />
         <Route
-          path="/profile/:username"
+          path="/profile/:id"
           element={
             <ProtectedRoute>
               <Navigator />
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/system/users"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <UsersList />
             </ProtectedRoute>
           }
         />

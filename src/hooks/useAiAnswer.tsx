@@ -27,8 +27,8 @@ export const useAiAnswer = () => {
   const { generatePost, cancelGeneration } = useAiController({
     model: model,
     prompt: aiPrompt,
-    onGenerating: () => console.log("Генерация началась"),
-    onGenerated: (response) => console.log("Генерация завершена:", response),
+    // onGenerating: () => console.log("Генерация началась"),
+    // onGenerated: (response) => console.log("Генерация завершена:", response),
     onError: (error) => {
       notify({
         title: "Ошибка",

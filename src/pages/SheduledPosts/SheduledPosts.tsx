@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table";
 import "./SheduledPosts.scss";
 import PostActions from "./PostActions";
-import EditPostModal from "./EditPostModal";
+import EditPostModal from "./EditPostModal/EditPostModal";
 import { API_URL } from "../../config";
 import { User } from "../../types/user";
 import { getUser } from "../../api/user";

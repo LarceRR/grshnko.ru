@@ -3,12 +3,19 @@ import axios from "axios";
 import { API_URL } from "../config";
 import { User } from "../types/user";
 
-export const getUser = async (_username?: string): Promise<User | null> => {
+export const getUser = async (id?: string): Promise<User | null> => {
   try {
-    const res = await axios.get(`${API_URL}api/sessions/me`, {
+    if (id) {
+      const res = await axios.get<User>(`${API_URL}api/user/getUser/${id}`, {
+        withCredentials: true,
+      });
+      return res.data;
+    } else {
+      const res = await axios.get(`${API_URL}api/sessions/me`, {
       withCredentials: true,
     });
     return res.data.user;
+    }
   } catch (err: any) {
     if (err.response?.status === 401) {
       return null;
@@ -16,6 +23,22 @@ export const getUser = async (_username?: string): Promise<User | null> => {
     throw err;
   }
 };
+
+export async function getAllUsers(getCount?: boolean): Promise<User[] | number> {
+  if (getCount) {
+    const res = await axios.get<{ count: number }>(`${API_URL}api/user/userslist?getCount=true`, {
+      withCredentials: true,
+    });
+    // Ключевое исправление: возвращаем именно число, а не объект
+    return res.data.count;
+  }
+  
+  // Этот блок остается без изменений
+  const res = await axios.get<User[]>(`${API_URL}api/user/userslist`, {
+    withCredentials: true,
+  });
+  return res.data;
+}
 
 export const logoutUser = async (): Promise<void> => {
   try {

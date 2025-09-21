@@ -96,7 +96,7 @@ const RegisterForm: FC<RegisterFormProps> = ({
       });
       setErrors({});
     } catch (err: any) {
-      console.log(err);
+      // console.log(err);
       notify({
         title: "Ошибка регистрации",
         body: err?.response?.data?.error || "Неизвестная ошибка",

@@ -1,278 +1,74 @@
+.system-card {
+  height: 100vh;
 
-.profile-block {
-  background: var(--card-background);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  
-  .profile-info-block {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(200px, 1fr));
-    padding: 30px 40px;
-    gap: 32px; /* Расстояние между элементами, можно менять */
-    width: 100%;
-
-    @media screen and (max-width:1028px) {
-      grid-template-columns: repeat(2, minmax(100px, 1fr));
-    }
-
-    .profile-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-
-      .profile-label {
-        font-size: 14px;
-        color: var(--secondary-text-color);
-        opacity: .7;
-      }
-
-      .profile-value {
-        font-size: 16px;
-      }
-    }
-  }
-
-  @media screen and (max-width:1028px) {
-    align-items: center;
-  }
-  
-}
-
-.profile-card {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  h1 {
-    font-size: 22px;
-    text-align: left;
-    padding: 20px;
-    width: 100%;
-    border-bottom: 1px solid var(--border-color);
+  .centered {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+  }
 
-    .profile-logout {
-      button {
-        background: var(--color-red);
-        color: white;
-        font-size: 14px;
-        border-radius: 4px;
-        display: flex;
-        border: unset;
-      }
-    }
+  .grid-area-container {
+    position: relative;
+    height: 100%;
 
-    button {
-      background: var(--button-primary-bg);
-      border: none;
-      color: white;
+    .grid-item {
+      position: relative;
       cursor: pointer;
-      padding: 8px 16px;
-      font-size: 14px;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      transition: all 0.2s ease;
 
-      @media screen and (max-width:1028px) {
-        font-size: 12px;
-        padding: 4px 10px;
+      &:hover {
+        filter: brightness(1.5);
       }
     }
 
-    @media screen and (max-width:1028px) {
-      font-size: 16px;
-      padding: 10px 20px;
-    }
-  }
-
-  .profile-header, .profile-block {
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-
-    &__body {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      width: 100%;
-      padding: 20px 40px;
-
-      @media screen and (max-width:1028px) {
-        flex-direction: column;
-      }
-    }
-
-    @media screen and (max-width:1028px) {
-      flex-direction: column;
-    }
-  }
-
-  .profile-avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 2px solid var(--border-color);
-    object-fit: cover;
-
-    @media screen and (max-width:1028px) {
-      width: 80px;
-      height: 80px;
-    }
-  }
-
-  .profile-info {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    @media screen and (max-width:1028px) {
-      align-items: center;
-    }
-
-    .profile-username {
-        width: auto;
-        display: flex;
-        gap: 4px;
-        line-height: 20px;
-
-      .verified {
-        margin-left: 8px;
-        color: var(--link-color);
-        font-size: 1rem;
-      }
-    }
-
-    .profile-email {
-      color: var(--text-secondary);
-    }
-
-    .profile-role {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-
-      &.admin {
-        color: var(--notification-error-text);
+    .grid-item-redefine-wrapper {
+      position: relative;
+      
+      .loader {
+        position: absolute;
+        z-index: 2;
+        height: 48px;
+        width: 48px;
       }
     }
   }
 
-  .profile-bio {
-    color: var(--text-secondary);
-    margin-bottom: 16px;
-  }
-
-  .profile-extra {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-
-    p {
-      margin: 4px 0;
+  .grid-wrapper--markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    
+    .grid-position-marker {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
 
       span {
-        color: var(--text-color);
-      }
-
-      a {
-        color: var(--link-color);
-        text-decoration: none;
-
-        &:hover {
-          text-decoration: underline;
-        }
+        font-size: 12px;
       }
     }
   }
-}
 
-.profile-value {
-  display: block;
-  max-width: 100%;
-
-  /* ключевые изменения */
-  white-space: normal;     /* разрешаем перенос строк */
-  word-break: break-word;  /* переносим слова при необходимости */
-  overflow-wrap: anywhere; /* ещё надёжнее в новых браузерах */
-}
-
-.user-editable-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-
-  &__fields {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 20px;
-  }
-
-  .save-button {
+  .switch-button {
     background: var(--button-primary-bg);
+    font-size: 14px;
+    height: 32px;
+    padding: 0px 15px;
+    border-radius: 6px;
     border: none;
     color: white;
-    cursor: pointer;
-    padding: 8px 16px;
-    font-size: 14px;
-    border-radius: 4px;
+    margin-left: 20px;
+  }
+
+  h1 {
+    line-height: normal;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-    align-self: flex-end;
-    gap: 8px;
-
-    &:hover {
-      background: var(--button-primary-bg) !important;
-    }
+    justify-content: space-between;
   }
-}
-
-.editable-avatar {
-  gap: 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-  width: 100px;
-  height: 100px;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    .update-avatar-button {
-      display: block;
-      transition: all 0.2s ease-in-out;
-    }
-  }
-  
-  .update-avatar-button {
-    display: none;
-    background-color: #00000070;
-    border: unset;
-    bottom: 0;
-    width: 100%;
-    height: 40px;
-    left: 0;
-    color: white;
-    position: absolute;
-    transition: all 0.2s ease-in-out;
-  }
-}
-
-:where(.css-dev-only-do-not-override-240cud).ant-picker:hover .ant-picker-suffix:not(:last-child) {
-  opacity: 1;
-}
-
-:where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-panel-container {
-  background: var(--background-color);
-}
-
-:where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-content th, :where(.css-dev-only-do-not-override-240cud).ant-picker .ant-picker-input-placeholder >input {
-  color: var(--text-color);
-}
-
-:where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-cell-disabled {
-  opacity: .3;
 }

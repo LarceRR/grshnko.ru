@@ -5,21 +5,28 @@ import "./UserRoleChanger.scss";
 import { Role, User } from "../../../types/user";
 import { ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useUser } from "../../../hooks/useUser";
 
 interface IUserRoleChangerProps {
   user: User;
   onRoleChange: (role: string) => void;
 }
 
-const UserRoleChanger: React.FC<IUserRoleChangerProps> = ({ user, onRoleChange }) => {
+const UserRoleChanger: React.FC<IUserRoleChangerProps> = ({
+  user,
+  onRoleChange,
+}) => {
   const { data: roles, isLoading } = useQuery({
     queryKey: ["role"],
     queryFn: getRoles,
     retry: false,
   });
+  const { user: authUser } = useUser();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<string>(user.role?.key || "");
+  const [selectedRole, setSelectedRole] = useState<string>(
+    user.role?.key || ""
+  );
 
   // обновляем выбранное значение, если user.role изменился снаружи
   useEffect(() => {
@@ -52,12 +59,14 @@ const UserRoleChanger: React.FC<IUserRoleChangerProps> = ({ user, onRoleChange }
           showSearch
           value={selectedRole} // <-- контролируемое значение
           onSelect={(value) => {
-            console.log(value);
+            // console.log(value);
             setSelectedRole(value);
             onRoleChange(value);
           }}
           onDropdownVisibleChange={(open) => setIsDropdownOpen(open)}
-          disabled={!user.permissions.includes("USER_CHANGE_ROLE")}
+          disabled={
+            !!authUser && !authUser.permissions.includes("USER_CHANGE_ROLE")
+          }
           placeholder="Выберите роль"
           optionFilterProp="label"
           notFoundContent={
@@ -77,7 +86,10 @@ const UserRoleChanger: React.FC<IUserRoleChangerProps> = ({ user, onRoleChange }
           style={{
             width: "100%",
             height: 42,
-            opacity: !user.permissions.includes("USER_CHANGE_ROLE") ? 0.5 : 1,
+            opacity:
+              !!authUser && !authUser.permissions.includes("USER_CHANGE_ROLE")
+                ? 0.5
+                : 1,
           }}
           options={roles?.map((role) => ({
             value: role.key,
@@ -86,14 +98,22 @@ const UserRoleChanger: React.FC<IUserRoleChangerProps> = ({ user, onRoleChange }
             keyValue: role.key,
           }))}
           filterOption={(input, option) =>
-            (option?.labelPlain as string).toLowerCase().includes(input.toLowerCase()) ||
-            (option?.keyValue as string).toLowerCase().includes(input.toLowerCase())
+            (option?.labelPlain as string)
+              .toLowerCase()
+              .includes(input.toLowerCase()) ||
+            (option?.keyValue as string)
+              .toLowerCase()
+              .includes(input.toLowerCase())
           }
           suffixIcon={
             <ChevronDown
               color="var(--text-color)"
               style={{
-                opacity: !user.permissions.includes("USER_CHANGE_ROLE") ? 0.5 : 1,
+                opacity:
+                  !!authUser &&
+                  !authUser.permissions.includes("USER_CHANGE_ROLE")
+                    ? 0.5
+                    : 1,
                 transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
               }}
             />

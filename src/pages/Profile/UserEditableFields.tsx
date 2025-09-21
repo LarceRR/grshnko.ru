@@ -5,7 +5,7 @@ import EditableAvatar from "./EditableAvatar";
 import { Button, DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import UserRoleChanger from "./UserProfileChanger/UserRoleChanger";
-import { Role } from "../../types/user";
+import { Role, User } from "../../types/user";
 import { useNotify } from "../../hooks/useNotify";
 
 interface UserUpdates {
@@ -18,10 +18,15 @@ interface UserUpdates {
   avatar?: File | null;
 }
 
-const UserEditableFields: React.FC<{closeModal: () => void}> = ({closeModal} ) => {
-  const { user, isLoading, updateUser, updateError } = useUser();
+const UserEditableFields: React.FC<{
+  closeModal: () => void;
+  requestedUser?: User;
+}> = ({ closeModal, requestedUser }) => {
+  const { user: me, isLoading, updateUser, updateError } = useUser();
   const [userUpdates, setUserUpdates] = useState<UserUpdates>({});
-  const {notify, contextHolder} = useNotify()
+  const { notify, contextHolder } = useNotify();
+
+  const user = requestedUser ? requestedUser : me; // редактируем только свой профиль
 
   const handleFieldChange = (
     field: keyof UserUpdates,
@@ -34,13 +39,25 @@ const UserEditableFields: React.FC<{closeModal: () => void}> = ({closeModal} ) =
     if (!user) return;
 
     try {
-      await updateUser(userUpdates);
-      notify({ title: "Успех", body: "Профиль успешно обновлен", type: "success" });
+      // console.log("Updating user with:", user);
+      await updateUser({
+        data: userUpdates,
+        userId: requestedUser?.id,
+      });
+      notify({
+        title: "Успех",
+        body: "Профиль успешно обновлен",
+        type: "success",
+      });
       setUserUpdates({}); // очищаем изменения после успешного апдейта
       closeModal();
     } catch (err) {
       console.error("Ошибка при обновлении пользователя:", err);
-      notify({ title: "Ошибка", body: "Возникла ошибка при изменении профиля.", type: "error" });
+      notify({
+        title: "Ошибка",
+        body: "Возникла ошибка при изменении профиля.",
+        type: "error",
+      });
     }
   };
 
@@ -67,7 +84,10 @@ const UserEditableFields: React.FC<{closeModal: () => void}> = ({closeModal} ) =
         onChange={(val) => handleFieldChange("bio", val)}
       />
 
-      <UserRoleChanger user={user} onRoleChange={(role) => handleFieldChange("role", role || "")}/>
+      <UserRoleChanger
+        user={user}
+        onRoleChange={(role) => handleFieldChange("role", role || "")}
+      />
 
       <div className="user-editable-fields__fields">
         {/* Имя */}
@@ -107,13 +127,15 @@ const UserEditableFields: React.FC<{closeModal: () => void}> = ({closeModal} ) =
               userUpdates.birthDate
                 ? dayjs(userUpdates.birthDate)
                 : user.birthDate
-                ? dayjs(user.birthDate)
-                : null
+                  ? dayjs(user.birthDate)
+                  : null
             }
             onChange={(date) => {
               if (date) {
-                const isoString = dayjs(date).format("YYYY-MM-DDTHH:mm:ss.SSS[+00:00]");
-                // console.log(isoString); 
+                const isoString = dayjs(date).format(
+                  "YYYY-MM-DDTHH:mm:ss.SSS[+00:00]"
+                );
+                // console.log(isoString);
                 handleFieldChange("birthDate", isoString);
               }
             }}
@@ -150,8 +172,8 @@ const UserEditableFields: React.FC<{closeModal: () => void}> = ({closeModal} ) =
         {updateError
           ? updateError.message
           : isLoading
-          ? "Сохранение..."
-          : "Сохранить"}
+            ? "Сохранение..."
+            : "Сохранить"}
       </Button>
     </div>
   );

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Message } from "../../../../types/postTypes";
 import "./AllPosts.scss";
 import "dayjs/locale/ru";
@@ -23,11 +22,11 @@ const AllPosts = () => {
       ),
   });
 
-  useEffect(() => {
-    if (allPosts) {
-      console.log(allPosts);
-    }
-  }, [allPosts]);
+  // useEffect(() => {
+  //   if (allPosts) {
+  //     console.log(allPosts);
+  //   }
+  // }, [allPosts]);
 
   if (isPostsLoading) {
     return <div>Загрузка постов...</div>;

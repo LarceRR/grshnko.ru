@@ -143,7 +143,7 @@ input, textarea {
 
     /* Навигатор */
     --nav-background: #bfc0c253;
-    --nav-text-color: #00000077;
+    --nav-text-color: #0000002e;
     --nav-text-active: #000000;
     
     /* 🎨 Градации серого */
@@ -199,7 +199,7 @@ input, textarea {
   [data-theme='dark'] {
     /* Навигатор */
     --nav-background: #0D111790;
-    --nav-text-color: #77808a;
+    --nav-text-color: #77808a5e;
     --nav-text-active: var(--text-color);
 
     /* 🌙 Тёмная тема */
@@ -254,18 +254,12 @@ input, textarea {
     gap: 10px;
 
     @media screen and (max-width: 1028px) {
-      margin-bottom: 50px;
+      margin-bottom: 75px;
     }
 }
   
 :where(.css-dev-only-do-not-override-240cud).ant-btn-variant-outlined {
   border: none;
-}
-
-.ant-input, .ant-select-selector {
-  background-color: var(--input-background)!important;
-  color: var(--text-color)!important;
-  border: 1px solid var(--input-border)!important;
 }
 
 .ant-select-selection-placeholder {
@@ -277,10 +271,45 @@ input, textarea {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    // transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    // transform: translateY(0);
   }
+}
+
+// Класс, который будет запускать анимацию
+.fade-in {
+  // Важно! Изначально элементы невидимы
+  opacity: 0; 
+  animation-name: fadeIn;
+  animation-duration: 0.3s; // Длительность анимации
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards; // Оставить стили последнего кадра
+}
+
+:where(.css-dev-only-do-not-override-1uuba04).ant-picker-dropdown .ant-picker-panel-container {
+  background-color: var(--input-background);
+}
+
+.ant-picker-date-panel {
+  @media screen and (max-width: 768px) {
+    width: 198px!important;
+  }
+}
+
+.ant-picker-time-panel {
+  @media screen and (max-width: 768px) {
+    width: 158px!important;
+  }
+}
+
+.ant-picker-time-panel-column {
+  width: 46px!important;
+}
+
+:where(.css-dev-only-do-not-override-1uuba04).ant-picker .ant-picker-input-placeholder >input {
+  color: var(--text-color)!important;
+  opacity: 0.6;
 }

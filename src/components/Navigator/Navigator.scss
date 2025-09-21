@@ -49,12 +49,11 @@
 
         @media screen and (max-width: 1028px) {
             justify-content: flex-end;
-            background-color: var(--nav-background);
-            backdrop-filter: blur(100px);
+            backdrop-filter: blur(16px);
             display: flex;
             align-items: center;
             justify-content: space-around;
-            width: 100%;
+            width: 90%;
             height: auto;
             margin: 0 auto;
             border-radius: 10px;
@@ -79,7 +78,6 @@
                 .nav-link {
                     padding: 5px 10px;
                     font-weight: 700;
-                    opacity: .5;
                     max-width: 50px;
                     color: var(--nav-text-color);
                     transition: all 0.2s ease-in-out;

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUser } from "../../api/user";
+import { getUser } from "../../api/user"; // Предполагается, что эта функция может принимать id
 import "./Profile.scss";
 import { API_URL } from "../../config";
 import UserRoleIcon from "../../components/Navigator/NavUser/components/UserRoleIcon";
@@ -9,19 +9,26 @@ import { Modal } from "antd";
 import UserEditableFields from "./UserEditableFields";
 import { useState } from "react";
 import { LogOut, Pen } from "lucide-react";
-import { useUser } from "../../hooks/useUser";
-// import { useParams } from "react-router";
+import { useUser } from "../../hooks/useUser"; // Предполагается, что useUser предоставляет данные авторизованного пользователя
+import { useParams } from "react-router-dom";
 
 const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { logout } = useUser();
-  // const { username } = useParams();
+  const { logout, user: authUser } = useUser(); // Получаем авторизованного пользователя из useUser
 
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["user"],
-    queryFn: () => getUser(),
+  const { id } = useParams<{ id?: string }>(); // Получаем id из параметров URL
+
+  // Запрос для пользователя, профиль которого просматривается (по id или авторизованный)
+  const { data: profileUser, isLoading: isProfileUserLoading } = useQuery({
+    queryKey: ["user", id],
+    queryFn: () => getUser(id), // Передаем id в getUser
     retry: false,
+    enabled: !!id, // Включаем запрос только если id существует
   });
+
+  // Если id не предоставлен, то profileUser - это authUser. Иначе - profileUser из запроса.
+  const user = id ? profileUser : authUser;
+  const isLoading = id ? isProfileUserLoading : !authUser; // Общая загрузка
 
   if (isLoading) {
     return <div className="nav-user__loading">Loading...</div>;
@@ -31,14 +38,19 @@ const Profile = () => {
     return null;
   }
 
+  // console.log("Rendering profile for user:", user);
+
   const blocks = [
     <div className="profile-header profile-block" key="header">
       <h1>
         Профиль
-        <button onClick={logout} style={{ background: "var(--color-red)" }}>
-          <LogOut size={16} />
-          Выйти
-        </button>
+        {/* Кнопка "Выйти" показывается только если это профиль авторизованного пользователя */}
+        {user.id === authUser?.id && (
+          <button onClick={logout} style={{ background: "var(--color-red)" }}>
+            <LogOut size={16} />
+            Выйти
+          </button>
+        )}
       </h1>
       <div className="profile-block__body">
         <img
@@ -60,9 +72,13 @@ const Profile = () => {
     <div className="profile-block" key="personal-info">
       <h1>
         Персональная информация
-        <button onClick={() => setIsModalOpen(true)}>
-          <Pen size={16} /> Редактировать
-        </button>
+        {/* Кнопка "Редактировать" показывается только если это профиль авторизованного пользователя */}
+        {authUser?.permissions.includes("USER_CHANGE_ROLE") ||
+          (user.id === authUser?.id && (
+            <button onClick={() => setIsModalOpen(true)}>
+              <Pen size={16} /> Редактировать
+            </button>
+          ))}
       </h1>
       <div className="profile-info-block">
         <UserInfo title="Имя" content={user.firstName} />
@@ -115,7 +131,9 @@ const Profile = () => {
     </div>,
   ];
 
-  if (user?.role?.key === "ADMIN") {
+  // Панель администратора показывается, если текущий авторизованный пользователь является админом
+  // и если просматриваемый профиль - это профиль авторизованного пользователя (нет id в URL)
+  if (!id && authUser?.role?.key === "ADMIN") {
     blocks.push(
       <div className="profile-block" key="admin-panel">
         <h1>Панель администратора</h1>
@@ -139,14 +157,16 @@ const Profile = () => {
           {block}
         </div>
       ))}
-
       <Modal
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         okButtonProps={{ style: { display: "none" } }}
         cancelButtonProps={{ style: { display: "none" } }}
       >
-        <UserEditableFields closeModal={() => setIsModalOpen(false)} />
+        <UserEditableFields
+          closeModal={() => setIsModalOpen(false)}
+          requestedUser={user}
+        />
       </Modal>
     </div>
   );

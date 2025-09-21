@@ -43,6 +43,14 @@ const SendMessage = () => {
     if (ai_loading) return "Генерация поста";
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <div>
+          <span>Отложить пост</span>
+          <p style={{ fontSize: 12 }}>
+            {selectedChannel?.entity?.username
+              ? `в @${selectedChannel?.entity?.username}`
+              : `в ID: ${selectedChannel.id}`}
+          </p>
+        </div>
         <CalendarClock size={20} />
       </div>
     );

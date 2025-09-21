@@ -18,8 +18,15 @@ export const useUser = () => {
     isPending: isUpdating,
     error: updateError,
   } = useMutation({
-    mutationFn: (data: Partial<User>) => {
-      return updateUserApi(user!.id, data);
+    mutationFn: ({
+      data,
+      userId,
+    }: {
+      data: Partial<User>;
+      userId?: string;
+    }) => {
+      const id = userId ?? user!.id;
+      return updateUserApi(id, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });

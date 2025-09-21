@@ -10,7 +10,7 @@ export const useTikTokDownload = (queryUrl: string) => {
         params: { url: queryUrl, download: 1 },
         withCredentials: true,
       });
-      console.log(res)
+      // console.log(res)
       return res.data.videoUrl;
     },
     enabled: !!queryUrl,
