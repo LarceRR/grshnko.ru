@@ -2,7 +2,6 @@
 import axios from "axios";
 import { API_URL } from "../config";
 import { ScheduledPost } from "../types/sheduledPost";
-import { toLocalISOString } from "../utils/date";
 
 // --- существующие функции ---
 export const createScheduledPost = async (data: {
@@ -75,7 +74,7 @@ export const updateScheduledPost = async (id: string, data: {
 }): Promise<ScheduledPost> => {
   const payload = {
     ...data,
-    timestamp: data.timestamp ? toLocalISOString(data.timestamp) : undefined,
+    timestamp: data.timestamp,
   };
 
   const res = await axios.patch(`${API_URL}api/schedule/${id}`, payload, {

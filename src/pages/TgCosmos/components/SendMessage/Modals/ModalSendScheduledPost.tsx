@@ -1,7 +1,7 @@
 import { Input, Modal } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { TelegramChannel } from "../../../../../types/telegram-channel";
-import { SendHorizonal } from "lucide-react";
+import { CalendarClock, SendHorizonal } from "lucide-react";
 import ChannelsTab from "../../tabs/ChannelsTab/ChannelsTab";
 import { useNotify } from "../../../../../hooks/useNotify";
 import { IChannelInfo } from "../../../../../types/tiktok";
@@ -34,9 +34,12 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
   selectedChannel,
   setSelectedChannel,
 }) => {
+  const timeOffset = 1 * 60 * 60 * 1000; // Час вперёд
   const { notify, contextHolder } = useNotify();
-  const [selectedScheduleDate, setSelectedScheduleDate] =
-    React.useState<Date>();
+  const [selectedScheduleDate, setSelectedScheduleDate] = useState<Date>(
+    new Date(Date.now() + timeOffset)
+  );
+  const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false);
   const handleSendScheduledPost = async () => {
     if (ai_response || selectedImages.length || selectedVideos.length) {
       // Тут идёт дальнейшая логика
@@ -58,12 +61,8 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
       [];
 
     try {
-      const localDate = selectedScheduleDate ?? new Date();
-
       // Переводим в UTC с учётом смещения клиента
-      const timestamp = new Date(
-        localDate.getTime() - localDate.getTimezoneOffset() * 60 * 1000
-      ).toISOString();
+      const timestamp = new Date(Date.now() + timeOffset).toISOString();
       createScheduledPost({
         channelId: selectedChannel?.entity?.username
           ? `@${selectedChannel?.entity?.username}`
@@ -100,33 +99,49 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
   return (
     <Modal
       open={isModalOpen}
-      onCancel={() => setModalOpen(false)}
       width={"auto"}
       centered
+      onCancel={() => setModalOpen(false)}
       cancelButtonProps={{
         ghost: true,
       }}
       className="send-post-modal"
-      cancelText="Отмена"
-      okText={
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <div>
-            <span>Отправить отложенный пост</span>
-            <p style={{ fontSize: 12 }}>
-              {selectedChannel?.entity?.username
-                ? `в @${selectedChannel?.entity?.username}`
-                : `в ID: ${selectedChannel.id}`}
-            </p>
-          </div>
-          <SendHorizonal size={20} />
+      footer={
+        <div className="send-post-modal__footer">
+          <button
+            onClick={() => setModalOpen(false)}
+            style={{ background: "unset", color: "var(--text-color)" }}
+          >
+            Отмена
+          </button>
+          <button onClick={() => setIsDatePickerModalOpen(true)}>
+            {selectedScheduleDate ? (
+              <span>{selectedScheduleDate.toLocaleString()}</span>
+            ) : (
+              "Выбрать дату"
+            )}{" "}
+            <CalendarClock size={20} />
+          </button>
+          <button
+            style={{
+              background: "var(--button-primary-bg)",
+            }}
+            onClick={handleSendScheduledPost}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <div>
+                <span>Отправить пост</span>
+                <p style={{ fontSize: 12 }}>
+                  {selectedChannel?.entity?.username
+                    ? `в @${selectedChannel?.entity?.username}`
+                    : `в ID: ${selectedChannel.id}`}
+                </p>
+              </div>
+              <SendHorizonal size={20} />
+            </div>
+          </button>
         </div>
       }
-      okButtonProps={{
-        style: {
-          background: "var(--button-primary-bg)",
-        },
-      }}
-      onOk={handleSendScheduledPost}
     >
       {contextHolder}
       <ChannelsTab
@@ -134,16 +149,35 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
         onClick={(channel: TelegramChannel) => setSelectedChannel(channel)}
         loadOnlyMyChannels={false}
       />
-      <Input
-        placeholder="Дата публикации"
-        type="datetime-local"
-        value={toDatetimeLocalValue(selectedScheduleDate || "")}
-        onChange={(e) => {
-          const localDate = new Date(e.target.value);
-          setSelectedScheduleDate(localDate);
+      <div
+        style={{
+          fontSize: 12,
+          color: "var(--text-secondary)",
+          width: "100%",
+          textAlign: "center",
+          marginTop: 30,
         }}
-        style={{ marginTop: "1rem", color: "var(--text-color)" }}
-      />
+      >
+        Выберите дату публикации. Если дата не выбрана, пост будет отправлен
+        через 1 час
+      </div>
+      <Modal
+        open={isDatePickerModalOpen}
+        onCancel={() => setIsDatePickerModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <Input
+          placeholder="Дата публикации"
+          type="datetime-local"
+          value={toDatetimeLocalValue(selectedScheduleDate || "")}
+          onChange={(e) => {
+            const localDate = new Date(e.target.value);
+            setSelectedScheduleDate(localDate);
+          }}
+          style={{ marginTop: "1rem", color: "var(--text-color)" }}
+        />
+      </Modal>
     </Modal>
   );
 };

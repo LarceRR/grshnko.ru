@@ -25,6 +25,7 @@ import { useNotify } from "../../hooks/useNotify";
 import TableMedia from "./TableMedia/TableMedia";
 import debounce from "lodash.debounce";
 import SheduledPostFilter from "./SheduledPostsFilter";
+import { Popover } from "antd";
 
 const SheduledPosts = ({ userId }: { userId?: string }) => {
   const queryClient = useQueryClient();
@@ -119,13 +120,23 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
       {
         header: "Статус",
         accessorKey: "status",
-        cell: ({ getValue }) => {
-          const status = getValue<ScheduledPost["status"]>();
+        cell: ({ row }) => {
+          const status = row.original.status;
+          const errorDetails = row.original.errorDetails;
           const { label, color } = STATUS_MAP[status] || {
             label: status,
             color: "var(--text-color)",
           };
-          return (
+          return errorDetails ? (
+            <Popover
+              content={<div style={{ maxWidth: 300 }}>{errorDetails}</div>}
+              title="Детали ошибки"
+            >
+              <span style={{ color, fontWeight: 500, fontSize: 14 }}>
+                {label}
+              </span>
+            </Popover>
+          ) : (
             <span style={{ color, fontWeight: 500, fontSize: 14 }}>
               {label}
             </span>

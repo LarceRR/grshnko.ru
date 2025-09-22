@@ -11,6 +11,7 @@ export interface ScheduledPost {
   videos: string[];
   timestamp: string; // ISO string
   status: "PENDING" | "SENT" | "CANCELLED" | "FAILED";
+  errorDetails?: string; // Details about failure if status is FAILED
   createdAt: string;
   updatedAt?: string;
   user?: PostUser;

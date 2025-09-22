@@ -1,8 +1,49 @@
 .send-post-modal {
+
+    .send-post-modal__footer {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+
+        @media screen and (max-width: 767px) {
+            flex-direction: column-reverse;
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    }
+
+    button {
+        background-color: var(--button-primary-bg);
+        height: auto;
+        padding-inline: 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        min-height: 38px;
+        display: flex;
+        padding: 5px 15px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        border: unset;
+        color: white;
+
+        .scheduled-date-display {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-direction: column;
+        }
+    }
+
     .ant-modal-footer {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: center;
     }
 }
 
@@ -24,7 +65,7 @@
         width: 100%;
         align-items: center;
         gap: 10px;
-        justify-content: flex-end;
+        justify-content: center;
     }
 
     .error-message {
