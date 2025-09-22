@@ -1,0 +1,213 @@
+.sheduled-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 24px;
+
+    .sheduled-posts-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+
+    /* --- Стили скроллбара --- */
+    &::-webkit-scrollbar {
+        width: 2px;   /* вертикальный скролл */
+        height: 2px;  /* горизонтальный скролл */
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent; /* можно оставить прозрачным */
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--divider-color); /* цвет ползунка */
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--text-color); /* при наведении */
+    }
+
+    /* Для Firefox */
+    scrollbar-width: thin;        /* тонкий скролл */
+    scrollbar-color: var(--divider-color) transparent;
+}
+
+.sheduled-posts-wrapper {
+    display: flex;
+    background: var(--background-color);
+    color: var(--text-color);
+    flex-direction: column;
+    gap: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.sheduled-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 6px;
+    overflow-x: auto;
+
+    th, td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--divider-color);
+        text-align: center;
+
+        @media screen and (max-width: 1024px) {
+            padding: 0.9rem;
+            font-size: 14px;
+            text-align: center;
+
+            span {
+                font-size: 14px!important;
+            }
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+
+            span {
+                font-size: 14px;
+                opacity: 0.7;
+            }
+
+            img {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                object-fit: cover;
+                outline: 1px solid var(--border-color);
+            }
+        }
+    }
+
+    tr:nth-child(even) {
+        background-color: var(--card-background);
+    }
+
+    tr:hover .actions {
+        opacity: 1;
+    }
+
+    @media screen and (max-width: 1024px) {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  justify-content: center;
+  transition: opacity 0.2s;
+
+  @media screen and (max-width: 1024px) {
+    gap: 0.25rem;
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  @media screen and (max-width: 1024px) {
+    gap: 0.25rem;
+  }
+}
+.filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+
+    .ant-space-item {
+        width: 100%!important;
+
+        .ant-picker {
+            width: 100%;
+        }
+    }
+}
+
+.filter-button { 
+    padding: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    span {
+      color: var(--text-color);
+    }
+}
+
+.ant-modal-content {
+  background-color: var(--card-background);
+  color: var(--text-color);
+}
+
+.ant-btn-primary {
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+.ant-btn-danger {
+  background-color: var(--button-danger-bg);
+  color: var(--button-danger-text);
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-picker-outlined {
+  background-color: var(--input-background);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+
+  &:hover {
+    background-color: var(--input-background);
+    border: 1px solid var(--input-focus);
+  }
+}
+
+:where(.css-dev-only-do-not-override-1uuba04).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-in-range:not(.ant-picker-cell-disabled):before, :where(.css-dev-only-do-not-override-1uuba04).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-start:not(.ant-picker-cell-disabled):before, :where(.css-dev-only-do-not-override-1uuba04).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-end:not(.ant-picker-cell-disabled):before,
+:where(.css-dev-only-do-not-override-1uuba04).ant-picker-dropdown .ant-picker-time-panel-column >li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background: var(--button-primary-bg);
+  color: white;
+  opacity: .8;
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-selected:not(.ant-picker-cell-disabled) .ant-picker-cell-inner, :where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-start:not(.ant-picker-cell-disabled) .ant-picker-cell-inner, :where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-end:not(.ant-picker-cell-disabled) .ant-picker-cell-inner {
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-in-range:not(.ant-picker-cell-disabled):before, :where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-start:not(.ant-picker-cell-disabled):before, :where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-end:not(.ant-picker-cell-disabled):before {
+  background: var(--button-primary-bg);
+  color: white;
+  opacity: .8;
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-time-panel-column >li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-time-panel-column >li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+  color: var(--text-color);
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-picker-dropdown .ant-picker-datetime-panel {
+    @media screen and (max-width: 1024px) {
+        flex-direction: column;
+    }
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-picker-outlined:focus, :where(.css-dev-only-do-not-override-240cud).ant-picker-outlined:focus-within {
+    border: 1px solid var(--input-focus);
+    background-color: var(--input-background);
+}

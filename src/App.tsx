@@ -10,6 +10,7 @@ import Profile from "./pages/Profile/Profile";
 import SheduledPosts from "./pages/SheduledPosts/SheduledPosts";
 import System from "./pages/System/System";
 import UsersList from "./pages/System/system-pages/UsersListPage/UsersListPage";
+import Settings from "./pages/Settings/Settings";
 
 export const App = () => {
   const [__, _] = useTheme();
@@ -98,6 +99,15 @@ export const App = () => {
             <ProtectedRoute>
               <Navigator />
               <System />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <Settings />
             </ProtectedRoute>
           }
         />

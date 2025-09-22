@@ -1,0 +1,55 @@
+.table-media-preview {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+
+  img,
+  video, span {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(255, 123, 114);
+  }
+}
+
+.table-media-modal {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  img,
+  video, span {
+    width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    p {
+      opacity: .6;
+    }
+  }
+}
+
+.table-media-count {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}

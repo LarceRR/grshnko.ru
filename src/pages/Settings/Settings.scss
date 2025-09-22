@@ -1,0 +1,74 @@
+.system-card {
+  height: 100vh;
+
+  .centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .grid-area-container {
+    position: relative;
+    height: 100%;
+
+    .grid-item {
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        filter: brightness(1.5);
+      }
+    }
+
+    .grid-item-redefine-wrapper {
+      position: relative;
+      
+      .loader {
+        position: absolute;
+        z-index: 2;
+        height: 48px;
+        width: 48px;
+      }
+    }
+  }
+
+  .grid-wrapper--markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    
+    .grid-position-marker {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+
+      span {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .switch-button {
+    background: var(--button-primary-bg);
+    font-size: 14px;
+    height: 32px;
+    padding: 0px 15px;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    margin-left: 20px;
+  }
+
+  h1 {
+    line-height: normal;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

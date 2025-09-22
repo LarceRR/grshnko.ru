@@ -44,6 +44,7 @@ export const useNavUserMenu = (): NavUserMenuItem[] => {
       key: "settings",
       label: "Настройки",
       icon: <SettingOutlined />,
+      link: "/settings",
       closeOnClick: true,
       enabled: true,
     },
