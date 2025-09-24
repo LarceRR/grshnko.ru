@@ -77,12 +77,10 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
       {
         header: "Медиа",
         accessorFn: (row) => ({ photos: row.photos, videos: row.videos }),
-        cell: ({ getValue }) => {
-          const { photos, videos } = getValue<{
-            photos: string[];
-            videos: string[];
-          }>();
-          return <TableMedia photos={photos} videos={videos} />;
+        cell: ({ row }) => {
+          const { photos, ScheduledVideo } = row.original;
+          console.log(ScheduledVideo);
+          return <TableMedia photos={photos} videos={ScheduledVideo} />;
         },
       },
       { header: "Канал", accessorKey: "chatId" },

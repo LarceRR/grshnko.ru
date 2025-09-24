@@ -2,48 +2,38 @@ import React, { useState } from "react";
 import { Image, Modal } from "antd";
 import "./TableMedia.scss";
 import { VideoOff, ImageOff } from "lucide-react";
-import { API_URL } from "../../../config";
+import { IScheduledVideo } from "../../../types/sheduledPost";
 
 interface TableMediaProps {
   photos?: string[];
-  videos?: string[];
+  videos?: IScheduledVideo[];
 }
+
+type MediaItem =
+  | { type: "photo"; src: string }
+  | { type: "video"; video: IScheduledVideo };
 
 const TableMedia: React.FC<TableMediaProps> = ({
   photos = [],
   videos = [],
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [brokenVideos, setBrokenVideos] = useState<string[]>([]);
   const [brokenPhotos, setBrokenPhotos] = useState<string[]>([]);
 
   const handleOpenModal = () => {
     if (photos.length || videos.length) setIsModalVisible(true);
   };
 
-  const handleVideoError = (src: string) => {
-    setBrokenVideos((prev) => [...new Set([...prev, src])]);
-  };
-
   const handlePhotoError = (src: string) => {
     setBrokenPhotos((prev) => [...new Set([...prev, src])]);
   };
 
-  // НОВАЯ ФУНКЦИЯ для преобразования SRC для видео
-  const formatVideoSrc = (originalSrc: string): string => {
-    // Проверяем, является ли ссылка локальным путем
-    if (originalSrc && originalSrc.startsWith("/temp/")) {
-      // Убираем '/temp/' из начала строки
-      const videoIdWithExtension = originalSrc.replace("/temp/", "");
-      // Формируем полный URL для запроса к вашему бэкенду
-      return `${API_URL}cdn/video/${videoIdWithExtension}`;
-    }
-    // Если это не локальный путь, возвращаем как есть (например, ссылка с TikTok)
-    return originalSrc;
-  };
+  // Объединяем все медиа
+  const allMedia: MediaItem[] = [
+    ...photos.map((p) => ({ type: "photo" as const, src: p })),
+    ...videos.map((v) => ({ type: "video" as const, video: v })),
+  ];
 
-  // Объединяем медиа для превью
-  const allMedia = [...photos, ...videos];
   const maxPreview = 3;
   const previewMedia = allMedia.slice(0, maxPreview);
   const remainingCount = allMedia.length - maxPreview;
@@ -52,27 +42,18 @@ const TableMedia: React.FC<TableMediaProps> = ({
     <>
       <div className="table-media-preview" onClick={handleOpenModal}>
         {previewMedia.map((media, index) => {
-          const isVideo = videos.includes(media);
-          if (isVideo) {
-            return brokenVideos.includes(media) ? (
+          if (media.type === "video") {
+            return (
               <span
-                key={`video-error-${index}`}
+                key={`video-${media.video.id}`}
                 className="video-error"
-                title="Вероятно, ссылка на видео устарела"
+                title="Видео недоступно"
               >
                 <VideoOff size={20} color="black" />
               </span>
-            ) : (
-              <video
-                key={`video-${index}`}
-                // ИЗМЕНЕНО: используем нашу новую функцию
-                src={formatVideoSrc(media)}
-                muted
-                onError={() => handleVideoError(media)}
-              />
             );
           } else {
-            return brokenPhotos.includes(media) ? (
+            return brokenPhotos.includes(media.src) ? (
               <span
                 key={`photo-error-${index}`}
                 className="photo-error"
@@ -83,9 +64,9 @@ const TableMedia: React.FC<TableMediaProps> = ({
             ) : (
               <img
                 key={`photo-${index}`}
-                src={media}
+                src={media.src}
                 alt={`media-${index}`}
-                onError={() => handlePhotoError(media)}
+                onError={() => handlePhotoError(media.src)}
               />
             );
           }
@@ -125,26 +106,16 @@ const TableMedia: React.FC<TableMediaProps> = ({
               />
             )
           )}
-          {videos.map((video, index) =>
-            brokenVideos.includes(video) ? (
-              <span
-                key={`modal-video-error-${index}`}
-                className="video-error"
-                title="Вероятно, ссылка на видео устарела"
-              >
-                <VideoOff size={20} color="var(--text-color)" />
-                <p>Ссылка на видео устарела</p>
-              </span>
-            ) : (
-              <video
-                key={`modal-video-${index}`}
-                // ИЗМЕНЕНО: используем нашу новую функцию и здесь
-                src={formatVideoSrc(video)}
-                controls
-                onError={() => handleVideoError(video)}
-              />
-            )
-          )}
+          {videos.map((video) => (
+            <span
+              key={`modal-video-error-${video.id}`}
+              className="video-error"
+              title="Видео недоступно"
+            >
+              <VideoOff size={20} color="var(--text-color)" />
+              <p>Видео недоступно</p>
+            </span>
+          ))}
         </div>
       </Modal>
     </>

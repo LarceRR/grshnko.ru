@@ -1,4 +1,4 @@
-import { Bell, Home, MonitorCog } from "lucide-react";
+import { Bell, Home, MonitorCog, Settings } from "lucide-react";
 import CustomNavLink from "../custom-components/custom-link";
 import CircleImage from "../CircleImage/CircleImage";
 import { API_URL } from "../../config";
@@ -52,6 +52,16 @@ export function useMenuItems() {
       ),
       key: "3",
       enabled: user?.role?.key === "ADMIN",
+    },
+    {
+      label: (
+        <CustomNavLink to="/settings">
+          <Settings size={22} />
+          <span>Настройки</span>
+        </CustomNavLink>
+      ),
+      key: "4",
+      enabled: true,
     },
   ];
 

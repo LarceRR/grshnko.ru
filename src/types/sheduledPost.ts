@@ -15,6 +15,14 @@ export interface ScheduledPost {
   createdAt: string;
   updatedAt?: string;
   user?: PostUser;
+  ScheduledVideo?: IScheduledVideo[];
+}
+
+export interface IScheduledVideo {
+  createdAt: string;
+  id: string;
+  scheduledPostId: string;
+  url: string;
 }
 
 export const STATUS_MAP: Record<

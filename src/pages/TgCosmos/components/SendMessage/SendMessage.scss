@@ -66,6 +66,16 @@
         align-items: center;
         gap: 10px;
         justify-content: center;
+
+        @media screen and (max-width: 767px) {
+            flex-direction: column;
+            text-align: center;
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     }
 
     .error-message {

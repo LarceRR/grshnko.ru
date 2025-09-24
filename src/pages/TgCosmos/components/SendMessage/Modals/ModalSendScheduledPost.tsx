@@ -40,10 +40,31 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
     new Date(Date.now() + timeOffset)
   );
   const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false);
+
+  // --- Новая функция для формирования строки даты в локальном времени ---
+  const toLocalISOString = (date: Date) => {
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+      date.getDate()
+    )}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+      date.getSeconds()
+    )}`;
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [datePart, timePart] = e.target.value.split("T");
+    const [year, month, day] = datePart.split("-").map(Number);
+    const [hours, minutes] = timePart.split(":").map(Number);
+    const localDate = new Date(year, month - 1, day, hours, minutes);
+    setSelectedScheduleDate(localDate);
+  };
+
   const handleSendScheduledPost = async () => {
-    if (ai_response || selectedImages.length || selectedVideos.length) {
-      // Тут идёт дальнейшая логика
-    } else {
+    if (
+      !ai_response &&
+      selectedImages.length === 0 &&
+      selectedVideos.length === 0
+    ) {
       notify({
         type: "error",
         title: "Нет контента.",
@@ -55,40 +76,39 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
     setModalOpen(false);
     setLoading(true);
     setError(null);
+
     const photosArray = selectedImages?.map((i) => i.url) || [];
     const videoUrls: string[] =
-      selectedVideos.map((v) => v.fullUrl).filter((v): v is string => !!v) ||
-      [];
+      selectedVideos.map((v) => v.url).filter((v): v is string => !!v) || [];
 
     try {
-      // Переводим в UTC с учётом смещения клиента
-      const timestamp = new Date(Date.now() + timeOffset).toISOString();
-      createScheduledPost({
+      const timestamp = selectedScheduleDate
+        ? toLocalISOString(selectedScheduleDate)
+        : toLocalISOString(new Date(Date.now() + timeOffset));
+
+      await createScheduledPost({
         channelId: selectedChannel?.entity?.username
-          ? `@${selectedChannel?.entity?.username}`
+          ? `@${selectedChannel.entity.username}`
           : `${selectedChannel.id}`,
         text: ai_response,
         photos: photosArray,
         videos: videoUrls,
         timestamp: timestamp,
       });
+
       notify({
         title: "Успех",
         body: "Пост отправлен в очередь на отправку",
         type: "success",
       });
+
       setLoading(false);
     } catch (err) {
       console.error("Ошибка отправки поста", err);
-
-      // Используем текст ошибки от сервера
       const errorMessage =
         err instanceof Error ? err.message : "Неизвестная ошибка";
-
       setError(err instanceof Error ? err : new Error("Неизвестная ошибка"));
       setLoading(false);
-
-      // Показываем уведомление с текстом ошибки от сервера
       notify({
         title: "Ошибка отправки поста!",
         body: errorMessage,
@@ -96,15 +116,14 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
       });
     }
   };
+
   return (
     <Modal
       open={isModalOpen}
       width={"auto"}
       centered
       onCancel={() => setModalOpen(false)}
-      cancelButtonProps={{
-        ghost: true,
-      }}
+      cancelButtonProps={{ ghost: true }}
       className="send-post-modal"
       footer={
         <div className="send-post-modal__footer">
@@ -123,9 +142,7 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
             <CalendarClock size={20} />
           </button>
           <button
-            style={{
-              background: "var(--button-primary-bg)",
-            }}
+            style={{ background: "var(--button-primary-bg)" }}
             onClick={handleSendScheduledPost}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
@@ -133,7 +150,7 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
                 <span>Отправить пост</span>
                 <p style={{ fontSize: 12 }}>
                   {selectedChannel?.entity?.username
-                    ? `в @${selectedChannel?.entity?.username}`
+                    ? `в @${selectedChannel.entity.username}`
                     : `в ID: ${selectedChannel.id}`}
                 </p>
               </div>
@@ -171,10 +188,7 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
           placeholder="Дата публикации"
           type="datetime-local"
           value={toDatetimeLocalValue(selectedScheduleDate || "")}
-          onChange={(e) => {
-            const localDate = new Date(e.target.value);
-            setSelectedScheduleDate(localDate);
-          }}
+          onChange={handleDateChange}
           style={{ marginTop: "1rem", color: "var(--text-color)" }}
         />
       </Modal>
