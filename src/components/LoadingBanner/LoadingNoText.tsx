@@ -3,6 +3,7 @@ import "./LoadingBanner.scss";
 const LoadingBannerNoText = () => {
   return (
     <div
+      className="loader-wrapper"
       style={{
         position: "absolute",
         top: "0",

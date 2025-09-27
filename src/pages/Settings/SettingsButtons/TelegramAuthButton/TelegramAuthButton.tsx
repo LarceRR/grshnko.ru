@@ -1,51 +1,91 @@
-import "./TelegramAuthButton.scss"; // Предполагается, что у вас есть стили
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import "./TelegramAuthButton.scss";
+import { getTelegramStatus } from "../../../../api/telegram";
+import LoadingBannerNoText from "../../../../components/LoadingBanner/LoadingNoText";
+import { Modal } from "antd";
+import TelegramAuthModal from "./TelegramAuthModal";
 import { useState } from "react";
+import React from "react"; // Импортируем React для типа события
 
 const TelegramAuthButton = () => {
-  // const navigate = useNavigate();
-  const [mokeTelegramData, _] = useState({
-    isConnected: true,
-    isSessionFileExists: true,
-    isAuthorizationRequired: false,
-    username: "grshnko_bot",
-    firstName: "Руслан",
-    lastName: "Bot",
+  const queryClient = useQueryClient();
+
+  const {
+    data: status,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["telegram-status"],
+    queryFn: getTelegramStatus,
+    retry: false,
   });
-  // const {
-  //   data: count, // `count` теперь автоматически имеет тип `number | undefined`
-  //   isLoading,
-  //   isError,
-  // } = useQuery({
-  //   // Рекомендация: использовать более конкретный ключ для запроса количества
-  //   queryKey: ["usersListCount"],
-  //   queryFn: () => getAllUsers(true), // TypeScript теперь знает, что это вернет Promise<number>
-  //   retry: false,
-  // });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // ИЗМЕНЕНО: Создаем единую, универсальную функцию закрытия
+  const handleClose = (e?: React.MouseEvent<HTMLElement>) => {
+    // 1. Проверяем, было ли передано событие `e`. Если да - вызываем preventDefault.
+    if (e) {
+      e.stopPropagation();
+    }
+
+    // 2. Эта логика выполняется в любом случае.
+    setIsModalOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["telegram-status"] });
+    console.log("Modal closed and status query invalidated.");
+  };
 
   return (
-    <div className="settings-telegram-auth-button">
-      {/* {isLoading && <LoadingBannerNoText />}
-      {isError && <span style={{ color: "red" }}>Ошибка загрузки</span>} */}
-      <div>
-        <img src="/icons/Telegram.svg"></img>
-        <span>
-          {mokeTelegramData.isConnected
-            ? `Telegram подключен (${mokeTelegramData.firstName})`
-            : "Telegram не подключен, нажмите для входа"}
-        </span>
-      </div>
-      <div>
-        {mokeTelegramData.isAuthorizationRequired ? (
-          <span>Требуется авторизация</span>
-        ) : (
-          <span>Авторизация не требуется</span>
-        )}
-        {mokeTelegramData.isSessionFileExists ? (
-          <span>Файл сессии существует</span>
-        ) : (
-          <span>Файл сессии не найден</span>
-        )}
-      </div>
+    <div
+      className="settings-telegram-auth-button"
+      onClick={status?.connected ? undefined : () => setIsModalOpen(true)}
+    >
+      {isLoading && <LoadingBannerNoText />}
+      {isError && <span style={{ color: "red" }}>Ошибка загрузки</span>}
+      {status && (
+        <>
+          <div>
+            {status.user?.avatar ? (
+              <div className="avatar-and-icon">
+                <img src="/icons/Telegram.svg" alt="Telegram Icon" />
+                <img src={status.user.avatar} alt="User Avatar" />
+              </div>
+            ) : (
+              <img
+                src="/icons/Telegram.svg"
+                className="telegram-icon"
+                alt="Telegram Icon"
+              />
+            )}
+            <span>
+              {status.connected
+                ? `Telegram подключен (${status.user?.firstName})`
+                : "Telegram не подключен, нажмите для входа"}
+            </span>
+          </div>
+          <div>
+            <span>
+              {status.connected
+                ? "Авторизация пройдена"
+                : "Требуется авторизация"}
+            </span>
+          </div>
+        </>
+      )}
+
+      <Modal
+        open={isModalOpen && !status?.connected}
+        // ИЗМЕНЕНО: Передаем нашу новую универсальную функцию
+        onCancel={handleClose}
+        centered
+        footer={null}
+      >
+        <TelegramAuthModal
+          initialStatus={status}
+          // ИЗМЕНЕНО: И сюда тоже передаем ту же самую функцию
+          onClose={handleClose}
+        />
+      </Modal>
     </div>
   );
 };
