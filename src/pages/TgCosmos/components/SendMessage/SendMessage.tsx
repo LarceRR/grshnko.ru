@@ -30,7 +30,7 @@ const SendMessage = () => {
   const selectedVideos = useAppSelector(
     (state) => state.currentVideo.selectedVideos
   );
-  const { ai_response, ai_loading } = useAppSelector(
+  const { ai_response, ai_loading, post_entities } = useAppSelector(
     (state) => state.ai_response
   );
   const { selectedImages } = useAppSelector((state) => state.images);
@@ -80,6 +80,7 @@ const SendMessage = () => {
     <div className="send-post-wrapper">
       <div className="send-post-wrapper__subwrapper">
         <ModalSendPostNow
+          post_entities={post_entities}
           setInfoText={setInfoText}
           setProgress={setProgress}
           setError={setModalPostError}
@@ -96,6 +97,7 @@ const SendMessage = () => {
         />
 
         <ModalSendScheduledPost
+          post_entities={post_entities}
           setError={setModalScheduledPostError}
           setLoading={setModalScheduledPostLoading}
           error={modalScheduledPostError}

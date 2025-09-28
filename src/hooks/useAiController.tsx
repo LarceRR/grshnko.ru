@@ -2,7 +2,6 @@ import { useCallback, useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
   setAiError,
-  setAiIsMarkdownLocked,
   setAiLoading,
   setAiResponse,
   setIsAiAlreadyAsked,
@@ -42,7 +41,6 @@ const useAiController = ({
       dispatch(setIsAiAlreadyAsked(true));
       dispatch(setAiResponse(""));
       dispatch(setAiError(""));
-      dispatch(setAiIsMarkdownLocked(false));
 
       onGenerating?.();
 
@@ -94,7 +92,6 @@ const useAiController = ({
 
       dispatch(setAiLoading(false));
       dispatch(setIsAiAlreadyAsked(false));
-      dispatch(setAiIsMarkdownLocked(false));
 
       onGenerated?.(accumulatedData);
     } catch (err) {
@@ -111,7 +108,6 @@ const useAiController = ({
           : "Произошла неизвестная ошибка при генерации поста";
 
       dispatch(setAiError(errorMessage));
-      dispatch(setAiIsMarkdownLocked(false));
 
       if (err instanceof Error) onError?.(err);
       else onError?.(new Error(String(err)));

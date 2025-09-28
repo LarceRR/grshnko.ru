@@ -8,6 +8,7 @@ import { IChannelInfo } from "../../../../../types/tiktok";
 import { useNotify } from "../../../../../hooks/useNotify";
 import { API_URL } from "../../../../../config";
 import SendPostNotification from "../SendPostNotification/SendPostNotification";
+import { Entity } from "../../../../../components/MarkdownEditor/MarkdownEditor";
 
 interface IModalSendPostNowProps {
   isModalOpen: boolean;
@@ -17,6 +18,7 @@ interface IModalSendPostNowProps {
   setProgress: (value: number) => void;
   setInfoText: (value: string) => void;
   setLoading: (value: boolean) => void;
+  post_entities: Entity[];
   setError: (value: Error | null) => void;
   loading: boolean;
   error: Error | null;
@@ -27,6 +29,7 @@ interface IModalSendPostNowProps {
 
 const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
   isModalOpen,
+  post_entities,
   setModalOpen,
   ai_response,
   setLoading,
@@ -61,18 +64,41 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
 
     const formData = new URLSearchParams();
     formData.append("message", ai_response);
+
     formData.append(
       "channel",
       selectedChannel?.entity?.username
         ? `@${selectedChannel?.entity?.username}`
         : `${selectedChannel.id}`
     );
+
+    if (post_entities.length)
+      formData.append("entities", JSON.stringify(post_entities));
+
     const photosArray = selectedImages?.map((i) => i.url) || [];
     if (photosArray.length)
       formData.append("photos", JSON.stringify(photosArray));
 
     const videoUrls = selectedVideos.map((v) => v.fullUrl).filter(Boolean);
     if (videoUrls.length) formData.append("videos", JSON.stringify(videoUrls));
+
+    // const updatedEntities: Entity[] = [...post_entities];
+
+    // videoUrls.forEach((videoUrl) => {
+    //   if (videoUrl) {
+    //     updatedEntities.push({
+    //       type: "text_url",
+    //       offset: 0, // Можно выбрать смещение 0, если текст не отображается, или подставить длину имени видео
+    //       length: videoUrl.length, // Можно использовать длину строки URL
+    //       url: videoUrl,
+    //     });
+    //   }
+    // });
+
+    // // Теперь используем updatedEntities для отправки
+    // // if (updatedEntities.length) {
+    // //   formData.append("entities", JSON.stringify(updatedEntities));
+    // // }
 
     try {
       const response = await fetch(`${API_URL}sendMessage`, {

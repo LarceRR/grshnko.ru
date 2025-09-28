@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Image, Modal } from "antd";
 import "./TableMedia.scss";
-import { VideoOff, ImageOff } from "lucide-react";
+import { VideoOff, ImageOff, Video } from "lucide-react";
 import { IScheduledVideo } from "../../../types/sheduledPost";
 
 interface TableMediaProps {
@@ -49,7 +49,7 @@ const TableMedia: React.FC<TableMediaProps> = ({
                 className="video-error"
                 title="Видео недоступно"
               >
-                <VideoOff size={20} color="black" />
+                <Video size={20} color="var(--text-color)" />
               </span>
             );
           } else {

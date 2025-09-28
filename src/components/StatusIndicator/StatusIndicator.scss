@@ -1,0 +1,77 @@
+.status-indicator {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: currentColor;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+    animation: pulse 1.8s ease-out infinite;
+  }
+}
+
+.enabled {
+  color: var(--color-green);
+  background-color: currentColor;
+}
+
+.disabled {
+  color: var(--color-red);
+  background-color: currentColor;
+}
+
+.error {
+  color: var(--color-red);
+  background-color: currentColor;
+  width: 12px;
+  height: 12px;
+
+  &::after {
+    // ❗ Оставляем пульсацию (по желанию)
+    background-color: currentColor;
+    animation: pulse 1s ease-out infinite;
+  }
+
+  &::before {
+    content: "!";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    font-size: 7px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 1;
+  }
+}
+
+.warning {
+  color: var(--color-yellow);
+  background-color: currentColor;
+}
+
+.info {
+  color: var(--color-blue);
+  background-color: currentColor;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0;
+  }
+}

@@ -8,6 +8,7 @@ import { IChannelInfo } from "../../../../../types/tiktok";
 import { IImage } from "../../../../../features/imagesSlice";
 import { createScheduledPost } from "../../../../../api/sheduledPosts";
 import { toDatetimeLocalValue } from "../../../../../utils/date";
+import { Entity } from "../../../../../components/MarkdownEditor/MarkdownEditor";
 
 interface IModalSendPostNowProps {
   isModalOpen: boolean;
@@ -17,6 +18,7 @@ interface IModalSendPostNowProps {
   setError: (value: Error | null) => void;
   loading: boolean;
   error: Error | null;
+  post_entities: Entity[];
   selectedImages: IImage[];
   selectedVideos: IChannelInfo[];
   selectedChannel: TelegramChannel;
@@ -27,6 +29,7 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
   isModalOpen,
   setModalOpen,
   ai_response,
+  post_entities,
   selectedImages,
   setLoading,
   setError,
@@ -40,16 +43,6 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
     new Date(Date.now() + timeOffset)
   );
   const [isDatePickerModalOpen, setIsDatePickerModalOpen] = useState(false);
-
-  // --- Новая функция для формирования строки даты в локальном времени ---
-  const toLocalISOString = (date: Date) => {
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-      date.getDate()
-    )}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
-      date.getSeconds()
-    )}`;
-  };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const [datePart, timePart] = e.target.value.split("T");
@@ -82,9 +75,10 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
       selectedVideos.map((v) => v.url).filter((v): v is string => !!v) || [];
 
     try {
+      // 👉 Для отправки всегда берём UTC ISO
       const timestamp = selectedScheduleDate
-        ? toLocalISOString(selectedScheduleDate)
-        : toLocalISOString(new Date(Date.now() + timeOffset));
+        ? selectedScheduleDate.toISOString()
+        : new Date(Date.now() + timeOffset).toISOString();
 
       await createScheduledPost({
         channelId: selectedChannel?.entity?.username
@@ -92,8 +86,9 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
           : `${selectedChannel.id}`,
         text: ai_response,
         photos: photosArray,
+        entities: post_entities,
         videos: videoUrls,
-        timestamp: timestamp,
+        timestamp, // теперь всегда UTC
       });
 
       notify({

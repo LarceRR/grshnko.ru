@@ -2,12 +2,14 @@
 import axios from "axios";
 import { API_URL } from "../config";
 import { ScheduledPost } from "../types/sheduledPost";
+import { Entity } from "../components/MarkdownEditor/MarkdownEditor";
 
 // --- существующие функции ---
 export const createScheduledPost = async (data: {
   userId?: string;
   channelId: string;
   text?: string;
+  entities?: Entity[];
   photos?: string[];
   videos?: string[];
   timestamp?: string;

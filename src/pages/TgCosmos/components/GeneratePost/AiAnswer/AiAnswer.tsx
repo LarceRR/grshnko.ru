@@ -2,31 +2,30 @@ import React from "react";
 import "./AiAnswer.scss";
 import { AiAnswerHeader } from "./AiAnswerHeader";
 import { GenerateButton } from "./GenerateButton";
-import { AiResponseView } from "./AiResponseView";
-import { AiResponseEdit } from "./AiResponseEdit";
 import { useAiAnswer } from "../../../../../hooks/useAiAnswer";
 import { Modal } from "antd";
 import AiPromptTextArea from "./AiPromptTextArea";
 import { RefreshCcw } from "lucide-react";
+import MarkdownEditor from "../../../../../components/MarkdownEditor/MarkdownEditor";
+import { useAppDispatch } from "../../../../../store/hooks";
+import { setPostEntities } from "../../../../../features/aiResponceSlice";
 
 export const AiAnswer: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const {
     setModel,
     aiResponse,
-    isMarkdownLocked,
-    isEditing,
     isLoading,
     isError,
     contextHolder,
-    textAreaWrapperRef,
     handleGenerate,
     setAiPrompt,
     aiPrompt,
-    handleToggleEdit,
     handleTextChange,
     buttonConfig,
   } = useAiAnswer();
+
+  const dispatch = useAppDispatch();
 
   return (
     <div className="generate-post-result ai-answer__wrapper">
@@ -44,26 +43,18 @@ export const AiAnswer: React.FC = () => {
           icon={<RefreshCcw size={20} />}
           loading={isLoading}
           style={{
-            backgroundColor: isError ? "var(--color-red)" : "var(--button-primary-bg)",
+            backgroundColor: isError
+              ? "var(--color-red)"
+              : "var(--button-primary-bg)",
           }}
         />
       </AiAnswerHeader>
 
-      {isEditing ? (
-        <AiResponseEdit
-          content={aiResponse}
-          isEditing={isEditing}
-          wrapperRef={textAreaWrapperRef}
-          onChange={handleTextChange}
-          onBlur={() => handleToggleEdit()}
-        />
-      ) : (
-        <AiResponseView
-          content={aiResponse}
-          isLocked={isMarkdownLocked}
-          onToggleEdit={handleToggleEdit}
-        />
-      )}
+      <MarkdownEditor
+        value={aiResponse}
+        onChange={handleTextChange}
+        onEntitiesChange={(entities) => dispatch(setPostEntities(entities))}
+      />
       <Modal
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}

@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Entity } from "../components/MarkdownEditor/MarkdownEditor";
 
 interface IAiResponseState {
   ai_response: string,
   ai_loading: boolean,
   ai_error: string,
+  post_entities: Entity[]
   ai_isAlreadyAsked: boolean,
-  ai_isMarkdownLocked: boolean
 }
 
 const initialState: IAiResponseState = {
@@ -13,7 +14,7 @@ const initialState: IAiResponseState = {
   ai_loading: false,
   ai_error: '',
   ai_isAlreadyAsked: false,
-  ai_isMarkdownLocked: true
+  post_entities: []
 }
 
 export const ai_responseSlice = createSlice({
@@ -32,12 +33,12 @@ export const ai_responseSlice = createSlice({
     setIsAiAlreadyAsked: (state, action: PayloadAction<boolean>) => {
       state.ai_isAlreadyAsked = action.payload
     },
-    setAiIsMarkdownLocked: (state, action: PayloadAction<boolean>) => {
-      state.ai_isMarkdownLocked = action.payload
+    setPostEntities: (state, action: PayloadAction<Entity[]>) => {
+      state.post_entities = action.payload
     }
   },
 });
 
-export const { setAiResponse, setAiLoading, setAiError, setIsAiAlreadyAsked, setAiIsMarkdownLocked } = ai_responseSlice.actions;
+export const { setAiResponse, setAiLoading, setAiError, setIsAiAlreadyAsked, setPostEntities } = ai_responseSlice.actions;
 
 export default ai_responseSlice.reducer;

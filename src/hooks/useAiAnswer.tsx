@@ -8,8 +8,9 @@ import { AIModelType } from "../pages/TgCosmos/components/GeneratePost/AiAnswer/
 import { useNotify } from "./useNotify";
 
 export const useAiAnswer = () => {
-  const { ai_response, ai_loading, ai_error, ai_isMarkdownLocked } =
-    useAppSelector((state) => state.ai_response);
+  const { ai_response, ai_loading, ai_error } = useAppSelector(
+    (state) => state.ai_response
+  );
   const { topic } = useAppSelector((state) => state.topic);
   const dispatch = useAppDispatch();
 
@@ -69,12 +70,6 @@ export const useAiAnswer = () => {
     }
   }, [ai_loading, generatePost, cancelGeneration]);
 
-  const handleToggleEdit = useCallback(() => {
-    if (!ai_isMarkdownLocked) {
-      setIsEditing((prev) => !prev);
-    }
-  }, [ai_isMarkdownLocked]);
-
   const handleTextChange = useCallback(
     (value: string) => {
       dispatch(setAiResponse(value));
@@ -108,7 +103,6 @@ export const useAiAnswer = () => {
     aiResponse: ai_response,
     isLoading: ai_loading,
     isError: ai_error,
-    isMarkdownLocked: ai_isMarkdownLocked,
     isEditing,
     contextHolder,
     textAreaWrapperRef,
@@ -116,7 +110,6 @@ export const useAiAnswer = () => {
     setModel,
     setAiPrompt,
     handleGenerate,
-    handleToggleEdit,
     handleTextChange,
     buttonConfig: getButtonConfig(),
   };
