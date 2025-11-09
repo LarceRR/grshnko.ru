@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/LarceRR/grshnko.ru/compare/v1.7.10...v1.8.0) (2025-11-09)
+
 ### [1.7.10](https://github.com/LarceRR/grshnko.ru/compare/v1.7.9...v1.7.10) (2025-09-28)
 
 ### [1.7.9](https://github.com/LarceRR/grshnko.ru/compare/v1.7.8...v1.7.9) (2025-09-27)
