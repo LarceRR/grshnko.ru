@@ -1,4 +1,4 @@
-import "./LoadingBanner.scss";
+import "./LoaderSpinner/LoaderSpinner.scss";
 
 const LoadingBannerNoText = () => {
   return (
@@ -9,7 +9,6 @@ const LoadingBannerNoText = () => {
         top: "0",
         left: "0",
         width: "100%",
-        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

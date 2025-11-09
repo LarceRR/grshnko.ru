@@ -11,6 +11,7 @@ import { useState } from "react";
 import { LogOut, Pen } from "lucide-react";
 import { useUser } from "../../hooks/useUser"; // Предполагается, что useUser предоставляет данные авторизованного пользователя
 import { useParams } from "react-router-dom";
+import ActiveSessions from "./ActiveSessions/ActiveSessions";
 
 const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -130,6 +131,29 @@ const Profile = () => {
     </div>,
   ];
 
+  if (
+    authUser && // пользователь авторизован
+    (authUser.permissions.includes("MY_SESSIONS_LIST") ||
+      authUser.permissions.includes("SESSIONS_LIST"))
+  ) {
+    const isSelf = !id || id === authUser.id; // если это мой профиль
+    const sessionsUserId = isSelf ? authUser.id : id; // чей ID использовать
+
+    blocks.push(
+      <div className="profile-block" key="sessions">
+        <h1>
+          Активные сессии
+          {isSelf && (
+            <button style={{ background: "var(--color-red)" }}>
+              <LogOut size={16} /> Завершить все сессии
+            </button>
+          )}
+        </h1>
+
+        <ActiveSessions userId={sessionsUserId} />
+      </div>
+    );
+  }
   // Панель администратора показывается, если текущий авторизованный пользователь является админом
   // и если просматриваемый профиль - это профиль авторизованного пользователя (нет id в URL)
   if (!id && authUser?.role?.key === "ADMIN") {

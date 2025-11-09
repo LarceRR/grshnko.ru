@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import "./SendMessage.scss";
 import { Ban, CalendarClock, SendHorizonal } from "lucide-react";
-import { useAppSelector } from "../../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 import Button from "../../../../components/custom-components/custom-button";
 import {
   defaultChannel,
@@ -9,6 +9,9 @@ import {
 } from "../../../../types/telegram-channel";
 import ModalSendPostNow from "./Modals/ModalSendPostNow";
 import ModalSendScheduledPost from "./Modals/ModalSendScheduledPost";
+import { useHashtagsHistory } from "../../../../components/MarkdownEditor/hooks/useHashtagsHistory";
+import { extractCompletedHashtags } from "../../../../components/MarkdownEditor/utils/hashtags";
+import { setActiveChannel } from "../../../../features/selectedChannelSlice";
 
 const SendMessage = () => {
   const [modalScheduledPostLoading, setModalScheduledPostLoading] =
@@ -27,6 +30,7 @@ const SendMessage = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isModalOpenScheduled, setModalOpenScheduled] = useState(false);
 
+  const dispatch = useAppDispatch();
   const selectedVideos = useAppSelector(
     (state) => state.currentVideo.selectedVideos
   );
@@ -34,6 +38,26 @@ const SendMessage = () => {
     (state) => state.ai_response
   );
   const { selectedImages } = useAppSelector((state) => state.images);
+  const { addToHistory } = useHashtagsHistory();
+
+  const handleSelectedChannelChange = useCallback(
+    (channel: TelegramChannel) => {
+      setSelectedChannel(channel);
+      dispatch(setActiveChannel(channel));
+    },
+    [dispatch]
+  );
+
+  const handleHashtagsSave = useCallback(
+    (text: string) => {
+      if (!text) {
+        return;
+      }
+      const completedHashtags = extractCompletedHashtags(text);
+      completedHashtags.forEach((tag) => addToHistory(tag));
+    },
+    [addToHistory]
+  );
 
   const renderSheduledButtonText = () => {
     if (modalScheduledPostError)
@@ -93,7 +117,8 @@ const SendMessage = () => {
           isModalOpen={isModalOpen}
           setModalOpen={setModalOpen}
           selectedChannel={selectedChannel}
-          setSelectedChannel={setSelectedChannel}
+          setSelectedChannel={handleSelectedChannelChange}
+          onPostSent={handleHashtagsSave}
         />
 
         <ModalSendScheduledPost
@@ -108,7 +133,8 @@ const SendMessage = () => {
           isModalOpen={isModalOpenScheduled}
           setModalOpen={setModalOpenScheduled}
           selectedChannel={selectedChannel}
-          setSelectedChannel={setSelectedChannel}
+          setSelectedChannel={handleSelectedChannelChange}
+          onPostSent={handleHashtagsSave}
         />
 
         <Button

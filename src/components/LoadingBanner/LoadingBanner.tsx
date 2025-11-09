@@ -1,4 +1,4 @@
-import "./LoadingBanner.scss";
+import LoaderSpinner from "./LoaderSpinner/LoaderSpinner";
 
 const LoadingBanner = () => {
   return (
@@ -15,7 +15,7 @@ const LoadingBanner = () => {
       }}
     >
       <div className="loader-wrapper">
-        <div className="loader"></div>
+        <LoaderSpinner />
         <h1>Идет загрузка страницы...</h1>
         <span>Пожалуйста, подождите</span>
       </div>

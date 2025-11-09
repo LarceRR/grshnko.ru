@@ -7,13 +7,14 @@ import { Modal } from "antd";
 import AiPromptTextArea from "./AiPromptTextArea";
 import { RefreshCcw } from "lucide-react";
 import MarkdownEditor from "../../../../../components/MarkdownEditor/MarkdownEditor";
-import { useAppDispatch } from "../../../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../../../store/hooks";
 import { setPostEntities } from "../../../../../features/aiResponceSlice";
 
 export const AiAnswer: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const {
     setModel,
+    model,
     aiResponse,
     isLoading,
     isError,
@@ -26,6 +27,20 @@ export const AiAnswer: React.FC = () => {
   } = useAiAnswer();
 
   const dispatch = useAppDispatch();
+  const selectedVideos = useAppSelector(
+    (state) => state.currentVideo.selectedVideos
+  );
+  const activeChannel = useAppSelector(
+    (state) => state.selectedChannel.channel
+  );
+
+  const primaryVideo = selectedVideos?.[0];
+  const videoSourceUrl = primaryVideo?.url || primaryVideo?.fullUrl;
+  const channelUsername =
+    activeChannel?.entity?.username || activeChannel?.username;
+  const channelUrl = channelUsername
+    ? `https://t.me/${channelUsername.replace(/^@/, "")}`
+    : undefined;
 
   return (
     <div className="generate-post-result ai-answer__wrapper">
@@ -51,9 +66,12 @@ export const AiAnswer: React.FC = () => {
       </AiAnswerHeader>
 
       <MarkdownEditor
-        value={aiResponse}
+        aiResponse={aiResponse}
+        isAiGenerating={isLoading}
         onChange={handleTextChange}
         onEntitiesChange={(entities) => dispatch(setPostEntities(entities))}
+        videoSourceUrl={videoSourceUrl}
+        channelUrl={channelUrl}
       />
       <Modal
         open={isModalOpen}
@@ -68,6 +86,7 @@ export const AiAnswer: React.FC = () => {
           modalToggler={setIsModalOpen}
           generatePost={handleGenerate}
           setModel={setModel}
+          selectedModel={model}
         />
       </Modal>
     </div>

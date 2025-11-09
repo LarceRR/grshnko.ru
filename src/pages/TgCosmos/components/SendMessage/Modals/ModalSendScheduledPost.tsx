@@ -23,6 +23,7 @@ interface IModalSendPostNowProps {
   selectedVideos: IChannelInfo[];
   selectedChannel: TelegramChannel;
   setSelectedChannel: (channel: TelegramChannel) => void;
+  onPostSent?: (text: string) => void;
 }
 
 const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
@@ -36,6 +37,7 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
   selectedVideos,
   selectedChannel,
   setSelectedChannel,
+  onPostSent,
 }) => {
   const timeOffset = 1 * 60 * 60 * 1000; // Час вперёд
   const { notify, contextHolder } = useNotify();
@@ -96,6 +98,10 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
         body: "Пост отправлен в очередь на отправку",
         type: "success",
       });
+
+      if (ai_response) {
+        onPostSent?.(ai_response);
+      }
 
       setLoading(false);
     } catch (err) {

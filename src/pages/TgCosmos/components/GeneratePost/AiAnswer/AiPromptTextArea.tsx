@@ -12,6 +12,7 @@ interface IAiPromptTextAreaProps {
   modalToggler: Dispatch<React.SetStateAction<boolean>>;
   generatePost: () => void;
   setModel: (model: AIModelType) => void;
+  selectedModel: AIModelType;
 }
 
 const AiPromptTextArea: React.FC<IAiPromptTextAreaProps> = ({
@@ -20,13 +21,8 @@ const AiPromptTextArea: React.FC<IAiPromptTextAreaProps> = ({
   modalToggler,
   generatePost,
   setModel,
+  selectedModel,
 }) => {
-  const [selectedModel, setSelectedModel] = React.useState<AIModelType>({
-    modelId: "",
-    text: "Выберите модель",
-    popularity: 0,
-  });
-
   // Сортируем модели по популярности (по убыванию)
   const sortedData = [...rawData].sort(
     (a, b) => ((b.popularity as number) ?? 0) - ((a.popularity as number) ?? 0)
@@ -49,11 +45,10 @@ const AiPromptTextArea: React.FC<IAiPromptTextAreaProps> = ({
     <div className="ai-prompt-textarea-wrapper">
       <h6>Выберите модель (только бесплатные)</h6>
       <Select
-        value={selectedModel.modelId}
+        value={selectedModel?.modelId || undefined}
         onChange={(value) => {
           const model = sortedData.find((item) => item.modelId === value);
           if (model) {
-            setSelectedModel(model);
             setModel(model);
           }
         }}

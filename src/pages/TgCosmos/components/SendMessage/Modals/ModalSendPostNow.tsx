@@ -25,6 +25,7 @@ interface IModalSendPostNowProps {
   selectedVideos: IChannelInfo[];
   selectedChannel: TelegramChannel;
   setSelectedChannel: (channel: TelegramChannel) => void;
+  onPostSent?: (text: string) => void;
 }
 
 const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
@@ -40,6 +41,7 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
   selectedVideos,
   selectedChannel,
   setSelectedChannel,
+  onPostSent,
 }) => {
   const { notify, contextHolder } = useNotify();
   const [_, setLoadingDone] = useState(false);
@@ -99,6 +101,8 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
     // // if (updatedEntities.length) {
     // //   formData.append("entities", JSON.stringify(updatedEntities));
     // // }
+
+    let hasSavedHashtags = false;
 
     try {
       const response = await fetch(`${API_URL}sendMessage`, {
@@ -172,6 +176,17 @@ const ModalSendPostNow: React.FC<IModalSendPostNowProps> = ({
                 ),
                 type: "success",
               });
+
+              if (!hasSavedHashtags) {
+                const messageText =
+                  typeof data.details.message === "string"
+                    ? data.details.message
+                    : ai_response;
+                if (messageText) {
+                  onPostSent?.(messageText);
+                }
+                hasSavedHashtags = true;
+              }
             }
 
             // Ошибка в SSE потоке

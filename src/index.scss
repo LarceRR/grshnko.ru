@@ -245,6 +245,15 @@ input, textarea {
     --divider-color: #21262D;
   }
   
+.empty-data {
+  width: 100%;
+  padding: 30px;
+  text-align: center;
+  font-size: 18px;
+  color: var(--text-color);
+  font-style: italic;
+}
+
 .router-wrapper {
     height: 100%;
     width: 100%;

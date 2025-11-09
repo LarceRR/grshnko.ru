@@ -7,6 +7,7 @@ import ai_responseSlice from "../features/aiResponceSlice";
 import serverStatusSlice from "../features/systemStatusSlice";
 import tabSlice from "../features/tabsSlide";
 import currentVideoSlice from "../features/currentVideoSlice";
+import selectedChannelSlice from "../features/selectedChannelSlice";
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
     serverStatus: serverStatusSlice,
     currentTab: tabSlice,
     currentVideo: currentVideoSlice,
+    selectedChannel: selectedChannelSlice,
   },
 });
 
