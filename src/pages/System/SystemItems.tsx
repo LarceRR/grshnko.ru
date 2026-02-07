@@ -2,6 +2,8 @@
 import { GridItem } from "../../components/GridWrapper/GridWrapper";
 import DataBaseButton from "./SystemButtons/DataBaseButton/DataBaseButton";
 import UserListButton from "./SystemButtons/UserListButton/UserListButton";
+import AnimationsButton from "./SystemButtons/AnimationsButton/AnimationsButton";
+import DevicesButton from "./SystemButtons/DevicesButton/DevicesButton";
 
 export const gridItems: React.ReactElement[] = [
   <GridItem
@@ -20,5 +22,20 @@ export const gridItems: React.ReactElement[] = [
   >
     <DataBaseButton />
   </GridItem>,
-  // Добавляй другие элементы сюда по необходимости
+  <GridItem
+    key="animations"
+    colSpan={1}
+    rowSpan={1}
+    className="grid-item-redefine-wrapper"
+  >
+    <AnimationsButton />
+  </GridItem>,
+  <GridItem
+    key="devices"
+    colSpan={1}
+    rowSpan={1}
+    className="grid-item-redefine-wrapper"
+  >
+    <DevicesButton />
+  </GridItem>,
 ];

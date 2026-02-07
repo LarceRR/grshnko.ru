@@ -11,6 +11,9 @@ import SheduledPosts from "./pages/SheduledPosts/SheduledPosts";
 import System from "./pages/System/System";
 import UsersList from "./pages/System/system-pages/UsersListPage/UsersListPage";
 import Settings from "./pages/Settings/Settings";
+import Animations from "./pages/Animations/Animations";
+import Devices from "./pages/Devices/Devices";
+import DeviceDetail from "./pages/Devices/DeviceDetail";
 
 export const App = () => {
   const [__, _] = useTheme();
@@ -108,6 +111,33 @@ export const App = () => {
             <ProtectedRoute>
               <Navigator />
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/animations"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <Animations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/devices"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <Devices />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/devices/:id"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <DeviceDetail />
             </ProtectedRoute>
           }
         />

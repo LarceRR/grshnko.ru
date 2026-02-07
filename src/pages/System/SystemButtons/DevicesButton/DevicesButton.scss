@@ -1,0 +1,44 @@
+.system-grid-button {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+  color: var(--text-color);
+
+  div {
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  svg {
+    color: var(--text-color);
+  }
+
+  &__number {
+    font-size: 22px;
+    text-align: center;
+    color: var(--text-color);
+  }
+
+  &__label-small {
+    font-size: 16px;
+    text-align: center;
+    opacity: 0.5;
+    color: var(--text-secondary);
+  }
+
+  &__title-wrap {
+    grid-column: span 2;
+  }
+
+  &__title {
+    font-size: 14px;
+    height: fit-content;
+    text-align: center;
+    margin-top: 10px;
+    color: var(--text-color);
+  }
+}

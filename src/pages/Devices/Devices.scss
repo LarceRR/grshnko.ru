@@ -1,0 +1,134 @@
+.devices-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 24px;
+
+  .devices-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--text-color);
+  }
+
+  .devices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .device-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: border-color 0.2s;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--input-focus);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+
+      .device-name {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--text-color);
+      }
+      .device-status-badge {
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+
+        &.online {
+          background: rgba(46, 160, 67, 0.2);
+          color: var(--color-green);
+        }
+        &.offline {
+          background: var(--button-secondary-bg);
+          color: var(--text-secondary);
+        }
+        &.error {
+          background: rgba(207, 34, 46, 0.2);
+          color: var(--color-red);
+        }
+      }
+    }
+
+    .device-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+
+      .meta-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 4px;
+
+        span:first-child {
+          flex-shrink: 0;
+        }
+        span:last-child {
+          font-family: monospace;
+          font-size: 12px;
+        }
+      }
+    }
+
+    .device-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--divider-color);
+
+      button {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--button-secondary-border);
+        background: var(--button-secondary-bg);
+        color: var(--button-secondary-text);
+        cursor: pointer;
+
+        &:hover {
+          background: var(--button-secondary-hover);
+        }
+
+        &.btn-danger {
+          background: var(--button-danger-bg);
+          color: var(--button-danger-text);
+          border-color: transparent;
+        }
+      }
+    }
+  }
+
+  .devices-empty,
+  .devices-loading {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+  }
+}

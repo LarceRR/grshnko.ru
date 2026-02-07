@@ -1,4 +1,11 @@
-import { Bell, Home, MonitorCog, Settings } from "lucide-react";
+import {
+  Bell,
+  Home,
+  MonitorCog,
+  Settings,
+  Sparkles,
+  Smartphone,
+} from "lucide-react";
 import CustomNavLink from "../custom-components/custom-link";
 import CircleImage from "../CircleImage/CircleImage";
 import { API_URL } from "../../config";
@@ -41,6 +48,26 @@ export function useMenuItems() {
         </CustomNavLink>
       ),
       key: "2",
+      enabled: true,
+    },
+    {
+      label: (
+        <CustomNavLink to="/animations">
+          <Sparkles size={22} />
+          <span>Анимации</span>
+        </CustomNavLink>
+      ),
+      key: "animations",
+      enabled: true,
+    },
+    {
+      label: (
+        <CustomNavLink to="/devices">
+          <Smartphone size={22} />
+          <span>Устройства</span>
+        </CustomNavLink>
+      ),
+      key: "devices",
       enabled: true,
     },
     {

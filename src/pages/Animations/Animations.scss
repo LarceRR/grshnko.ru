@@ -1,0 +1,373 @@
+.animations-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 24px;
+
+  .animations-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--text-color);
+  }
+
+  .create-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+
+    .create-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+
+      .prompt-input {
+        flex: 1;
+        min-width: 200px;
+
+        textarea {
+          min-height: 80px;
+          background: var(--input-background);
+          color: var(--input-text);
+          border: 1px solid var(--input-border);
+          border-radius: 6px;
+          padding: 10px 12px;
+          width: 100%;
+          resize: vertical;
+
+          &:focus {
+            outline: none;
+            border-color: var(--input-focus);
+          }
+        }
+      }
+
+      .led-count-wrap {
+        width: 120px;
+
+        input {
+          width: 100%;
+          padding: 8px 12px;
+          background: var(--input-background);
+          color: var(--input-text);
+          border: 1px solid var(--input-border);
+          border-radius: 6px;
+
+          &:focus {
+            outline: none;
+            border-color: var(--input-focus);
+          }
+        }
+      }
+
+      .btn-create {
+        padding: 8px 20px;
+        background: var(--button-primary-bg);
+        color: var(--button-primary-text);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        white-space: nowrap;
+
+        &:hover {
+          opacity: 0.9;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .create-hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+  }
+
+  .session-animations {
+    h2 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      color: var(--text-color);
+    }
+
+    .animations-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      width: 100%;
+
+      .animation-item {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 16px;
+        background: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        min-width: 0;
+
+        .anim-info {
+          flex: 1;
+          min-width: 0;
+          font-size: 14px;
+          color: var(--text-color);
+
+          .anim-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+          }
+          .anim-meta {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+          }
+
+          .anim-tags {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .anim-labels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+          }
+
+          .anim-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-color);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+          }
+
+          .anim-colors {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px;
+          }
+
+          .anim-color-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            box-sizing: border-box;
+          }
+        }
+
+        .anim-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          flex-wrap: wrap;
+          margin-top: auto;
+
+          button {
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+
+            &.btn-create {
+              background: var(--button-primary-bg);
+              color: var(--button-primary-text);
+              &:hover:not(:disabled) {
+                opacity: 0.9;
+              }
+            }
+            &.btn-danger {
+              background: var(--button-danger-bg);
+              color: var(--button-danger-text);
+              &:hover:not(:disabled) {
+                opacity: 0.9;
+              }
+            }
+            &:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+            }
+          }
+        }
+      }
+    }
+
+    .empty-session {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      background: var(--card-background);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+  }
+
+  .devices-block {
+    padding: 20px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+
+    h2 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      color: var(--text-color);
+    }
+
+    .devices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+
+      .device-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px;
+        background: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: border-color 0.2s;
+
+        &:hover {
+          border-color: var(--input-focus);
+        }
+
+        .device-name {
+          font-weight: 600;
+          color: var(--text-color);
+        }
+        .device-id {
+          font-size: 12px;
+          font-family: monospace;
+          color: var(--text-secondary);
+        }
+        .device-status {
+          font-size: 12px;
+
+          &.online {
+            color: var(--color-green);
+          }
+          &.offline {
+            color: var(--text-secondary);
+          }
+          &.error {
+            color: var(--color-red);
+          }
+        }
+      }
+    }
+
+    .devices-empty {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+  }
+}
+
+.send-modal-content {
+  color: var(--text-color);
+
+  .device-select-row {
+    margin-bottom: 12px;
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+      color: var(--text-color);
+    }
+    select {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--input-background);
+      color: var(--input-text);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+  }
+
+  .devices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+
+    .send-device-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 14px 16px;
+      background: var(--button-secondary-bg);
+      color: var(--button-secondary-text);
+      border: 1px solid var(--button-secondary-border);
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s, border-color 0.2s;
+
+      .send-device-btn__name {
+        font-weight: 600;
+        color: var(--text-color);
+      }
+      .send-device-btn__id {
+        font-size: 12px;
+        font-family: monospace;
+        color: var(--text-secondary);
+      }
+      .send-device-btn__status {
+        font-size: 12px;
+        &.online { color: var(--color-green); }
+        &.offline { color: var(--text-secondary); }
+      }
+      .send-device-btn__action {
+        margin-top: 4px;
+        padding: 4px 12px;
+        background: var(--button-primary-bg);
+        color: var(--button-primary-text);
+        border-radius: 4px;
+        font-size: 13px;
+      }
+
+      &:hover:not(:disabled) {
+        background: var(--button-secondary-hover);
+        border-color: var(--input-focus);
+      }
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
