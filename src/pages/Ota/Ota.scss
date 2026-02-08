@@ -1,0 +1,196 @@
+.ota-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    color: var(--text-color);
+  }
+
+  .ota-upload-section {
+    padding: 20px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+
+    h2 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      color: var(--text-color);
+    }
+
+    .upload-mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      button {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid var(--button-secondary-border);
+        background: var(--button-secondary-bg);
+        color: var(--button-secondary-text);
+        cursor: pointer;
+        font-size: 14px;
+
+        &.active {
+          background: var(--button-primary-bg);
+          color: var(--button-primary-text);
+          border-color: transparent;
+        }
+        &:hover:not(.active) {
+          background: var(--button-secondary-hover);
+        }
+      }
+    }
+
+    .version-input-row {
+      margin-bottom: 12px;
+      max-width: 200px;
+
+      label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+      input {
+        width: 100%;
+        padding: 8px 12px;
+        background: var(--input-background);
+        color: var(--input-text);
+        border: 1px solid var(--input-border);
+        border-radius: 6px;
+        font-size: 14px;
+      }
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 32px 24px;
+      text-align: center;
+      background: var(--background-color);
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+
+      &.dragover {
+        border-color: var(--button-primary-bg);
+        background: rgba(47, 119, 200, 0.08);
+      }
+      &.error {
+        border-color: var(--color-red);
+      }
+
+      .drop-zone__text {
+        color: var(--text-color);
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+      .drop-zone__hint {
+        color: var(--text-secondary);
+        font-size: 13px;
+      }
+      input[type="file"] {
+        display: none;
+      }
+    }
+
+    .upload-progress {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+  }
+
+  .ota-trigger-section {
+    padding: 20px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+
+    h2 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      color: var(--text-color);
+    }
+
+    .trigger-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      button {
+        padding: 10px 20px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+
+        &.btn-primary {
+          background: var(--button-primary-bg);
+          color: var(--button-primary-text);
+        }
+        &:hover:not(:disabled) {
+          opacity: 0.9;
+        }
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+
+  .ota-list-section {
+    padding: 20px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+
+    h2 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      color: var(--text-color);
+    }
+
+    .ota-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .ota-card {
+      padding: 14px 16px;
+      background: var(--background-color);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+
+      .ota-card__filename {
+        font-family: monospace;
+        font-size: 13px;
+        color: var(--text-color);
+        word-break: break-all;
+      }
+      .ota-card__meta {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+      .ota-card__date {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--text-secondary);
+      }
+    }
+
+    .ota-list-empty {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+  }
+}

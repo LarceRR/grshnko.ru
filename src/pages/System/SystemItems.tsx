@@ -4,6 +4,7 @@ import DataBaseButton from "./SystemButtons/DataBaseButton/DataBaseButton";
 import UserListButton from "./SystemButtons/UserListButton/UserListButton";
 import AnimationsButton from "./SystemButtons/AnimationsButton/AnimationsButton";
 import DevicesButton from "./SystemButtons/DevicesButton/DevicesButton";
+import OtaButton from "./SystemButtons/OtaButton/OtaButton";
 
 export const gridItems: React.ReactElement[] = [
   <GridItem
@@ -37,5 +38,13 @@ export const gridItems: React.ReactElement[] = [
     className="grid-item-redefine-wrapper"
   >
     <DevicesButton />
+  </GridItem>,
+  <GridItem
+    key="ota"
+    colSpan={1}
+    rowSpan={1}
+    className="grid-item-redefine-wrapper"
+  >
+    <OtaButton />
   </GridItem>,
 ];

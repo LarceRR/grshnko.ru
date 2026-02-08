@@ -5,6 +5,7 @@ import {
   Settings,
   Sparkles,
   Smartphone,
+  Cpu,
 } from "lucide-react";
 import CustomNavLink from "../custom-components/custom-link";
 import CircleImage from "../CircleImage/CircleImage";
@@ -68,6 +69,16 @@ export function useMenuItems() {
         </CustomNavLink>
       ),
       key: "devices",
+      enabled: true,
+    },
+    {
+      label: (
+        <CustomNavLink to="/ota">
+          <Cpu size={22} />
+          <span>OTA / Прошивки</span>
+        </CustomNavLink>
+      ),
+      key: "ota",
       enabled: true,
     },
     {

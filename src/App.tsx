@@ -14,6 +14,7 @@ import Settings from "./pages/Settings/Settings";
 import Animations from "./pages/Animations/Animations";
 import Devices from "./pages/Devices/Devices";
 import DeviceDetail from "./pages/Devices/DeviceDetail";
+import Ota from "./pages/Ota/Ota";
 
 export const App = () => {
   const [__, _] = useTheme();
@@ -138,6 +139,15 @@ export const App = () => {
             <ProtectedRoute>
               <Navigator />
               <DeviceDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ota"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <Ota />
             </ProtectedRoute>
           }
         />
