@@ -37,3 +37,37 @@ export interface SendAnimationResponse {
   deviceId: string;
   topic?: string;
 }
+
+export interface UpdateAnimationParametersBody {
+  deviceId: string;
+  parameters: Record<string, number>;
+}
+
+export interface UpdateAnimationParametersResponse {
+  ok: boolean;
+  message: string;
+  animationId: string;
+  deviceId: string;
+  parameters: Record<string, number>;
+  method: "websocket" | "queued";
+}
+
+export interface ParamDescription {
+  description: string;
+  increaseEffect: string;
+  decreaseEffect: string;
+}
+
+export interface AnimationDetail extends AnimationListItem {
+  description?: string | null;
+  paramsDescription?: Record<string, ParamDescription> | null;
+  body: {
+    ledCount: number;
+    fps: number;
+    brightness: number;
+    numParams: number;
+    bytecode: string;
+    paramNames: string[];
+    paramDefaults: number[];
+  };
+}

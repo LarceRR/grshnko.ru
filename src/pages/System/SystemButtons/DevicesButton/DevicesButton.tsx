@@ -20,7 +20,7 @@ const DevicesButton = () => {
   const count = Array.isArray(devices) ? devices.length : 0;
 
   return (
-    <div className="system-grid-button" onClick={() => navigate("/devices")}>
+    <div className="user-list-button" onClick={() => navigate("/devices")}>
       {isLoading && <LoadingBannerNoText />}
       {isError && <span style={{ color: "red" }}>Ошибка загрузки</span>}
       {!isLoading && !isError && (
@@ -29,12 +29,41 @@ const DevicesButton = () => {
             <Smartphone size={34} />
           </div>
           <div className="centered">
-            <span className="system-grid-button__number">{count}</span>
-            <br />
-            <span className="system-grid-button__label-small">Всего</span>
+            <span
+              style={{
+                fontSize: "22px",
+                textAlign: "center",
+              }}
+            >
+              {count}
+              <br></br>
+              <span
+                style={{
+                  fontSize: "16px",
+                  textAlign: "center",
+                  opacity: 0.5,
+                }}
+              >
+                Всего
+              </span>
+            </span>
           </div>
-          <div className="centered system-grid-button__title-wrap">
-            <span className="system-grid-button__title">Устройства</span>
+          <div
+            className="centered"
+            style={{
+              gridColumn: "span 2",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "14px",
+                height: "fit-content",
+                textAlign: "center",
+                marginTop: "10px",
+              }}
+            >
+              Устройства
+            </span>
           </div>
         </div>
       )}

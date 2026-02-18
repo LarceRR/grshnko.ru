@@ -10,8 +10,10 @@ import Profile from "./pages/Profile/Profile";
 import SheduledPosts from "./pages/SheduledPosts/SheduledPosts";
 import System from "./pages/System/System";
 import UsersList from "./pages/System/system-pages/UsersListPage/UsersListPage";
+import LLMModelsPage from "./pages/System/system-pages/LLMModelsPage/LLMModelsPage";
 import Settings from "./pages/Settings/Settings";
 import Animations from "./pages/Animations/Animations";
+import AnimationDetail from "./pages/Animations/AnimationDetail";
 import Devices from "./pages/Devices/Devices";
 import DeviceDetail from "./pages/Devices/DeviceDetail";
 import Ota from "./pages/Ota/Ota";
@@ -98,6 +100,15 @@ export const App = () => {
           }
         />
         <Route
+          path="/system/llm-models"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <LLMModelsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/system"
           element={
             <ProtectedRoute>
@@ -121,6 +132,15 @@ export const App = () => {
             <ProtectedRoute>
               <Navigator />
               <Animations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/animation/:id"
+          element={
+            <ProtectedRoute>
+              <Navigator />
+              <AnimationDetail />
             </ProtectedRoute>
           }
         />

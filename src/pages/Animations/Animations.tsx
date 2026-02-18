@@ -1,17 +1,24 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Modal, Popconfirm } from "antd";
+import { Modal, Popconfirm, Select } from "antd";
+import { ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { getDevices } from "../../api/devices";
 import {
   getAnimations,
   createAnimation,
+  enhancePrompt as enhancePromptApi,
   sendAnimationToDevice,
   deleteAnimation,
 } from "../../api/animations";
+import { getLLMModels } from "../../api/llmModels";
 import type {
   AnimationCreated,
   AnimationListItem,
 } from "../../types/animation";
+import type { LLMModel } from "../../types/llmModel";
+import { Send, Trash2, Wand2, Square } from "lucide-react";
 
 /** Палитра фонов для лейблов (разные цвета) */
 const LABEL_BG_COLORS = [
@@ -29,15 +36,26 @@ import { useNotify } from "../../hooks/useNotify";
 import "./Animations.scss";
 
 export default function Animations() {
+  const navigate = useNavigate();
   const [prompt, setPrompt] = useState("");
   const [ledCount, setLedCount] = useState(300);
+  const [selectedModel, setSelectedModel] = useState<string | undefined>(
+    undefined,
+  );
   const [creating, setCreating] = useState(false);
+  const [enhancing, setEnhancing] = useState(false);
+  const [enhancedPrompt, setEnhancedPrompt] = useState("");
+  const [showEnhanced, setShowEnhanced] = useState(false);
   const [sendModal, setSendModal] = useState<{
     anim: AnimationCreated | AnimationListItem;
   } | null>(null);
   const [sendingToDeviceId, setSendingToDeviceId] = useState<string | null>(
     null,
   );
+
+  // Abort controllers for cancelling in-flight LLM requests
+  const enhanceAbortRef = useRef<AbortController | null>(null);
+  const createAbortRef = useRef<AbortController | null>(null);
 
   const { notify, contextHolder } = useNotify();
   const queryClient = useQueryClient();
@@ -56,14 +74,76 @@ export default function Animations() {
     retry: false,
   });
 
-  const handleCreate = async () => {
+  const { data: llmModels = [], isLoading: modelsLoading } = useQuery<
+    LLMModel[]
+  >({
+    queryKey: ["llm-models"],
+    queryFn: getLLMModels,
+    retry: false,
+  });
+
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) {
+      notify({ title: "Ошибка", body: "Введите промпт для улучшения", type: "error" });
+      return;
+    }
+    enhanceAbortRef.current?.abort();
+    const ac = new AbortController();
+    enhanceAbortRef.current = ac;
+    setEnhancing(true);
+    try {
+      const enhanced = await enhancePromptApi(
+        {
+          prompt: prompt.trim(),
+          ledCount: ledCount || 300,
+          model: selectedModel,
+        },
+        ac.signal,
+      );
+      setEnhancedPrompt(enhanced);
+      setShowEnhanced(true);
+      notify({
+        title: "Промпт улучшен",
+        body: "Проверьте результат и нажмите «Создать из улучшенного»",
+        type: "success",
+      });
+    } catch (e: unknown) {
+      if (axios.isCancel(e)) return;
+      const msg = e instanceof Error ? e.message : "Ошибка улучшения промпта";
+      notify({ title: "Ошибка", body: msg, type: "error" });
+    } finally {
+      setEnhancing(false);
+      enhanceAbortRef.current = null;
+    }
+  };
+
+  const handleCancelEnhance = useCallback(() => {
+    enhanceAbortRef.current?.abort();
+    enhanceAbortRef.current = null;
+    setEnhancing(false);
+    notify({ title: "Отменено", body: "Улучшение промпта отменено", type: "success" });
+  }, [notify]);
+
+  const handleCreate = async (useEnhanced = false) => {
+    const finalPrompt = useEnhanced && enhancedPrompt.trim()
+      ? enhancedPrompt.trim()
+      : prompt.trim() || undefined;
+    createAbortRef.current?.abort();
+    const ac = new AbortController();
+    createAbortRef.current = ac;
     setCreating(true);
     try {
-      const created = await createAnimation({
-        prompt: prompt.trim() || undefined,
-        ledCount: ledCount || 300,
-      });
+      const created = await createAnimation(
+        {
+          prompt: finalPrompt,
+          ledCount: ledCount || 300,
+          model: selectedModel,
+        },
+        ac.signal,
+      );
       setPrompt("");
+      setEnhancedPrompt("");
+      setShowEnhanced(false);
       await queryClient.invalidateQueries({ queryKey: ["animations"] });
       notify({
         title: "Анимация создана",
@@ -71,12 +151,21 @@ export default function Animations() {
         type: "success",
       });
     } catch (e: unknown) {
+      if (axios.isCancel(e)) return;
       const msg = e instanceof Error ? e.message : "Ошибка создания анимации";
       notify({ title: "Ошибка", body: msg, type: "error" });
     } finally {
       setCreating(false);
+      createAbortRef.current = null;
     }
   };
+
+  const handleCancelCreate = useCallback(() => {
+    createAbortRef.current?.abort();
+    createAbortRef.current = null;
+    setCreating(false);
+    notify({ title: "Отменено", body: "Генерация анимации отменена", type: "success" });
+  }, [notify]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -123,48 +212,131 @@ export default function Animations() {
       </div>
 
       <section className="create-block">
-        <h2 style={{ margin: "0 0 8px 0", fontSize: 16 }}>
-          Создать анимацию (LLM)
-        </h2>
+        <h2>Создать анимацию (LLM)</h2>
         <div className="create-row">
           <div className="prompt-input">
             <textarea
               placeholder="Опишите анимацию, например: радужная волна с переходом в огонь"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              rows={3}
+              rows={4}
             />
           </div>
-          <div className="led-count-wrap">
-            <label
-              style={{
-                display: "block",
-                marginBottom: 4,
-                fontSize: 12,
-                color: "var(--text-secondary)",
-              }}
-            >
-              LED
-            </label>
-            <input
-              type="number"
-              min={1}
-              max={2000}
-              value={ledCount}
-              onChange={(e) => setLedCount(Number(e.target.value) || 300)}
-            />
+          <div className="create-controls">
+            <div className="led-count-wrap">
+              <label>LED</label>
+              <input
+                type="number"
+                min={1}
+                max={2000}
+                value={ledCount}
+                onChange={(e) => setLedCount(Number(e.target.value) || 300)}
+              />
+            </div>
+            <div className="model-select-wrap">
+              <label>Модель</label>
+              <Select
+                value={selectedModel}
+                onChange={setSelectedModel}
+                placeholder="Выберите модель (необязательно)"
+                allowClear
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label as string)
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase()) ?? false
+                }
+                style={{
+                  width: "100%",
+                }}
+                suffixIcon={<ChevronDown />}
+                loading={modelsLoading}
+              >
+                {llmModels
+                  .filter((model) => model.isActive)
+                  .map((model) => (
+                    <Select.Option
+                      key={model._id}
+                      value={model.modelId}
+                      label={model.displayName || model.modelId}
+                    >
+                      {model.displayName || model.modelId}
+                    </Select.Option>
+                  ))}
+              </Select>
+            </div>
+            <div className="create-buttons">
+              <button
+                className="btn-enhance"
+                onClick={handleEnhancePrompt}
+                disabled={enhancing || creating || !prompt.trim()}
+                title="ИИ создаст подробный технический промпт из вашего описания"
+              >
+                <Wand2 size={16} />
+                {enhancing ? "Улучшаем..." : "Улучшить промпт"}
+              </button>
+              <button
+                className="btn-create"
+                onClick={() => handleCreate(false)}
+                disabled={creating || enhancing}
+              >
+                {creating ? "Создаём..." : "Создать напрямую"}
+              </button>
+              {(enhancing || creating) && (
+                <button
+                  className="btn-stop"
+                  onClick={enhancing ? handleCancelEnhance : handleCancelCreate}
+                  title="Остановить генерацию"
+                >
+                  <Square size={14} />
+                </button>
+              )}
+            </div>
           </div>
-          <button
-            className="btn-create"
-            onClick={handleCreate}
-            disabled={creating}
-          >
-            {creating ? "Создаём…" : "Создать анимацию"}
-          </button>
         </div>
+
+        {showEnhanced && enhancedPrompt && (
+          <div className="enhanced-prompt-block">
+            <div className="enhanced-prompt-header">
+              <h3>Улучшенный промпт</h3>
+              <div className="enhanced-prompt-actions">
+                <button
+                  className="btn-create-enhanced"
+                  onClick={() => handleCreate(true)}
+                  disabled={creating || enhancing}
+                >
+                  {creating ? "Создаём..." : "Создать из улучшенного"}
+                </button>
+                {creating && (
+                  <button
+                    className="btn-stop"
+                    onClick={handleCancelCreate}
+                    title="Остановить генерацию"
+                  >
+                    <Square size={14} />
+                  </button>
+                )}
+                <button
+                  className="btn-close-enhanced"
+                  onClick={() => setShowEnhanced(false)}
+                  disabled={creating}
+                >
+                  Скрыть
+                </button>
+              </div>
+            </div>
+            <textarea
+              className="enhanced-prompt-textarea"
+              value={enhancedPrompt}
+              onChange={(e) => setEnhancedPrompt(e.target.value)}
+              rows={12}
+            />
+          </div>
+        )}
+
         <p className="create-hint">
           Промпт можно оставить пустым — тогда будет сгенерирована случайная
-          анимация. Результат сохраняется в БД.
+          анимация. Кнопка «Улучшить промпт» создаст подробный технический промпт для лучшего результата.
         </p>
       </section>
 
@@ -180,66 +352,81 @@ export default function Animations() {
         ) : (
           <div className="animations-list">
             {animations.map((anim) => (
-              <div key={anim.id} className="animation-item">
+              <div
+                key={anim.id}
+                className="animation-item"
+                onClick={() => navigate(`/animation/${anim.id}`)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="anim-info">
                   <div className="anim-id">{anim.id}</div>
                   <div className="anim-meta">
                     Сложность: {anim.animationHardness ?? "—"} ·{" "}
                     {new Date(anim.createdAt).toLocaleString()}
                   </div>
-                  {anim.labels?.length || anim.usedColors?.length ? (
+                  {anim.labels && anim.labels.length > 0 && (
                     <div className="anim-tags">
-                      {anim.labels && anim.labels.length > 0 && (
-                        <div className="anim-labels">
-                          {anim.labels.map((label, i) => (
-                            <span
-                              key={label}
-                              className="anim-label"
-                              style={{
-                                backgroundColor:
-                                  LABEL_BG_COLORS[i % LABEL_BG_COLORS.length],
-                              }}
-                            >
-                              {label}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {anim.usedColors && anim.usedColors.length > 0 && (
-                        <div
-                          className="anim-colors"
-                          title={anim.usedColors.join(", ")}
-                        >
-                          {anim.usedColors.map((hex) => (
-                            <span
-                              key={hex}
-                              className="anim-color-dot"
-                              style={{ backgroundColor: hex }}
-                            />
-                          ))}
-                        </div>
-                      )}
+                      <div className="anim-labels">
+                        {anim.labels.map((label, i) => (
+                          <span
+                            key={label}
+                            className="anim-label"
+                            style={{
+                              backgroundColor:
+                                LABEL_BG_COLORS[i % LABEL_BG_COLORS.length],
+                            }}
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  ) : null}
+                  )}
                 </div>
+                {anim.usedColors && anim.usedColors.length > 0 && (
+                  <div
+                    className="anim-colors"
+                    title={anim.usedColors.join(", ")}
+                  >
+                    {anim.usedColors.map((hex) => (
+                      <span
+                        key={hex}
+                        className="anim-color-dot"
+                        style={{ backgroundColor: hex }}
+                      />
+                    ))}
+                  </div>
+                )}
                 <div className="anim-actions">
                   <button
                     type="button"
-                    className="btn-create"
-                    onClick={() => openSendModal(anim)}
+                    className="action-button send-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openSendModal(anim);
+                    }}
+                    title="Отправить на устройство"
                   >
-                    Отправить на устройство
+                    <Send size={18} />
                   </button>
                   <Popconfirm
                     title="Удалить анимацию?"
                     description="Удаление нельзя отменить."
-                    onConfirm={() => handleDelete(anim.id)}
+                    onConfirm={(e) => {
+                      e?.stopPropagation();
+                      handleDelete(anim.id);
+                    }}
                     okText="Удалить"
                     cancelText="Отмена"
                     okButtonProps={{ danger: true }}
                   >
-                    <button type="button" className="btn-danger">
-                      Удалить
+                    <button
+                      type="button"
+                      className="action-button delete-button"
+                      onClick={(e) => e.stopPropagation()}
+                      title="Удалить"
+                    >
+                      <Trash2 size={18} />
                     </button>
                   </Popconfirm>
                 </div>

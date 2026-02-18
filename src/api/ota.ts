@@ -85,6 +85,15 @@ export const getOtaList = async (): Promise<OtaFirmwareItem[]> => {
   return res.data;
 };
 
+/** GET /api/ota/list?amountOnly=true */
+export const getOtaCount = async (): Promise<number> => {
+  const res = await axios.get<{ count: number }>(`${API_URL}api/ota/list`, {
+    ...withAuth,
+    params: { amountOnly: true },
+  });
+  return res.data.count;
+};
+
 /** POST /api/ota/trigger/:deviceId */
 export const triggerOta = async (
   deviceId: string,
