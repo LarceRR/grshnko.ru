@@ -9,7 +9,6 @@ import type {
   AnimationData,
   LED,
   PixelHistory,
-  SimulatorState,
 } from "../types";
 
 const MAX_HISTORY = 200;

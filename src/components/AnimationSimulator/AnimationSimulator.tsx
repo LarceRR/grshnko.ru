@@ -29,7 +29,6 @@ export default function AnimationSimulator({
     togglePause,
     stepFrame,
     stopAnim,
-    updateParam,
   } = useAnimationSimulator({
     animationBody: animation?.body || null,
   });

@@ -7,7 +7,6 @@
 const FP_SHIFT = 16;
 const FP_ONE = 1 << FP_SHIFT; // 65536
 const fpFromInt = (x: number): number => x << FP_SHIFT;
-const fpToInt = (x: number): number => x >> FP_SHIFT; // Truncates
 // Clamp to signed 32-bit range (simulating int32 behavior in JS)
 const toInt32 = (v: number): number => v | 0;
 
@@ -564,15 +563,15 @@ function applyBlend(
     case 3: // screen
       accum.r = Math.round(
         255 -
-          ((255 - accum.r) * (255 - (r * opacity) / 255)) / 255
+        ((255 - accum.r) * (255 - (r * opacity) / 255)) / 255
       );
       accum.g = Math.round(
         255 -
-          ((255 - accum.g) * (255 - (g * opacity) / 255)) / 255
+        ((255 - accum.g) * (255 - (g * opacity) / 255)) / 255
       );
       accum.b = Math.round(
         255 -
-          ((255 - accum.b) * (255 - (b * opacity) / 255)) / 255
+        ((255 - accum.b) * (255 - (b * opacity) / 255)) / 255
       );
       break;
     default:
