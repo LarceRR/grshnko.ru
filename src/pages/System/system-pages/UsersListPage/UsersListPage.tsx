@@ -13,7 +13,7 @@ import debounce from "lodash.debounce";
 import { User } from "../../../../types/user";
 import { getAllUsers, getUser } from "../../../../api/user";
 import { useNotify } from "../../../../hooks/useNotify";
-import { API_URL } from "../../../../config";
+import UserAvatar from "../../../../components/UserAvatar/UserAvatar";
 
 const UsersList = ({ userId }: { userId?: string }) => {
   const queryClient = useQueryClient();
@@ -40,7 +40,7 @@ const UsersList = ({ userId }: { userId?: string }) => {
       debounce((users: User[]) => {
         setFilteredUsers(users);
       }, 200),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -56,19 +56,18 @@ const UsersList = ({ userId }: { userId?: string }) => {
         accessorKey: "avatarUrl",
         cell: ({ row }) => {
           const thisUser = row.original;
-          return thisUser.avatarUrl ? (
+          return (
             <div
               className="user-info"
               onClick={() => navigate(`/profile/${thisUser.username}`)}
               style={{ cursor: "pointer" }}
             >
-              <img
-                className="user-avatar"
-                src={`${API_URL}cdn/avatar/${thisUser.avatarUrl}`}
+              <UserAvatar
+                avatarUrl={thisUser.avatarUrl}
+                isOnline={thisUser.isOnline}
+                size={36}
               />
             </div>
-          ) : (
-            `-`
           );
         },
       },
@@ -92,7 +91,7 @@ const UsersList = ({ userId }: { userId?: string }) => {
         },
       },
     ],
-    [queryClient, userId, navigate, notify, user]
+    [queryClient, userId, navigate, notify, user],
   );
 
   const table = useReactTable({
@@ -128,7 +127,7 @@ const UsersList = ({ userId }: { userId?: string }) => {
                   <th key={header.id}>
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext()
+                      header.getContext(),
                     )}
                   </th>
                 ))}

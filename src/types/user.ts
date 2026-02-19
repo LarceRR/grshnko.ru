@@ -19,6 +19,7 @@ export interface User {
   lastLoginAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  isOnline?: boolean;
 }
 
 export interface Role {

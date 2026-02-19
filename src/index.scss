@@ -21,13 +21,15 @@
 
 html {
     height: 100%;
+    overflow: hidden;
     scroll-behavior: smooth;
     background-color: var(--background-color);
     transition: all 0.2s ease-in-out;
-    padding: 20px;   
-    
+    padding: 20px;
+    box-sizing: border-box;
+
     @media screen and (max-width: 1028px) {
-      padding: 10px;
+      padding: 20px 10px 10px 10px;
     }
 }
 
@@ -42,6 +44,8 @@ body {
     font-family: 'Product Sans', sans-serif;
     position: relative;
     font-weight: 400; /* Обычное начертание для основного текста */
+    height: 100%;
+    overflow: hidden;
   }
   
   /* Заголовки жирные */
@@ -129,7 +133,39 @@ input, textarea {
 
 #root {
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  min-height: 0;
+}
+
+#root > * {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  width: 100%;
+  gap: 20px;
+  max-width: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 :root {
@@ -151,19 +187,19 @@ input, textarea {
     --color-light-gray: #F6F8FA;
     --color-medium-gray: #D0D7DE;
     --color-dark-gray: #24292E;
-    --color-black: #0D1117;
+    --color-black: #222831;
   
     /* 🌍 Фон и текст */
-    --background-color: var(--color-light-gray);
-    --card-background: var(--color-white);
+    --background-color: #C8C8C8;
+    --card-background: #DADADA;
     --text-color: var(--color-dark-gray);
     --text-secondary: #57606A; /* Тусклый текст */
     --link-color: var(--color-blue);
     
     /* 📝 Инпуты */
-    --input-background: var(--color-white);
+    --input-background: #0000001A;
     --input-text: var(--color-dark-gray);
-    --input-border: var(--color-medium-gray);
+    --input-border: #0000001A;
     --input-placeholder: #6E7781;
     --input-focus: var(--color-blue);
   
@@ -174,7 +210,7 @@ input, textarea {
   
     --button-secondary-bg: var(--color-light-gray);
     --button-secondary-text: var(--color-dark-gray);
-    --button-secondary-border: var(--color-medium-gray);
+    --button-secondary-border: transparent;
     --button-secondary-hover: #EAECEF;
   
     --button-danger-bg: var(--color-red);
@@ -192,7 +228,7 @@ input, textarea {
     --notification-error-text: #A40E26;
   
     /* 🛑 Бордеры, разделители */
-    --border-color: var(--color-medium-gray);
+    --border-color: #0000001A;
     --divider-color: #EAECEF;
   }
   
@@ -204,7 +240,7 @@ input, textarea {
 
     /* 🌙 Тёмная тема */
     --background-color: var(--color-black);
-    --card-background: #161B22;
+    --card-background: #181818;
     --text-color: #C9D1D9;
     --text-secondary: #8B949E;
     --link-color: var(--color-blue);
@@ -255,12 +291,13 @@ input, textarea {
 }
 
 .router-wrapper {
-    height: 100%;
-    width: 100%;
-    max-width: 1420px;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    overflow-y: auto;
 
     @media screen and (max-width: 1028px) {
       margin-bottom: 75px;

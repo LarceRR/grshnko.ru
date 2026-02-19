@@ -1,0 +1,289 @@
+$nav-collapsed: 56px;
+$nav-expanded: 220px;
+$item-h: 40px;
+$active-bar-w: 4px;
+$active-bar-h: 24px;
+$item-padding-x: 12px;
+$gap-from-bar: 10px; // space after the active bar before icon
+
+.left-nav {
+  border-radius: 10px;
+  position: sticky;
+  top: 20px;
+  align-self: flex-start; /* без этого в flex-контейнере sticky не срабатывает */
+  height: calc(100vh - 40px);
+  width: 78px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+  z-index: 100;
+
+  &--expanded {
+    width: $nav-expanded;
+
+    .left-nav__item {
+      justify-content: flex-start;
+    }
+  }
+
+  // ── Items container ──────────────────────────────────────────
+  &__items {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0 8px;
+    gap: 2px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+  }
+
+  // ── Active item vertical bar ────────────────────────────────
+  &__active-bar {
+    position: absolute;
+    left: 0;
+    width: $active-bar-w;
+    height: $active-bar-h;
+    background: var(--button-primary-bg);
+    border-radius: 0 3px 3px 0;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  // ── Group ────────────────────────────────────────────────────
+  &__group {
+    --offset: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: var(--offset) 0;
+    border-bottom: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    padding: var(--offset) 0;
+
+    @media screen and (max-width: 1028px) {
+      border-bottom: none;
+      border-top: none;
+      padding: 0;
+    }
+  }
+
+  &__group-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    padding: 14px #{$active-bar-w + $gap-from-bar + $item-padding-x} 4px #{$active-bar-w + $gap-from-bar};
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: center;
+    display: block;
+
+    @media screen and (max-width: 1028px) {
+      display: none;
+    }
+  }
+
+  // ── Item wrapper ─────────────────────────────────────────────
+  &__item-wrapper {
+    display: flex;
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  // ── Nav link ─────────────────────────────────────────────────
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0 12px 0 14px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    width: 100%;
+    white-space: nowrap;
+    border-radius: 8px;
+    transition: color 0.2s ease, background 0.2s ease;
+
+    &--active {
+      color: var(--button-primary-bg);
+      font-weight: 600;
+      background: color-mix(in srgb, var(--button-primary-bg) 12%, transparent);
+    }
+
+    &:hover:not(&--active) {
+      color: var(--text-color);
+      background: color-mix(in srgb, currentColor 6%, transparent);
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0.9;
+  }
+
+  &__item-wrapper--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    position: relative;
+    pointer-events: none;
+  }
+
+  .left-nav__item--active &__icon {
+    opacity: 1;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: inherit;
+  }
+
+  // ── Bottom: NavUser + toggle ──────────────────────────────────
+  &__bottom {
+    padding: 10px 8px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 101;
+    overflow: visible;
+  }
+
+  &__toggle {
+    background: color-mix(in srgb, var(--border-color) 25%, transparent);
+    border: none;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--button-primary-bg) 20%, transparent);
+      color: var(--button-primary-bg);
+    }
+  }
+
+  // NavUser dropdown: above nav, not clipped
+  .nav-user {
+    width: 100%;
+  }
+
+  .nav-user__dropdown {
+    right: auto;
+    left: 0;
+    top: auto;
+    bottom: calc(100% + 8px);
+    margin-top: 0;
+    z-index: 1100;
+  }
+
+  // ── Mobile: fixed bottom bar ──────────────────────────────────
+  @media screen and (max-width: 1028px) {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    top: auto;
+    height: auto;
+    width: 90% !important;
+    transform: translateX(-50%);
+    flex-direction: row;
+    border-right: none;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    backdrop-filter: blur(16px);
+    background: var(--nav-background);
+
+    &__items {
+      flex-direction: row;
+      flex: 1;
+      padding: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      align-items: center;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    &__active-bar {
+      display: none;
+    }
+
+    &__group {
+      flex-direction: row;
+    }
+
+    &__item-wrapper {
+      flex-shrink: 0;
+      width: auto;
+    }
+
+    &__item {
+      height: auto;
+      padding: 10px 12px;
+      color: var(--nav-text-color);
+
+      &--active {
+        color: var(--button-primary-bg);
+      }
+    }
+
+    &__label {
+      display: none;
+    }
+
+    &__bottom {
+      border-top: none;
+      border-left: 1px solid var(--border-color);
+      flex-direction: row;
+      padding: 0 8px;
+      gap: 0;
+      align-items: center;
+    }
+
+    &__toggle {
+      display: none;
+    }
+
+    .nav-user__dropdown {
+      bottom: 60px;
+      left: auto;
+      right: -8px;
+    }
+  }
+}

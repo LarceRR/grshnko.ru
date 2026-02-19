@@ -15,8 +15,7 @@ import {
   ColumnDef,
 } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import CircleImage from "../../../components/CircleImage/CircleImage";
-import { API_URL } from "../../../config";
+import UserAvatar from "../../../components/UserAvatar/UserAvatar";
 import LoaderSpinner from "../../../components/LoadingBanner/LoaderSpinner/LoaderSpinner";
 
 interface IActiveSessionsProps {
@@ -41,13 +40,7 @@ const ActiveSessions: React.FC<IActiveSessionsProps> = ({ userId }) => {
         header: "Пользователь",
         id: "actions",
         cell: ({ row }) => (
-          <CircleImage
-            className="user-avatar"
-            src={
-              `${API_URL}cdn/avatar/${row.original.user.avatarUrl}` ||
-              "/default-avatar.png"
-            }
-          />
+          <UserAvatar avatarUrl={row.original.user.avatarUrl} size={36} />
         ),
       },
       { header: "IP", accessorKey: "ipAddress" },
@@ -75,7 +68,7 @@ const ActiveSessions: React.FC<IActiveSessionsProps> = ({ userId }) => {
         ),
       },
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -98,7 +91,7 @@ const ActiveSessions: React.FC<IActiveSessionsProps> = ({ userId }) => {
                   <th key={header.id}>
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext()
+                      header.getContext(),
                     )}
                   </th>
                 ))}

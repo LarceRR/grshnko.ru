@@ -5,8 +5,17 @@ import UserListButton from "./SystemButtons/UserListButton/UserListButton";
 import AnimationsButton from "./SystemButtons/AnimationsButton/AnimationsButton";
 import DevicesButton from "./SystemButtons/DevicesButton/DevicesButton";
 import OtaButton from "./SystemButtons/OtaButton/OtaButton";
+import ThemesButton from "./SystemButtons/ThemesButton/ThemesButton";
 
 export const gridItems: React.ReactElement[] = [
+  <GridItem
+    key="themes"
+    colSpan={1}
+    rowSpan={1}
+    className="grid-item-redefine-wrapper"
+  >
+    <ThemesButton />
+  </GridItem>,
   <GridItem
     key="user-list"
     colSpan={1}

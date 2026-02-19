@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "../../api/user"; // Предполагается, что эта функция может принимать id
 import "./Profile.scss";
-import { API_URL } from "../../config";
 import UserRoleIcon from "../../components/Navigator/NavUser/components/UserRoleIcon";
 import dayjs from "dayjs";
 import UserInfo from "./UserInfo";
@@ -12,6 +11,7 @@ import { LogOut, Pen } from "lucide-react";
 import { useUser } from "../../hooks/useUser"; // Предполагается, что useUser предоставляет данные авторизованного пользователя
 import { useParams } from "react-router-dom";
 import ActiveSessions from "./ActiveSessions/ActiveSessions";
+import UserAvatar from "../../components/UserAvatar/UserAvatar";
 
 const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,12 +54,11 @@ const Profile = () => {
         )}
       </h1>
       <div className="profile-block__body">
-        <img
-          className="profile-avatar"
-          src={
-            `${API_URL}cdn/avatar/${user.avatarUrl}` || "/default-avatar.png"
-          }
-          alt={user.username}
+        <UserAvatar
+          avatarUrl={user.avatarUrl}
+          isOnline={user.isOnline}
+          size={100}
+          style={{ border: "2px solid var(--border-color)" }}
         />
         <div className="profile-info">
           <h2 className="profile-username">
@@ -151,7 +150,7 @@ const Profile = () => {
         </h1>
 
         <ActiveSessions userId={sessionsUserId} />
-      </div>
+      </div>,
     );
   }
   // Панель администратора показывается, если текущий авторизованный пользователь является админом
@@ -161,7 +160,7 @@ const Profile = () => {
       <div className="profile-block" key="admin-panel">
         <h1>Панель администратора</h1>
         <div>админ-действия</div>
-      </div>
+      </div>,
     );
   }
 

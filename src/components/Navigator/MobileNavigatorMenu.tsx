@@ -8,8 +8,7 @@ import {
   Cpu,
 } from "lucide-react";
 import CustomNavLink from "../custom-components/custom-link";
-import CircleImage from "../CircleImage/CircleImage";
-import { API_URL } from "../../config";
+import UserAvatar from "../UserAvatar/UserAvatar";
 import { useQueryClient } from "@tanstack/react-query";
 import { User } from "../../types/user";
 
@@ -31,10 +30,7 @@ export function useMenuItems() {
     {
       label: (
         <CustomNavLink to="/profile">
-          <CircleImage
-            src={`${API_URL}cdn/avatar/${user?.avatarUrl}`}
-            imageStyle={{ width: 24, height: 24, borderRadius: "50%" }}
-          />
+          <UserAvatar avatarUrl={user?.avatarUrl} isOnline={true} size={24} />
           <span>{user?.username}</span>
         </CustomNavLink>
       ),

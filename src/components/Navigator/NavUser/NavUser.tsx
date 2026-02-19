@@ -1,18 +1,22 @@
 import { useState, useRef, useEffect } from "react";
-import { UserOutlined } from "@ant-design/icons";
 import { useNavUserMenu, NavUserMenuItem } from "./NavUserMenu";
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "../../../api/user";
 import "./NavUser.scss";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../../../config";
+import UserAvatar from "../../UserAvatar/UserAvatar";
 
 interface NavUserProps {
   showAvatar?: boolean;
   style?: React.CSSProperties;
+  expanded?: boolean;
 }
 
-const NavUser: React.FC<NavUserProps> = ({ showAvatar = true, style }) => {
+const NavUser: React.FC<NavUserProps> = ({
+  showAvatar = true,
+  style,
+  expanded = false,
+}) => {
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: () => getUser(),
@@ -64,6 +68,8 @@ const NavUser: React.FC<NavUserProps> = ({ showAvatar = true, style }) => {
     return null;
   }
 
+  const goToProfile = () => navigate("/profile");
+
   return (
     <div
       style={style}
@@ -72,17 +78,25 @@ const NavUser: React.FC<NavUserProps> = ({ showAvatar = true, style }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="nav-user__info">
+      <div
+        className="nav-user__info"
+        onClick={goToProfile}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && goToProfile()}
+      >
         {showAvatar && (
-          <div className="nav-user__avatar">
-            {user.avatarUrl ? (
-              <img
-                src={`${API_URL}cdn/avatar/${user.avatarUrl}`}
-                alt={user.username}
-              />
-            ) : (
-              <UserOutlined color="var(--text-color)" />
-            )}
+          <UserAvatar
+            avatarUrl={user.avatarUrl}
+            isOnline={true}
+            size={40}
+            className="nav-user__avatar"
+          />
+        )}
+        {expanded && (
+          <div className="nav-user__details">
+            <span className="nav-user__name">{user.username}</span>
+            <span className="nav-user__email">{user.email}</span>
           </div>
         )}
       </div>
@@ -111,7 +125,7 @@ const NavUser: React.FC<NavUserProps> = ({ showAvatar = true, style }) => {
                 )}
                 <span className="nav-user__dropdown-label">{item.label}</span>
               </div>
-            )
+            ),
         )}
       </div>
     </div>

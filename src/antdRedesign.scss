@@ -36,6 +36,72 @@
     backdrop-filter: blur(50px);
 }
 
+.ant-select-item-group {
+    color: var(--text-secondary) !important;
+}
+
+/* Высота одиночного Select во всём проекте */
+:where(.css-dev-only-do-not-override-j0nr1x).ant-select-single {
+    height: 40px !important;
+
+    .ant-select-selector {
+        height: 40px !important;
+        min-height: 40px !important;
+        align-items: center !important;
+    }
+}
+
+/* Мульти-Select: line-height у контента выбранных пунктов */
+:where(.css-dev-only-do-not-override-j0nr1x).ant-select-multiple .ant-select-selection-overflow .ant-select-selection-item-content {
+    line-height: 20px !important;
+}
+
+/* Опции Select: вертикальное выравнивание по центру (глобальный line-height иначе сдвигает фон при ховере) */
+.ant-select-dropdown .ant-select-item {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 32px;
+}
+.ant-select-dropdown .ant-select-item-option-content {
+    line-height: 1;
+}
+
+/* Tag подстраивается под выбранную тему (фон и текст из CSS-переменных) */
+.ant-tag,
+:where([class*="ant-tag"]).ant-tag {
+    background: var(--button-secondary-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+    margin-inline-end: 0 !important;
+}
+
+/* Notification (toast) — фон и текст из темы, иконка закрытия не чёрная */
+.ant-notification .ant-notification-notice-wrapper,
+:where([class*="ant-notification"]).ant-notification .ant-notification-notice-wrapper {
+    background: var(--card-background) !important;
+    color: var(--text-color) !important;
+    .ant-notification-notice {
+        background: var(--card-background) !important;
+        color: var(--text-color) !important;
+        border-color: var(--border-color) !important;
+    }
+    .ant-notification-notice-message {
+        color: var(--text-color) !important;
+    }
+    .ant-notification-notice-description {
+        color: var(--text-secondary) !important;
+    }
+}
+.ant-notification .ant-notification-notice-close,
+:where([class*="ant-notification"]) .ant-notification-notice-close {
+    color: var(--text-color) !important;
+    .anticon,
+    svg {
+        color: inherit !important;
+        fill: currentColor !important;
+    }
+}
+
 .ant-modal-content {
     background-color: var(--card-background) !important;
     pointer-events: none;
@@ -47,4 +113,75 @@
             color: var(--text-color) !important;
         }
     }
+}
+
+/* Popconfirm / Popover — фон, текст и кнопки из темы */
+.ant-popconfirm .ant-popover-inner,
+.ant-popover .ant-popover-inner {
+    background: var(--card-background) !important;
+    border-color: var(--border-color) !important;
+}
+
+.ant-popconfirm .ant-popover-arrow::before,
+.ant-popover .ant-popover-arrow::before {
+    background: var(--card-background) !important;
+    border-color: var(--border-color) !important;
+}
+
+.ant-popconfirm .ant-popover-arrow::after,
+.ant-popover .ant-popover-arrow::after {
+    background: var(--card-background) !important;
+}
+
+.ant-popconfirm .ant-popover-inner,
+.ant-popconfirm .ant-popover-content {
+    color: var(--text-color);
+}
+
+.ant-popconfirm .ant-popconfirm-message-title,
+.ant-popconfirm .ant-popconfirm-description,
+.ant-popconfirm .ant-popover-message-title,
+.ant-popconfirm .ant-popover-message,
+.ant-popover .ant-popover-title,
+.ant-popover .ant-popover-inner-content {
+    color: var(--text-color) !important;
+}
+
+.ant-popconfirm .ant-popconfirm-description,
+.ant-popconfirm .ant-popover-description,
+.ant-popover .ant-popover-description {
+    color: var(--text-secondary) !important;
+}
+
+.ant-popconfirm-buttons .ant-btn-default,
+.ant-popover .ant-popover-buttons .ant-btn-default {
+    background: var(--button-secondary-bg) !important;
+    border-color: var(--button-secondary-border) !important;
+    color: var(--button-secondary-text) !important;
+}
+
+.ant-popconfirm-buttons .ant-btn-default span,
+.ant-popover .ant-popover-buttons .ant-btn-default span {
+    color: inherit !important;
+}
+
+.ant-popconfirm-buttons .ant-btn-primary,
+.ant-popover .ant-popover-buttons .ant-btn-primary {
+    background: var(--button-primary-bg) !important;
+    border-color: var(--button-primary-bg) !important;
+    color: var(--button-primary-text) !important;
+}
+
+.ant-popconfirm-buttons .ant-btn-danger,
+.ant-popconfirm-buttons .ant-btn-dangerous {
+    background: var(--button-danger-bg, #CF222E) !important;
+    border-color: var(--button-danger-bg, #CF222E) !important;
+    color: var(--button-danger-text, #fff) !important;
+}
+
+.ant-popconfirm-buttons .ant-btn-primary span,
+.ant-popconfirm-buttons .ant-btn-danger span,
+.ant-popconfirm-buttons .ant-btn-dangerous span,
+.ant-popover .ant-popover-buttons .ant-btn-primary span {
+    color: inherit !important;
 }
