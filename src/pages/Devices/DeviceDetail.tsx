@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Modal, Popconfirm } from "antd";
@@ -15,7 +15,93 @@ import {
 import { triggerOta } from "../../api/ota";
 import type { DeviceWithLogs } from "../../types/device";
 import { useNotify } from "../../hooks/useNotify";
+import { useOtaProgress } from "../../hooks/useOtaProgress";
+import type { OtaStatus } from "../../hooks/useOtaProgress";
 import "./DeviceDetail.scss";
+
+const OTA_STATUS_LABELS: Record<OtaStatus, string> = {
+  idle: "",
+  downloading: "Загрузка прошивки",
+  verifying: "Проверка SHA256",
+  flashing: "Запись прошивки",
+  rebooting: "Перезагрузка...",
+  complete: "Обновление завершено",
+  failed: "Ошибка обновления",
+};
+
+function OtaProgressBar({
+  status,
+  percent,
+  error,
+  onDismiss,
+}: {
+  status: OtaStatus;
+  percent: number;
+  error?: string;
+  onDismiss: () => void;
+}) {
+  const isFinal = status === "complete" || status === "failed";
+  const barColor =
+    status === "failed"
+      ? "var(--color-red, #e53935)"
+      : status === "complete"
+        ? "var(--color-green, #43a047)"
+        : "var(--color-blue, #1e88e5)";
+
+  return (
+    <div
+      style={{
+        marginTop: 16,
+        padding: "12px 16px",
+        borderRadius: 8,
+        background: "var(--card-background, #1a1a2e)",
+        border: `1px solid ${status === "failed" ? "var(--color-red, #e53935)" : "var(--button-secondary-border, #333)"}`,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <span style={{ fontSize: 13, fontWeight: 500 }}>
+          {OTA_STATUS_LABELS[status]}
+          {status === "downloading" || status === "flashing" ? ` ${percent}%` : ""}
+        </span>
+        {isFinal && (
+          <button
+            type="button"
+            onClick={onDismiss}
+            style={{
+              background: "none", border: "none", color: "var(--text-secondary)",
+              cursor: "pointer", fontSize: 12, padding: "2px 6px",
+            }}
+          >
+            Закрыть
+          </button>
+        )}
+      </div>
+      <div
+        style={{
+          height: 6,
+          borderRadius: 3,
+          background: "var(--background-color, #111)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            width: `${percent}%`,
+            background: barColor,
+            borderRadius: 3,
+            transition: "width 0.3s ease",
+          }}
+        />
+      </div>
+      {error && (
+        <div style={{ marginTop: 8, fontSize: 12, color: "var(--color-red, #e53935)" }}>
+          {error}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function DeviceDetail() {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +129,7 @@ export default function DeviceDetail() {
   const [savingEdit, setSavingEdit] = useState(false);
   const [clearingLogs, setClearingLogs] = useState(false);
   const [otaLoading, setOtaLoading] = useState(false);
+  const ota = useOtaProgress();
 
   const openEdit = () => {
     if (device) {
@@ -162,9 +249,10 @@ export default function DeviceDetail() {
     setOtaLoading(true);
     try {
       await triggerOta(id);
+      ota.start(id);
       notify({
         title: "OTA отправлена",
-        body: "Устройство перезагрузится после обновления",
+        body: "Отслеживание прогресса...",
         type: "success",
       });
     } catch (err: unknown) {
@@ -177,6 +265,21 @@ export default function DeviceDetail() {
       setOtaLoading(false);
     }
   };
+
+  // Auto-refresh device data when OTA completes or fails, and notify
+  useEffect(() => {
+    if (ota.progress.status === "complete") {
+      queryClient.invalidateQueries({ queryKey: ["device", id] });
+      notify({ title: "OTA завершена", body: "Устройство обновлено и перезагружено", type: "success" });
+    } else if (ota.progress.status === "failed") {
+      notify({
+        title: "Ошибка OTA",
+        body: ota.progress.error || "Обновление не удалось",
+        type: "error",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ota.progress.status]);
 
   if (!id) {
     return (
@@ -287,8 +390,8 @@ export default function DeviceDetail() {
             >
               Brightness 200
             </button>
-            <button type="button" onClick={handleOta} disabled={otaLoading}>
-              {otaLoading ? "OTA…" : "OTA обновление"}
+            <button type="button" onClick={handleOta} disabled={otaLoading || ota.active}>
+              {otaLoading ? "OTA…" : ota.active ? "Обновление..." : "OTA обновление"}
             </button>
             <Popconfirm
               title="Удалить устройство?"
@@ -303,6 +406,14 @@ export default function DeviceDetail() {
               </button>
             </Popconfirm>
           </div>
+          {ota.progress.status !== "idle" && (
+            <OtaProgressBar
+              status={ota.progress.status}
+              percent={ota.progress.percent}
+              error={ota.progress.error}
+              onDismiss={ota.reset}
+            />
+          )}
         </section>
 
         <section className="detail-section logs-section">

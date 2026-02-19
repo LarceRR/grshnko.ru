@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   uploadOtaFirmware,
@@ -10,11 +10,101 @@ import {
 import type { OtaFirmwareItem } from "../../api/ota";
 import { getDevices } from "../../api/devices";
 import { useNotify } from "../../hooks/useNotify";
+import { useOtaProgress } from "../../hooks/useOtaProgress";
+import type { OtaStatus } from "../../hooks/useOtaProgress";
 import "./Ota.scss";
 
 const ACCEPT = ".bin";
 
 type UploadMode = "versioned" | "current";
+
+const OTA_STATUS_LABELS: Record<OtaStatus, string> = {
+  idle: "",
+  downloading: "Загрузка",
+  verifying: "Проверка",
+  flashing: "Запись",
+  rebooting: "Перезагрузка",
+  complete: "Готово",
+  failed: "Ошибка",
+};
+
+/** Inline progress indicator for a single device OTA */
+function OtaDeviceProgress({
+  deviceId,
+  deviceName,
+  firmware,
+  alreadyTriggered,
+  onDone,
+}: {
+  deviceId: string;
+  deviceName: string;
+  firmware?: string;
+  alreadyTriggered?: boolean;
+  onDone: () => void;
+}) {
+  const ota = useOtaProgress();
+  const { notify, contextHolder } = useNotify();
+
+  useEffect(() => {
+    if (alreadyTriggered) {
+      // OTA already sent (e.g. trigger-all), just listen
+      ota.start(deviceId);
+      return;
+    }
+    // Trigger OTA and start SSE on mount
+    triggerOta(deviceId, firmware)
+      .then(() => ota.start(deviceId))
+      .catch((err: unknown) => {
+        notify({
+          title: "Ошибка OTA",
+          body: err instanceof Error ? err.message : "Не удалось запустить",
+          type: "error",
+        });
+        onDone();
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (ota.progress.status === "complete") {
+      notify({ title: "OTA завершена", body: deviceName, type: "success" });
+    } else if (ota.progress.status === "failed") {
+      notify({ title: "Ошибка OTA", body: ota.progress.error || deviceName, type: "error" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ota.progress.status]);
+
+  const isFinal = ota.progress.status === "complete" || ota.progress.status === "failed";
+  const barColor =
+    ota.progress.status === "failed" ? "#e53935" : ota.progress.status === "complete" ? "#43a047" : "#1e88e5";
+
+  return (
+    <div style={{ padding: "8px 12px", borderRadius: 6, background: "var(--card-background, #1a1a2e)", marginTop: 6 }}>
+      {contextHolder}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+        <span style={{ fontSize: 12, fontWeight: 500 }}>
+          {deviceName}: {OTA_STATUS_LABELS[ota.progress.status]}
+          {ota.progress.percent > 0 && ota.progress.status !== "complete" ? ` ${ota.progress.percent}%` : ""}
+        </span>
+        {isFinal && (
+          <button
+            type="button"
+            onClick={onDone}
+            style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: 11 }}
+          >
+            x
+          </button>
+        )}
+      </div>
+      <div style={{ height: 4, borderRadius: 2, background: "var(--background-color, #111)", overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${ota.progress.percent}%`, background: barColor, borderRadius: 2, transition: "width 0.3s ease" }} />
+      </div>
+      {ota.progress.error && (
+        <div style={{ marginTop: 4, fontSize: 11, color: "#e53935" }}>{ota.progress.error}</div>
+      )}
+    </div>
+  );
+}
 
 export default function Ota() {
   const [uploadMode, setUploadMode] = useState<UploadMode>("versioned");
@@ -23,6 +113,7 @@ export default function Ota() {
   const [dragOver, setDragOver] = useState(false);
   const [dropError, setDropError] = useState<string | null>(null);
   const [triggeringAll, setTriggeringAll] = useState(false);
+  const [activeOtas, setActiveOtas] = useState<Map<string, { deviceName: string; firmware?: string; alreadyTriggered?: boolean }>>(new Map());
 
   const { notify, contextHolder } = useNotify();
   const queryClient = useQueryClient();
@@ -135,6 +226,13 @@ export default function Ota() {
         body: `Отправлено на ${res.triggered} устройств, пропущено: ${res.skipped}`,
         type: "success",
       });
+      // Start tracking each online device (already triggered by trigger-all)
+      const onlineDevices = devices.filter((d) => d.status === "online");
+      const next = new Map(activeOtas);
+      for (const d of onlineDevices) {
+        next.set(d.id, { deviceName: d.name || d.deviceId, alreadyTriggered: true });
+      }
+      setActiveOtas(next);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Ошибка OTA";
       notify({ title: "Ошибка", body: msg, type: "error" });
@@ -143,18 +241,19 @@ export default function Ota() {
     }
   };
 
-  const handleTriggerDevice = async (deviceId: string, firmware?: string) => {
-    try {
-      await triggerOta(deviceId, firmware);
-      notify({
-        title: "OTA отправлена",
-        body: `Устройство ${deviceId}`,
-        type: "success",
-      });
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Устройство не ответило";
-      notify({ title: "Ошибка", body: msg, type: "error" });
-    }
+  const handleTriggerDevice = (deviceId: string, deviceName: string, firmware?: string) => {
+    if (activeOtas.has(deviceId)) return;
+    const next = new Map(activeOtas);
+    next.set(deviceId, { deviceName, firmware });
+    setActiveOtas(next);
+  };
+
+  const removeActiveOta = (deviceId: string) => {
+    setActiveOtas((prev) => {
+      const next = new Map(prev);
+      next.delete(deviceId);
+      return next;
+    });
   };
 
   const formatSize = (bytes: number) => {
@@ -256,8 +355,8 @@ export default function Ota() {
                 <button
                   key={d.id}
                   type="button"
-                  onClick={() => handleTriggerDevice(d.id)}
-                  disabled={d.status !== "online"}
+                  onClick={() => handleTriggerDevice(d.id, d.name || d.deviceId)}
+                  disabled={d.status !== "online" || activeOtas.has(d.id)}
                   style={{
                     padding: "6px 12px",
                     fontSize: 12,
@@ -275,6 +374,23 @@ export default function Ota() {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+        {activeOtas.size > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
+              Прогресс обновления:
+            </div>
+            {Array.from(activeOtas.entries()).map(([devId, info]) => (
+              <OtaDeviceProgress
+                key={devId}
+                deviceId={devId}
+                deviceName={info.deviceName}
+                firmware={info.firmware}
+                alreadyTriggered={info.alreadyTriggered}
+                onDone={() => removeActiveOta(devId)}
+              />
+            ))}
           </div>
         )}
       </section>
@@ -311,15 +427,16 @@ export default function Ota() {
                         <button
                           key={d.id}
                           type="button"
-                          onClick={() => handleTriggerDevice(d.id, fw.filename)}
+                          onClick={() => handleTriggerDevice(d.id, d.name || d.deviceId, fw.filename)}
+                          disabled={activeOtas.has(d.id)}
                           style={{
                             padding: "4px 10px",
                             fontSize: 11,
                             borderRadius: 4,
                             border: "none",
-                            background: "var(--button-primary-bg)",
+                            background: activeOtas.has(d.id) ? "var(--background-color)" : "var(--button-primary-bg)",
                             color: "var(--button-primary-text)",
-                            cursor: "pointer",
+                            cursor: activeOtas.has(d.id) ? "not-allowed" : "pointer",
                           }}
                         >
                           OTA → {d.name || d.deviceId}
