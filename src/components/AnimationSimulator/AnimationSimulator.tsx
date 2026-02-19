@@ -29,6 +29,8 @@ export default function AnimationSimulator({
     togglePause,
     stepFrame,
     stopAnim,
+    fireEvent,
+    spawnParticle,
   } = useAnimationSimulator({
     animationBody: animation?.body || null,
   });
@@ -288,7 +290,41 @@ export default function AnimationSimulator({
             <canvas ref={histCanvasRef} id="historyCanvas" height={100} />
           </div>
           <div className="panel-section">
-            <h3>🔧 Дизассемблер байткода</h3>
+            <h3>Event / Particle</h3>
+            <div className="event-controls">
+              {[0, 1, 2, 3].map((slot) => (
+                <button
+                  key={slot}
+                  className="btn-secondary btn-sm"
+                  onClick={() => fireEvent(slot, 1.0, Math.floor((animData?.ledCount || 300) / 2), 20, 0.05)}
+                  disabled={!playing}
+                >
+                  Event {slot}
+                </button>
+              ))}
+              <button
+                className="btn-secondary btn-sm"
+                onClick={() =>
+                  spawnParticle({
+                    x: 0,
+                    vx: 2,
+                    life: 1.0,
+                    decay: 0.015,
+                    gravity: 0,
+                    r: 255,
+                    g: 200,
+                    b: 50,
+                    size: 8,
+                  })
+                }
+                disabled={!playing}
+              >
+                Particle
+              </button>
+            </div>
+          </div>
+          <div className="panel-section">
+            <h3>Disassembler</h3>
             <div className="disasm-output">{disasmOutput}</div>
           </div>
         </div>

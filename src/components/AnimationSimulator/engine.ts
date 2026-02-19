@@ -63,6 +63,38 @@ export const Op = {
   LAYER_END: 0x51,
   UPDATE_START: 0x52,
   UPDATE_END: 0x53,
+  // Phase 1: Extended math
+  NOISE2D: 0x60,
+  HASH: 0x61,
+  SMOOTHSTEP: 0x62,
+  STEP: 0x63,
+  MAP: 0x64,
+  EASE_IN: 0x65,
+  EASE_OUT: 0x66,
+  EASE_INOUT: 0x67,
+  BOUNCE: 0x68,
+  ELASTIC: 0x69,
+  // Phase 2: State system extensions
+  STATE_GET_OFFSET: 0x6a,
+  GLOBAL_GET: 0x6b,
+  GLOBAL_SET: 0x6c,
+  MIRROR: 0x6d,
+  REVERSE: 0x6e,
+  WRAP: 0x6f,
+  // Phase 3: Event system
+  PUSH_EVT_VAL: 0x70,
+  PUSH_EVT_POS: 0x71,
+  PUSH_EVT_WIDTH: 0x72,
+  // Phase 4: Previous frame
+  PUSH_PREV_R: 0x73,
+  PUSH_PREV_G: 0x74,
+  PUSH_PREV_B: 0x75,
+  // Phase 5: Particle system
+  PUSH_PARTICLE_COUNT: 0x76,
+  PUSH_PARTICLE_NEAR: 0x77,
+  PUSH_PARTICLE_NEAR_R: 0x78,
+  PUSH_PARTICLE_NEAR_G: 0x79,
+  PUSH_PARTICLE_NEAR_B: 0x7a,
   END: 0xff,
 } as const;
 
@@ -76,6 +108,20 @@ const SIN_LUT_SIZE = 256;
 export const MAX_LEDS = 300;
 export const MAX_STATE_VARS = 5;
 export const MAX_ANIM_PARAMS = 10;
+export const MAX_GLOBAL_VARS = 4;
+export const MAX_EVENT_SLOTS = 4;
+export const MAX_PARTICLES = 16;
+
+/** Simulator engine state: events, globals, particles, previous frame buffer */
+export interface SimulatorEngineState {
+  globals: Float64Array;
+  events: Array<{ val: number; pos: number; width: number; decay: number }>;
+  particles: Array<{
+    x: number; vx: number; life: number; decay: number; gravity: number;
+    r: number; g: number; b: number; size: number; active: boolean;
+  }>;
+  prevFrame: Uint8Array[]; // prevFrame[i] = [r, g, b]
+}
 
 // Sin/Cos LUTs: Q15.0 format (match firmware) — -32768..32767 for -1..1, then << 1 for Q16.16
 const sinLut = new Int16Array(SIN_LUT_SIZE);
@@ -87,7 +133,7 @@ for (let i = 0; i < SIN_LUT_SIZE; i++) {
 }
 
 // Noise: MUST match firmware (fast_hash + interpolate). Output 0..1 in Q16.16.
-function hash(n: number): number {
+function fast_hash(n: number): number {
   let s = n >>> 0;
   s = (((s >>> 16) ^ s) * 0x45d9f3b) >>> 0;
   s = (((s >>> 16) ^ s) * 0x45d9f3b) >>> 0;
@@ -98,10 +144,29 @@ function hash(n: number): number {
 function noise(x: number): number {
   const xi = x >> 16;
   const xf = x & 0xffff;
-  const v1 = hash(xi);
-  const v2 = hash(xi + 1);
-  const res = v1 + Math.round(((v2 - v1) * xf) / 65536); // 0..255
-  return toInt32(Math.floor((res * 65536) / 255)); // 0..1 in Q16.16
+  const v1 = fast_hash(xi);
+  const v2 = fast_hash(xi + 1);
+  const res = v1 + Math.round(((v2 - v1) * xf) / 65536);
+  return toInt32(Math.floor((res * 65536) / 255));
+}
+
+function noise2D(x: number, y: number): number {
+  const ix = x >> 16, iy = y >> 16;
+  const fx = x & 0xffff, fy = y & 0xffff;
+  const v00 = fast_hash(((ix + iy * 7919) | 0) >>> 0);
+  const v10 = fast_hash(((ix + 1 + iy * 7919) | 0) >>> 0);
+  const v01 = fast_hash(((ix + (iy + 1) * 7919) | 0) >>> 0);
+  const v11 = fast_hash(((ix + 1 + (iy + 1) * 7919) | 0) >>> 0);
+  const top = v00 + Math.round(((v10 - v00) * fx) / 65536);
+  const bot = v01 + Math.round(((v11 - v01) * fx) / 65536);
+  const res = top + Math.round(((bot - top) * fy) / 65536);
+  return toInt32(Math.floor((res * 65536) / 255));
+}
+
+function hashFn(seed: number): number {
+  const i = seed >> 16;
+  const h = fast_hash(i >>> 0);
+  return toInt32(Math.floor((h * 65536) / 255));
 }
 
 import type { LayerOutput } from "./types";
@@ -120,7 +185,8 @@ function execSegment(
   params: Float32Array,
   numParams: number,
   stateVars: Int32Array[],
-  ledCount: number
+  ledCount: number,
+  engine: SimulatorEngineState | null = null
 ): LayerOutput {
   const stack = new Int32Array(STACK_SIZE); // 32-bit stack
   let sp = -1;
@@ -414,6 +480,170 @@ function execSegment(
         }
         break;
 
+      // === Phase 1: Extended math ===
+      case Op.NOISE2D:
+        if (sp >= 1) { stack[sp - 1] = noise2D(stack[sp - 1], stack[sp]); sp--; }
+        break;
+      case Op.HASH:
+        if (sp >= 0) { stack[sp] = hashFn(stack[sp]); }
+        break;
+      case Op.SMOOTHSTEP:
+        if (sp >= 2) {
+          const edge0 = stack[sp - 2], edge1 = stack[sp - 1], x = stack[sp];
+          const range = edge1 - edge0;
+          let tS: number;
+          if (range === 0) { tS = (x >= edge0) ? FP_ONE : 0; }
+          else { tS = toInt32(((x - edge0) * FP_ONE) / range); if (tS < 0) tS = 0; if (tS > FP_ONE) tS = FP_ONE; }
+          const t2 = (tS * tS) / FP_ONE;
+          stack[sp - 2] = toInt32((t2 * ((3 * FP_ONE) - 2 * tS)) / FP_ONE);
+          sp -= 2;
+        }
+        break;
+      case Op.STEP:
+        if (sp >= 1) { stack[sp - 1] = (stack[sp] >= stack[sp - 1]) ? FP_ONE : 0; sp--; }
+        break;
+      case Op.MAP:
+        if (sp >= 4) {
+          const val = stack[sp - 4], inMin = stack[sp - 3], inMax = stack[sp - 2], outMin = stack[sp - 1], outMax = stack[sp];
+          const inRange = inMax - inMin;
+          if (inRange === 0) { stack[sp - 4] = outMin; }
+          else { const tM = ((val - inMin) * FP_ONE) / inRange; stack[sp - 4] = toInt32(outMin + ((outMax - outMin) * tM) / FP_ONE); }
+          sp -= 4;
+        }
+        break;
+      case Op.EASE_IN:
+        if (sp >= 0) { let x = stack[sp]; if (x < 0) x = 0; if (x > FP_ONE) x = FP_ONE; stack[sp] = toInt32((x * x) / FP_ONE); }
+        break;
+      case Op.EASE_OUT:
+        if (sp >= 0) { let x = stack[sp]; if (x < 0) x = 0; if (x > FP_ONE) x = FP_ONE; const inv = FP_ONE - x; stack[sp] = toInt32(FP_ONE - (inv * inv) / FP_ONE); }
+        break;
+      case Op.EASE_INOUT:
+        if (sp >= 0) {
+          let x = stack[sp]; if (x < 0) x = 0; if (x > FP_ONE) x = FP_ONE;
+          if (x < (FP_ONE >> 1)) { stack[sp] = toInt32((x * x) / (FP_ONE >> 1)); }
+          else { let inv = (FP_ONE << 1) - (x << 1); if (inv < 0) inv = 0; stack[sp] = toInt32(FP_ONE - ((inv * inv) / FP_ONE >> 1)); }
+        }
+        break;
+      case Op.BOUNCE:
+        if (sp >= 0) {
+          let x = stack[sp] / FP_ONE; if (x < 0) x = 0; if (x > 1) x = 1;
+          let res: number;
+          if (x < 1 / 2.75) { res = 7.5625 * x * x; }
+          else if (x < 2 / 2.75) { x -= 1.5 / 2.75; res = 7.5625 * x * x + 0.75; }
+          else if (x < 2.5 / 2.75) { x -= 2.25 / 2.75; res = 7.5625 * x * x + 0.9375; }
+          else { x -= 2.625 / 2.75; res = 7.5625 * x * x + 0.984375; }
+          stack[sp] = toInt32(res * FP_ONE);
+        }
+        break;
+      case Op.ELASTIC:
+        if (sp >= 0) {
+          let x = stack[sp] / FP_ONE; if (x < 0) x = 0; if (x > 1) x = 1;
+          let res: number;
+          if (x <= 0) res = 0; else if (x >= 1) res = 1;
+          else res = Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * (2 * Math.PI / 3)) + 1;
+          stack[sp] = toInt32(Math.max(0, Math.min(2 * FP_ONE, res * FP_ONE)));
+        }
+        break;
+
+      // === Phase 2: State system extensions ===
+      case Op.STATE_GET_OFFSET: {
+        if (pc + 1 >= end) break;
+        const stateIdx = bytecode[pc++];
+        let offset = bytecode[pc++]; if (offset > 127) offset -= 256;
+        let target = i + offset; if (target < 0) target = 0; if (target >= ledCount) target = ledCount - 1;
+        stack[++sp] = (stateIdx < MAX_STATE_VARS && target < MAX_LEDS) ? stateVars[target][stateIdx] : 0;
+        break;
+      }
+      case Op.GLOBAL_GET: {
+        if (pc >= end) break;
+        const idx = bytecode[pc++];
+        stack[++sp] = (engine && idx < MAX_GLOBAL_VARS) ? engine.globals[idx] : 0;
+        break;
+      }
+      case Op.GLOBAL_SET: {
+        if (pc >= end || sp < 0) break;
+        const idx = bytecode[pc++];
+        if (engine && idx < MAX_GLOBAL_VARS) engine.globals[idx] = stack[sp];
+        sp--;
+        break;
+      }
+      case Op.MIRROR:
+        if (sp >= 0) { const frac = (stack[sp] >> 1) & 0xffff; let v = (frac << 1) - FP_ONE; if (v < 0) v = -v; stack[sp] = v; }
+        break;
+      case Op.REVERSE:
+        if (sp >= 0) { stack[sp] = fpFromInt(ledCount - 1) - stack[sp]; }
+        break;
+      case Op.WRAP:
+        if (sp >= 1) { let x = (stack[sp - 1] + stack[sp]) >> 16; if (ledCount > 0) x = ((x % ledCount) + ledCount) % ledCount; stack[sp - 1] = fpFromInt(x); sp--; }
+        break;
+
+      // === Phase 3: Event system ===
+      case Op.PUSH_EVT_VAL: {
+        if (pc >= end) break;
+        const idx = bytecode[pc++];
+        stack[++sp] = (engine && idx < MAX_EVENT_SLOTS) ? toInt32(engine.events[idx].val * FP_ONE) : 0;
+        break;
+      }
+      case Op.PUSH_EVT_POS: {
+        if (pc >= end) break;
+        const idx = bytecode[pc++];
+        stack[++sp] = (engine && idx < MAX_EVENT_SLOTS) ? toInt32(engine.events[idx].pos * FP_ONE) : 0;
+        break;
+      }
+      case Op.PUSH_EVT_WIDTH: {
+        if (pc >= end) break;
+        const idx = bytecode[pc++];
+        stack[++sp] = (engine && idx < MAX_EVENT_SLOTS) ? toInt32(engine.events[idx].width * FP_ONE) : 0;
+        break;
+      }
+
+      // === Phase 4: Previous frame ===
+      case Op.PUSH_PREV_R:
+        stack[++sp] = (engine && i < MAX_LEDS && engine.prevFrame[i]) ? fpFromInt(engine.prevFrame[i][0]) : 0;
+        break;
+      case Op.PUSH_PREV_G:
+        stack[++sp] = (engine && i < MAX_LEDS && engine.prevFrame[i]) ? fpFromInt(engine.prevFrame[i][1]) : 0;
+        break;
+      case Op.PUSH_PREV_B:
+        stack[++sp] = (engine && i < MAX_LEDS && engine.prevFrame[i]) ? fpFromInt(engine.prevFrame[i][2]) : 0;
+        break;
+
+      // === Phase 5: Particles ===
+      case Op.PUSH_PARTICLE_COUNT: {
+        let count = 0;
+        if (engine) { for (let p = 0; p < MAX_PARTICLES; p++) if (engine.particles[p]?.active) count++; }
+        stack[++sp] = fpFromInt(count);
+        break;
+      }
+      case Op.PUSH_PARTICLE_NEAR: {
+        let totalIntensity = 0;
+        if (engine) {
+          for (let p = 0; p < MAX_PARTICLES; p++) {
+            const part = engine.particles[p]; if (!part?.active) continue;
+            const dist = Math.abs(part.x - i);
+            if (dist < part.size) totalIntensity += toInt32((1 - dist / part.size) * part.life * FP_ONE);
+          }
+          if (totalIntensity > FP_ONE) totalIntensity = FP_ONE;
+        }
+        stack[++sp] = totalIntensity;
+        break;
+      }
+      case Op.PUSH_PARTICLE_NEAR_R:
+      case Op.PUSH_PARTICLE_NEAR_G:
+      case Op.PUSH_PARTICLE_NEAR_B: {
+        let tw = 0, ca = 0;
+        const ch = (op === Op.PUSH_PARTICLE_NEAR_R) ? 0 : (op === Op.PUSH_PARTICLE_NEAR_G) ? 1 : 2;
+        if (engine) {
+          for (let p = 0; p < MAX_PARTICLES; p++) {
+            const part = engine.particles[p]; if (!part?.active) continue;
+            const dist = Math.abs(part.x - i);
+            if (dist < part.size) { const w = (1 - dist / part.size) * part.life; tw += w; ca += w * (ch === 0 ? part.r : ch === 1 ? part.g : part.b); }
+          }
+        }
+        stack[++sp] = fpFromInt(tw > 0.001 ? Math.min(255, Math.round(ca / tw)) : 0);
+        break;
+      }
+
       // State
       case Op.STATE_GET: {
         if (pc >= end) return layerOut;
@@ -593,15 +823,21 @@ function instructionSize(op: number): number {
     case Op.PUSH_CONST: return 3;   // opcode + 2 bytes (Q8.8)
     case Op.PUSH_CONST32: return 5; // opcode + 4 bytes (Q16.16)
     case Op.PUSH_PARAM: return 2;   // opcode + 1 byte (param index)
-    case Op.STATE_GET: return 2;    // opcode + 1 byte (state var index)
-    case Op.STATE_SET: return 2;    // opcode + 1 byte (state var index)
-    case Op.LAYER_START: return 2;  // opcode + 1 byte (layer index)
-    case Op.LAYER_END: return 2;    // opcode + 1 byte (blend mode)
-    default: return 1;              // single-byte opcode
+    case Op.STATE_GET: return 2;
+    case Op.STATE_SET: return 2;
+    case Op.STATE_GET_OFFSET: return 3; // opcode + var index + signed offset
+    case Op.GLOBAL_GET: return 2;
+    case Op.GLOBAL_SET: return 2;
+    case Op.PUSH_EVT_VAL: return 2;
+    case Op.PUSH_EVT_POS: return 2;
+    case Op.PUSH_EVT_WIDTH: return 2;
+    case Op.LAYER_START: return 2;
+    case Op.LAYER_END: return 2;
+    default: return 1;
   }
 }
 
-/** Match execPixel signature */
+/** Execute full pixel with engine state */
 export function execPixel(
   i: number,
   t: number,
@@ -610,7 +846,8 @@ export function execPixel(
   bytecodeLen: number,
   params: Float32Array,
   numParams: number,
-  stateVars: Int32Array[]
+  stateVars: Int32Array[],
+  engine: SimulatorEngineState | null = null
 ): { r: number; g: number; b: number } {
   const accum = { r: 0, g: 0, b: 0 };
   let hasLayers = false;
@@ -624,7 +861,7 @@ export function execPixel(
   if (!hasLayers) {
     const lo = execSegment(
       i, t, r, bytecode, 0, bytecodeLen,
-      params, numParams, stateVars, MAX_LEDS
+      params, numParams, stateVars, MAX_LEDS, engine
     );
     applyBlend(lo, 0, accum);
     return accum;
@@ -657,7 +894,7 @@ export function execPixel(
       if (layerEnd >= bytecodeLen) break;
       const lo = execSegment(
         i, t, r, bytecode, layerStart, layerEnd,
-        params, numParams, stateVars, MAX_LEDS
+        params, numParams, stateVars, MAX_LEDS, engine
       );
       pc = layerEnd + 1; // skip LAYER_END opcode
       if (pc >= bytecodeLen) break;
@@ -676,7 +913,7 @@ export function execPixel(
       // Execute the update rules segment (it will contain STATE_SET opcodes)
       execSegment(
         i, t, r, bytecode, pc, updateEnd,
-        params, numParams, stateVars, MAX_LEDS
+        params, numParams, stateVars, MAX_LEDS, engine
       );
       pc = updateEnd;
       if (pc < bytecodeLen && bytecode[pc] === Op.UPDATE_END) pc++; // skip UPDATE_END
@@ -714,14 +951,50 @@ export function disassemble(bytecode: Uint8Array, len: number): string {
       extra = ` layer=${bytecode[pc++]}`;
     } else if (op === Op.LAYER_END && pc < len) {
       extra = ` blend=${bytecode[pc++]}`;
-    } else if (
-      (op === Op.STATE_GET || op === Op.STATE_SET) &&
-      pc < len
-    ) {
+    } else if ((op === Op.STATE_GET || op === Op.STATE_SET) && pc < len) {
       extra = ` var=${bytecode[pc++]}`;
+    } else if (op === Op.STATE_GET_OFFSET && pc + 1 < len) {
+      const varIdx = bytecode[pc++];
+      let offset = bytecode[pc++]; if (offset > 127) offset -= 256;
+      extra = ` var=${varIdx} offset=${offset > 0 ? '+' : ''}${offset}`;
+    } else if ((op === Op.GLOBAL_GET || op === Op.GLOBAL_SET) && pc < len) {
+      extra = ` global=${bytecode[pc++]}`;
+    } else if ((op === Op.PUSH_EVT_VAL || op === Op.PUSH_EVT_POS || op === Op.PUSH_EVT_WIDTH) && pc < len) {
+      extra = ` slot=${bytecode[pc++]}`;
     }
     lines.push(`${String(addr).padStart(4)}: ${name}${extra}`);
     if (op === Op.END) break;
   }
   return lines.join("\n");
+}
+
+/** Create a fresh engine state */
+export function createEngineState(ledCount: number): SimulatorEngineState {
+  return {
+    globals: new Float64Array(MAX_GLOBAL_VARS),
+    events: Array.from({ length: MAX_EVENT_SLOTS }, () => ({ val: 0, pos: 0, width: 20, decay: 0.05 })),
+    particles: Array.from({ length: MAX_PARTICLES }, () => ({
+      x: 0, vx: 0, life: 0, decay: 0.02, gravity: 0,
+      r: 255, g: 255, b: 255, size: 5, active: false,
+    })),
+    prevFrame: Array.from({ length: ledCount }, () => new Uint8Array(3)),
+  };
+}
+
+/** Tick engine state per frame: decay events, update particle physics */
+export function tickEngineState(engine: SimulatorEngineState, ledCount: number): void {
+  for (let e = 0; e < MAX_EVENT_SLOTS; e++) {
+    const evt = engine.events[e];
+    if (evt.val > 0) { evt.val -= evt.decay; if (evt.val < 0) evt.val = 0; }
+  }
+  for (let p = 0; p < MAX_PARTICLES; p++) {
+    const part = engine.particles[p];
+    if (!part.active) continue;
+    part.life -= part.decay;
+    if (part.life <= 0) { part.active = false; continue; }
+    part.vx += part.gravity;
+    part.x += part.vx;
+    if (part.x < 0) { part.x = -part.x; part.vx = -part.vx * 0.7; }
+    if (part.x >= ledCount) { part.x = 2 * ledCount - part.x - 2; part.vx = -part.vx * 0.7; }
+  }
 }

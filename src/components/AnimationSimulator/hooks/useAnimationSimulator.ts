@@ -4,7 +4,10 @@ import {
   MAX_LEDS,
   MAX_ANIM_PARAMS,
   MAX_STATE_VARS,
+  createEngineState,
+  tickEngineState,
 } from "../engine";
+import type { SimulatorEngineState } from "../engine";
 import type {
   AnimationData,
   LED,
@@ -33,6 +36,7 @@ export function useAnimationSimulator({
   const [params, setParams] = useState<Float32Array>(
     new Float32Array(MAX_ANIM_PARAMS)
   );
+  const engineStateRef = useRef<SimulatorEngineState | null>(null);
   const [leds, setLeds] = useState<LED[]>([]);
   const [playing, setPlaying] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -105,6 +109,7 @@ export function useAnimationSimulator({
       animFrameIdRef.current = null;
     }
 
+    engineStateRef.current = createEngineState(newAnimData.ledCount);
     setAnimData(newAnimData);
     setStateVars(newStateVars);
     setParams(newParams);
@@ -135,21 +140,28 @@ export function useAnimationSimulator({
 
       const bc = animData.bytecodeArr;
       const nLeds = animData.ledCount;
+      const engine = engineStateRef.current;
       const newLeds: LED[] = [];
+
+      // Tick engine state (decay events, update particles)
+      if (engine) tickEngineState(engine, nLeds);
 
       for (let i = 0; i < nLeds; i++) {
         const rnd = Math.floor(Math.random() * 256);
         const out = execPixel(
-          i,
-          t,
-          rnd,
-          bc,
-          bc.length,
-          params,
-          animData.numParams,
-          stateVars
+          i, t, rnd, bc, bc.length,
+          params, animData.numParams, stateVars, engine
         );
         newLeds.push({ r: out.r, g: out.g, b: out.b });
+      }
+
+      // Save prevFrame for next frame
+      if (engine) {
+        for (let i = 0; i < nLeds; i++) {
+          engine.prevFrame[i][0] = newLeds[i].r;
+          engine.prevFrame[i][1] = newLeds[i].g;
+          engine.prevFrame[i][2] = newLeds[i].b;
+        }
       }
 
       setLeds(newLeds);
@@ -268,6 +280,35 @@ export function useAnimationSimulator({
     [animData, params]
   );
 
+  const fireEvent = useCallback(
+    (slot: number, val = 1.0, pos = 0, width = 20, decay = 0.05) => {
+      const engine = engineStateRef.current;
+      if (!engine || slot < 0 || slot >= 4) return;
+      engine.events[slot] = { val, pos, width, decay };
+    },
+    []
+  );
+
+  const spawnParticle = useCallback(
+    (opts: { x?: number; vx?: number; life?: number; decay?: number; gravity?: number; r?: number; g?: number; b?: number; size?: number } = {}) => {
+      const engine = engineStateRef.current;
+      if (!engine) return;
+      const free = engine.particles.find((p) => !p.active);
+      if (!free) return;
+      free.x = opts.x ?? 0;
+      free.vx = opts.vx ?? 0;
+      free.life = opts.life ?? 1.0;
+      free.decay = opts.decay ?? 0.02;
+      free.gravity = opts.gravity ?? 0;
+      free.r = opts.r ?? 255;
+      free.g = opts.g ?? 255;
+      free.b = opts.b ?? 255;
+      free.size = opts.size ?? 5;
+      free.active = true;
+    },
+    []
+  );
+
   return {
     animData,
     leds,
@@ -283,5 +324,7 @@ export function useAnimationSimulator({
     stepFrame,
     stopAnim,
     updateParam,
+    fireEvent,
+    spawnParticle,
   };
 }
