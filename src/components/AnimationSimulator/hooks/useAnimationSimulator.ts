@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   execPixel,
+  createStateSnapshot,
   MAX_LEDS,
   MAX_ANIM_PARAMS,
   MAX_STATE_VARS,
@@ -146,11 +147,16 @@ export function useAnimationSimulator({
       // Tick engine state (decay events, update particles)
       if (engine) tickEngineState(engine, nLeds);
 
+      // Snapshot of stateVars taken BEFORE the pixel loop so every pixel's
+      // update_rules reads the same pre-frame state (fixes directional bias
+      // in neighbour-diffusion animations like smoke, reaction-diffusion).
+      const stateSnapshot = createStateSnapshot(stateVars);
+
       for (let i = 0; i < nLeds; i++) {
         const rnd = Math.floor(Math.random() * 256);
         const out = execPixel(
           i, t, rnd, bc, bc.length,
-          params, animData.numParams, stateVars, engine
+          params, animData.numParams, stateVars, engine, stateSnapshot
         );
         newLeds.push({ r: out.r, g: out.g, b: out.b });
       }

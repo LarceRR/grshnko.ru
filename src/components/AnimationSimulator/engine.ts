@@ -95,6 +95,25 @@ export const Op = {
   PUSH_PARTICLE_NEAR_R: 0x78,
   PUSH_PARTICLE_NEAR_G: 0x79,
   PUSH_PARTICLE_NEAR_B: 0x7a,
+  // Phase 6: Temporal Echo (Ring Delay Lines)
+  TEMPORAL_ECHO_R: 0x7b, // stack: [N] → R value N frames ago at pixel i
+  TEMPORAL_ECHO_G: 0x7c, // stack: [N] → G value N frames ago at pixel i
+  TEMPORAL_ECHO_B: 0x7d, // stack: [N] → B value N frames ago at pixel i
+  // Phase 7: Quantum Wave Collapse
+  WAVE_COLLAPSE: 0x7e,   // stack: [prob 0..FP_ONE] → 1 if rand<prob else 0
+  // Phase 8: Field Flow Dynamics (Hydrodynamic Advection & Diffusion)
+  FIELD_GET: 0x7f,       // push field[i] as Q16.16 (0..FP_ONE); field auto-diffuses each tick
+  FIELD_SET: 0x80,       // pop Q16.16 → field[i] (clamped 0..FP_ONE)
+  // Phase 9: Reaction-Threshold Propagation (Avalanche)
+  CHARGE_GET: 0x81,      // push charge[i] as Q16.16; charge auto-propagates when ≥1.0
+  CHARGE_SET: 0x82,      // pop Q16.16 → charge[i]
+  // Phase 10: Elementary Cellular Automata (Wolfram CA)
+  CA_RULE: 0x83,         // inline: rule byte (0-255). Reads prevFrame R neighbors → 0 or FP_ONE
+  // Phase 4b: FM/PM Synthesis convenience opcode
+  FMSIN: 0x84,           // stack: [carrier_phase, mod_phase, mod_depth] → phase-modulated sin
+  // Phase 1: Domain & Time Warping
+  LOCAL_I_SET: 0x85,     // pop Q16.16 → override PUSH_I for this pixel's execution
+  LOCAL_T_SET: 0x86,     // pop Q16.16 (seconds) → override PUSH_T for this pixel's execution
   END: 0xff,
 } as const;
 
@@ -105,6 +124,7 @@ for (const [k, v] of Object.entries(Op)) {
 
 const STACK_SIZE = 16;
 const SIN_LUT_SIZE = 256;
+const TEMPORAL_ECHO_DEPTH = 32; // frames stored in ring buffer for temporal echo
 export const MAX_LEDS = 300;
 export const MAX_STATE_VARS = 5;
 export const MAX_ANIM_PARAMS = 10;
@@ -121,6 +141,13 @@ export interface SimulatorEngineState {
     r: number; g: number; b: number; size: number; active: boolean;
   }>;
   prevFrame: Uint8Array[]; // prevFrame[i] = [r, g, b]
+  // Phase 6: Temporal Echo — ring buffer of TEMPORAL_ECHO_DEPTH past frames
+  frameHistory: Array<Uint8Array[]>; // frameHistory[slot][i] = [r, g, b]
+  frameHistoryHead: number;          // index of the most-recently written slot
+  // Phase 8: Field Flow Dynamics — density field that auto-diffuses each tick
+  field: Float32Array;   // field[i] ∈ [0, 1]
+  // Phase 9: Reaction-Threshold Propagation — charge that propagates on threshold
+  charge: Float32Array;  // charge[i] ≥ 0; fires + resets when ≥ 1.0
 }
 
 // Sin/Cos LUTs: Q15.0 format (match firmware) — -32768..32767 for -1..1, then << 1 for Q16.16
@@ -174,6 +201,11 @@ import type { LayerOutput } from "./types";
 /**
  * Execute a bytecode segment.
  * Returns { r, g, b, brightness, opacity, active }
+ *
+ * stateVarsRead: optional read-only snapshot used by STATE_GET / STATE_GET_OFFSET.
+ * When null, reads fall back to stateVars (same buffer as writes — existing behaviour).
+ * Pass a pre-frame snapshot here during update_rules execution to ensure all pixels
+ * see the same state from the start of the frame (proper double-buffering).
  */
 function execSegment(
   i: number,
@@ -186,10 +218,17 @@ function execSegment(
   numParams: number,
   stateVars: Int32Array[],
   ledCount: number,
-  engine: SimulatorEngineState | null = null
+  engine: SimulatorEngineState | null = null,
+  stateVarsRead: Int32Array[] | null = null
 ): LayerOutput {
+  // Which buffer to READ state from. Writes always go to stateVars.
+  const svRead = stateVarsRead ?? stateVars;
   const stack = new Int32Array(STACK_SIZE); // 32-bit stack
   let sp = -1;
+  // Domain & Time Warping (Phase 1): local overrides for i and t within this pixel's execution.
+  // Initialized to the true values; LOCAL_I_SET / LOCAL_T_SET can override them.
+  let localI_fp = fpFromInt(i); // Q16.16
+  let localT_ms = t;            // milliseconds (same units as t param)
   const layerOut: LayerOutput = {
     r: 0,
     g: 0,
@@ -209,13 +248,12 @@ function execSegment(
         break;
 
       case Op.PUSH_I:
-        stack[++sp] = fpFromInt(i); // i in Q16.16
+        stack[++sp] = localI_fp; // Q16.16; overridable via LOCAL_I_SET
         break;
 
       case Op.PUSH_T: {
-        // FIXED BEHAVIOR: t (ms) converted to seconds in Q16.16
-        // t=1000ms -> 1.0 -> 65536
-        const tSec = t / 1000.0;
+        // t (ms) converted to seconds in Q16.16; overridable via LOCAL_T_SET
+        const tSec = localT_ms / 1000.0;
         stack[++sp] = toInt32(tSec * FP_ONE);
         break;
       }
@@ -551,7 +589,7 @@ function execSegment(
         const stateIdx = bytecode[pc++];
         let offset = bytecode[pc++]; if (offset > 127) offset -= 256;
         let target = i + offset; if (target < 0) target = 0; if (target >= ledCount) target = ledCount - 1;
-        stack[++sp] = (stateIdx < MAX_STATE_VARS && target < MAX_LEDS) ? stateVars[target][stateIdx] : 0;
+        stack[++sp] = (stateIdx < MAX_STATE_VARS && target < MAX_LEDS) ? svRead[target][stateIdx] : 0;
         break;
       }
       case Op.GLOBAL_GET: {
@@ -644,11 +682,105 @@ function execSegment(
         break;
       }
 
+      // === Phase 6: Temporal Echo ===
+      case Op.TEMPORAL_ECHO_R:
+      case Op.TEMPORAL_ECHO_G:
+      case Op.TEMPORAL_ECHO_B: {
+        if (sp >= 0 && engine) {
+          const N = Math.max(0, Math.min(TEMPORAL_ECHO_DEPTH - 1, stack[sp] >> 16));
+          const slot = ((engine.frameHistoryHead - N) % TEMPORAL_ECHO_DEPTH + TEMPORAL_ECHO_DEPTH) % TEMPORAL_ECHO_DEPTH;
+          const ch = op === Op.TEMPORAL_ECHO_R ? 0 : op === Op.TEMPORAL_ECHO_G ? 1 : 2;
+          const val = engine.frameHistory[slot]?.[i]?.[ch] ?? 0;
+          stack[sp] = fpFromInt(val);
+        } else if (sp >= 0) {
+          stack[sp] = 0;
+        }
+        break;
+      }
+
+      // === Phase 7: Quantum Wave Collapse ===
+      case Op.WAVE_COLLAPSE:
+        if (sp >= 0) {
+          const prob = stack[sp];
+          const rand = toInt32(Math.random() * FP_ONE);
+          stack[sp] = rand < prob ? FP_ONE : 0;
+        }
+        break;
+
+      // === Phase 8: Field Flow Dynamics ===
+      case Op.FIELD_GET:
+        stack[++sp] = engine ? toInt32(engine.field[i] * FP_ONE) : 0;
+        break;
+      case Op.FIELD_SET:
+        if (sp >= 0 && engine) {
+          engine.field[i] = Math.max(0, Math.min(1, stack[sp] / FP_ONE));
+          sp--;
+        }
+        break;
+
+      // === Phase 9: Reaction-Threshold Propagation ===
+      case Op.CHARGE_GET:
+        stack[++sp] = engine ? toInt32(engine.charge[i] * FP_ONE) : 0;
+        break;
+      case Op.CHARGE_SET:
+        if (sp >= 0 && engine) {
+          engine.charge[i] = Math.max(0, stack[sp] / FP_ONE);
+          sp--;
+        }
+        break;
+
+      // === Phase 10: Cellular Automata (Wolfram CA) ===
+      case Op.CA_RULE: {
+        // Rule is popped from the stack (runtime-computed, e.g. from a parameter)
+        if (sp < 0) break;
+        const rule = Math.max(0, Math.min(255, stack[sp--] >> 16)); // integer part of Q16.16
+        if (engine) {
+          const left = (engine.prevFrame[i > 0 ? i - 1 : 0]?.[0] ?? 0) > 127 ? 1 : 0;
+          const center = (engine.prevFrame[i]?.[0] ?? 0) > 127 ? 1 : 0;
+          const right = (engine.prevFrame[i < ledCount - 1 ? i + 1 : ledCount - 1]?.[0] ?? 0) > 127 ? 1 : 0;
+          const neighborhood = (left << 2) | (center << 1) | right;
+          stack[++sp] = (rule >> neighborhood) & 1 ? FP_ONE : 0;
+        } else {
+          stack[++sp] = 0;
+        }
+        break;
+      }
+
+      // === Phase 4b: FM/PM Synthesis ===
+      case Op.FMSIN: {
+        if (sp >= 2) {
+          const modDepth = stack[sp--]; // Q16.16 depth
+          const modPhase = stack[sp--]; // Q16.16 phase input to modulator sin
+          const carrPhase = stack[sp];   // Q16.16 phase input to carrier sin
+          const modIdx = (modPhase >> 8) & 0xff;
+          const modSig = toInt32(sinLut[modIdx] << 1); // Q16.16, -FP_ONE..FP_ONE
+          // PM: carrier_phase + mod_depth * mod_signal
+          const pmPhase = toInt32(carrPhase + (Number(modDepth) * Number(modSig) / FP_ONE));
+          const carrIdx = (pmPhase >> 8) & 0xff;
+          stack[sp] = toInt32(sinLut[carrIdx] << 1);
+        }
+        break;
+      }
+
+      // === Phase 1: Domain & Time Warping ===
+      case Op.LOCAL_I_SET:
+        if (sp >= 0) { localI_fp = stack[sp--]; }
+        break;
+      case Op.LOCAL_T_SET:
+        // Takes seconds in Q16.16, converts to ms for internal use
+        if (sp >= 0) { localT_ms = (stack[sp--] / FP_ONE) * 1000; }
+        break;
+
       // State
       case Op.STATE_GET: {
         if (pc >= end) return layerOut;
         const si = bytecode[pc++];
         if (si < MAX_STATE_VARS && i < MAX_LEDS) {
+          // Always read from live stateVars (not snapshot) for own pixel.
+          // No other pixel writes to stateVars[i], so this equals snapshot at
+          // frame start — but also reflects values written by STATE_SET earlier
+          // in the same pixel's update_rules (sequential write-then-read works).
+          // Cross-pixel directional bias is prevented by STATE_GET_OFFSET using svRead.
           stack[++sp] = stateVars[i][si];
         } else stack[++sp] = 0;
         break;
@@ -833,11 +965,22 @@ function instructionSize(op: number): number {
     case Op.PUSH_EVT_WIDTH: return 2;
     case Op.LAYER_START: return 2;
     case Op.LAYER_END: return 2;
+    case Op.CA_RULE: return 1; // rule popped from stack, no inline bytes
     default: return 1;
   }
 }
 
-/** Execute full pixel with engine state */
+/**
+ * Execute full pixel with engine state.
+ *
+ * stateVarsSnapshot: a frozen copy of stateVars taken ONCE before the frame's
+ * render loop begins. Passed to execSegment during update_rules so all pixels
+ * see the same pre-frame state (proper double-buffering, prevents directional bias
+ * in neighbour-diffusion patterns). If null, falls back to in-place behaviour.
+ *
+ * Callers should create a snapshot with createStateSnapshot() before looping
+ * over pixels and pass the same snapshot instance for every pixel in the frame.
+ */
 export function execPixel(
   i: number,
   t: number,
@@ -847,7 +990,8 @@ export function execPixel(
   params: Float32Array,
   numParams: number,
   stateVars: Int32Array[],
-  engine: SimulatorEngineState | null = null
+  engine: SimulatorEngineState | null = null,
+  stateVarsSnapshot: Int32Array[] | null = null
 ): { r: number; g: number; b: number } {
   const accum = { r: 0, g: 0, b: 0 };
   let hasLayers = false;
@@ -910,10 +1054,13 @@ export function execPixel(
         if (bytecode[updateEnd] === Op.UPDATE_END || bytecode[updateEnd] === Op.END) break;
         updateEnd += instructionSize(bytecode[updateEnd]);
       }
-      // Execute the update rules segment (it will contain STATE_SET opcodes)
+      // Execute the update rules segment (it will contain STATE_SET opcodes).
+      // Pass stateVarsSnapshot as the read buffer so all pixels see the same
+      // pre-frame state values — prevents directional bias in neighbour diffusion.
       execSegment(
         i, t, r, bytecode, pc, updateEnd,
-        params, numParams, stateVars, MAX_LEDS, engine
+        params, numParams, stateVars, MAX_LEDS, engine,
+        stateVarsSnapshot
       );
       pc = updateEnd;
       if (pc < bytecodeLen && bytecode[pc] === Op.UPDATE_END) pc++; // skip UPDATE_END
@@ -968,6 +1115,22 @@ export function disassemble(bytecode: Uint8Array, len: number): string {
   return lines.join("\n");
 }
 
+/**
+ * Create a deep copy of stateVars to use as a read-only snapshot for the
+ * current frame's update_rules pass. Call once per frame before the pixel
+ * render loop and pass the result as stateVarsSnapshot to every execPixel call.
+ *
+ * Example (in your render loop):
+ *   const snapshot = createStateSnapshot(stateVars);
+ *   for (let i = 0; i < ledCount; i++) {
+ *     const color = execPixel(i, t, r, bytecode, len, params, nParams, stateVars, engine, snapshot);
+ *     ...
+ *   }
+ */
+export function createStateSnapshot(stateVars: Int32Array[]): Int32Array[] {
+  return stateVars.map(row => new Int32Array(row));
+}
+
 /** Create a fresh engine state */
 export function createEngineState(ledCount: number): SimulatorEngineState {
   return {
@@ -978,15 +1141,27 @@ export function createEngineState(ledCount: number): SimulatorEngineState {
       r: 255, g: 255, b: 255, size: 5, active: false,
     })),
     prevFrame: Array.from({ length: ledCount }, () => new Uint8Array(3)),
+    // Phase 6: Temporal Echo — pre-allocated ring buffer
+    frameHistory: Array.from({ length: TEMPORAL_ECHO_DEPTH }, () =>
+      Array.from({ length: ledCount }, () => new Uint8Array(3))
+    ),
+    frameHistoryHead: 0,
+    // Phase 8: Field Flow Dynamics
+    field: new Float32Array(ledCount),
+    // Phase 9: Reaction-Threshold Propagation
+    charge: new Float32Array(ledCount),
   };
 }
 
-/** Tick engine state per frame: decay events, update particle physics */
+/** Tick engine state per frame: decay events, update particle physics, evolve fields */
 export function tickEngineState(engine: SimulatorEngineState, ledCount: number): void {
+  // Events
   for (let e = 0; e < MAX_EVENT_SLOTS; e++) {
     const evt = engine.events[e];
     if (evt.val > 0) { evt.val -= evt.decay; if (evt.val < 0) evt.val = 0; }
   }
+
+  // Particles
   for (let p = 0; p < MAX_PARTICLES; p++) {
     const part = engine.particles[p];
     if (!part.active) continue;
@@ -996,5 +1171,47 @@ export function tickEngineState(engine: SimulatorEngineState, ledCount: number):
     part.x += part.vx;
     if (part.x < 0) { part.x = -part.x; part.vx = -part.vx * 0.7; }
     if (part.x >= ledCount) { part.x = 2 * ledCount - part.x - 2; part.vx = -part.vx * 0.7; }
+  }
+
+  // Phase 6: Temporal Echo — advance ring buffer, copy prevFrame into new slot
+  const newHead = (engine.frameHistoryHead + 1) % TEMPORAL_ECHO_DEPTH;
+  for (let j = 0; j < ledCount; j++) {
+    const src = engine.prevFrame[j];
+    const dst = engine.frameHistory[newHead][j];
+    if (src && dst) { dst[0] = src[0]; dst[1] = src[1]; dst[2] = src[2]; }
+  }
+  engine.frameHistoryHead = newHead;
+
+  // Phase 8: Field Flow Dynamics — 1D diffusion (Gaussian blur step, viscosity=0.08)
+  if (engine.field.length >= ledCount) {
+    const viscosity = 0.08;
+    const tmp = new Float32Array(ledCount);
+    for (let j = 0; j < ledCount; j++) {
+      const l = engine.field[j > 0 ? j - 1 : 0];
+      const c = engine.field[j];
+      const r = engine.field[j < ledCount - 1 ? j + 1 : ledCount - 1];
+      tmp[j] = c + viscosity * (l + r - 2 * c);
+    }
+    engine.field.set(tmp.subarray(0, ledCount));
+  }
+
+  // Phase 9: Reaction-Threshold Propagation — avalanche when charge ≥ 1.0
+  if (engine.charge.length >= ledCount) {
+    const chargeTransfer = 0.25;
+    const chargeDecay = 0.002;
+    const delta = new Float32Array(ledCount);
+    for (let j = 0; j < ledCount; j++) {
+      if (engine.charge[j] >= 1.0) {
+        const pulse = engine.charge[j];
+        delta[j] -= pulse; // reset self
+        if (j > 0) delta[j - 1] += pulse * chargeTransfer;
+        if (j < ledCount - 1) delta[j + 1] += pulse * chargeTransfer;
+      } else {
+        delta[j] -= chargeDecay; // natural slow decay
+      }
+    }
+    for (let j = 0; j < ledCount; j++) {
+      engine.charge[j] = Math.max(0, engine.charge[j] + delta[j]);
+    }
   }
 }
