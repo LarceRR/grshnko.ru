@@ -1,20 +1,34 @@
 // Color palette for questionnaire card variants
 $qcard-colors: (
-  0: #4F46E5,   // indigo
-  1: #0891B2,   // cyan
-  2: #059669,   // emerald
-  3: #D97706,   // amber
-  4: #DC2626,   // red
-  5: #7C3AED,   // violet
-  6: #DB2777,   // pink
-  7: #2563EB,   // blue
+  0: #4F46E5,
+  // indigo
+  1: #0891B2,
+  // cyan
+  2: #059669,
+  // emerald
+  3: #D97706,
+  // amber
+  4: #DC2626,
+  // red
+  5: #7C3AED,
+  // violet
+  6: #DB2777,
+  // pink
+  7: #2563EB,
+  // blue
 );
 
 .questionnaire-cards {
+
   // Override global button rules that set color: white on all children
   // Global index.scss has: button { p, span, ... { color: white; line-height: 14px } }
   // We MUST use !important to win specificity against those rules
-  p, span, div, a {
+  padding: 16px;
+
+  p,
+  span,
+  div,
+  a {
     line-height: 1.45 !important;
     color: var(--text-color) !important;
   }
@@ -36,16 +50,18 @@ $qcard-colors: (
   }
 
   &__section-title {
-    margin: 0 0 8px;
-    font-size: 13px;
+    margin: 0 0 2px;
+    text-align: center;
+    font-size: 16px;
     font-weight: 600;
     color: var(--text-color) !important;
     line-height: 1.4 !important;
   }
 
   &__section-desc {
-    margin: 0 0 8px;
-    font-size: 12px;
+    text-align: center;
+    margin: 0 0 26px;
+    font-size: 14px;
     color: var(--text-color-secondary) !important;
     line-height: 1.45 !important;
   }
@@ -139,8 +155,8 @@ $qcard-colors: (
   }
 
   &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
   }
 
@@ -149,8 +165,9 @@ $qcard-colors: (
     flex-direction: column;
     align-items: flex-start;
     padding: 14px 16px;
-    text-align: left;
-    border-radius: 12px;
+    min-width: 260px;
+    text-align: center;
+    border-radius: var(--border-radius-main);
     cursor: pointer;
     transition: box-shadow 0.15s, transform 0.12s;
 
@@ -215,7 +232,8 @@ $qcard-colors: (
     color: var(--text-color-secondary) !important;
     line-height: 1.45 !important;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

@@ -44,13 +44,17 @@ export interface ChatAgent {
   id: string;
   name: string;
   description: string;
+  systemPrompt: string;
   welcomeMessage: string | null;
   avatar: string | null;
   labels: string[];
   preferredModel: string | null;
+  temperature: number;
+  maxTokens: number;
   isBuiltIn: boolean;
   isPublic: boolean;
   authorId?: string;
+  tools: string[];
 }
 
 export interface SessionsListResponse {

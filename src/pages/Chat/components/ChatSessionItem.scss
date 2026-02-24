@@ -3,7 +3,7 @@
   gap: 10px;
   align-items: flex-start;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: var(--border-radius-main);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
   text-align: left;
@@ -11,7 +11,9 @@
   position: relative;
 
   // Fix global line-height
-  p, span, div {
+  p,
+  span,
+  div {
     line-height: 1.4;
   }
 

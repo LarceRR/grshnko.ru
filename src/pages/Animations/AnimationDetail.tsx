@@ -57,7 +57,7 @@ export default function AnimationDetail() {
 
   // Инициализируем параметры при загрузке анимации
   useEffect(() => {
-    if (animation && !bodyParams) {
+    if (animation?.body && !bodyParams) {
       setBodyParams({ ...animation.body });
       // Инициализируем строковые значения
       const stringValues: Record<number, string> = {};
@@ -152,15 +152,17 @@ export default function AnimationDetail() {
     );
   }
 
-  if (isError || !animation) {
+  if (isError || !animation || (animation as any).error) {
     return (
       <div className="animation-detail-page">
-        <div className="error-state">Ошибка загрузки анимации</div>
+        <div className="error-state">
+          {(animation as any)?.error || "Ошибка загрузки анимации"}
+        </div>
       </div>
     );
   }
 
-  const bodyJson = JSON.stringify(bodyParams || animation.body, null, 2);
+  const bodyJson = JSON.stringify(bodyParams || animation?.body || {}, null, 2);
 
   return (
     <div className="animation-detail-page">
@@ -435,7 +437,7 @@ export default function AnimationDetail() {
       >
         <div className="send-modal-content">
           <p style={{ marginBottom: 12, color: "var(--text-secondary)" }}>
-            Анимация: <code>{animation.id}</code>
+            Анимация: <code>{animation?.id}</code>
           </p>
           <div className="devices-grid">
             {devices.map((d) => (
@@ -477,7 +479,7 @@ export default function AnimationDetail() {
       >
         <div className="update-params-modal-content">
           <p style={{ marginBottom: 12, color: "var(--text-secondary)" }}>
-            Анимация: <code>{animation.id}</code>
+            Анимация: <code>{animation?.id}</code>
           </p>
           <div className="devices-grid">
             {devices.map((d) => (

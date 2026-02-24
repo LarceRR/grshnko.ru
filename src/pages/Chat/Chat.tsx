@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -22,6 +22,7 @@ import { Button, Drawer, Spin, message } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { chatApi } from "../../api/chat";
 import { getUser } from "../../api/user";
+import { ChatActionProvider } from "./context/ChatActionContext";
 import "./Chat.scss";
 
 export default function Chat() {
@@ -73,6 +74,7 @@ export default function Chat() {
     regenerateMessage,
     stopGeneration,
     streamingContent,
+    toolCalls,
     pendingUserMessage,
     streamError,
     clearStreamError,
@@ -100,12 +102,10 @@ export default function Chat() {
     if (sessionId) invalidate();
   }, [sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Restore questionnaire from last tool result when re-entering chat (cards reappear)
-  const questionnaireSessionId = questionnaireState.questionnaireSessionId;
   useEffect(() => {
     if (!sessionId || !messages.length) return;
     if (
-      questionnaireSessionId === sessionId &&
+      questionnaireState.questionnaireSessionId === sessionId &&
       questionnaireState.questionnaire
     )
       return;
@@ -132,7 +132,7 @@ export default function Chat() {
     sessionId,
     messages,
     dispatch,
-    questionnaireSessionId,
+    questionnaireState.questionnaireSessionId,
     questionnaireState.questionnaire,
   ]);
 
@@ -209,13 +209,39 @@ export default function Chat() {
     }
   };
 
+  const chatActions = useMemo(() => ({
+    sendMessage,
+    editMessage,
+    regenerateMessage,
+    stopGeneration,
+    onEdit: setEditingMessageId,
+    onCopy: handleCopy,
+    onNavigateBranch: handleNavigateBranch,
+    onSubmitEdit: async (msgId: string, content: string) => {
+      setEditingMessageId(null);
+      await editMessage(msgId, content);
+    },
+    onCancelEdit: () => setEditingMessageId(null),
+    onQuestionnaireSelect: (option: any) => {
+      const answer = option.description
+        ? `${option.description}\n\nМой ответ: ${option.title}`
+        : option.title;
+      sendMessage(answer);
+      dispatch(setChatQuestionnaire({ questionnaire: null, sessionId: null }));
+    },
+    onQuestionnaireSubmit: (text: string) => {
+      sendMessage(text);
+      dispatch(setChatQuestionnaire({ questionnaire: null, sessionId: null }));
+    },
+    onQuestionnaireSkip: () => {
+      sendMessage("Пропустить");
+      dispatch(setChatQuestionnaire({ questionnaire: null, sessionId: null }));
+    }
+  }), [sendMessage, editMessage, regenerateMessage, stopGeneration, dispatch]);
+
   const sessionsList = sessions?.data ?? [];
   const loading = sessionLoading || messagesLoading;
-  const displayMessages = messages.filter(
-    (m) =>
-      m.role !== "TOOL" &&
-      (m.role !== "SYSTEM" || !m.content?.startsWith("[Conversation summary")),
-  );
+  const displayMessages = messages;
   const showWelcome = !loading && displayMessages.length === 0;
   const noSession = !sessionId || (!sessionLoading && !session);
 
@@ -263,67 +289,25 @@ export default function Chat() {
             <Spin size="large" />
           </div>
         ) : (
-          <>
+          <ChatActionProvider {...chatActions}>
             {showWelcome && session?.agent ? (
               <ChatWelcome agent={session.agent} />
             ) : (
-              <>
-                <ChatMessageList
-                  messages={displayMessages}
-                  allMessages={messages}
-                  streamingContent={streamingContent}
-                  isStreaming={isStreaming}
-                  pendingUserMessage={pendingUserMessage ?? undefined}
-                  editingMessageId={editingMessageId}
-                  onEdit={setEditingMessageId}
-                  onRegenerate={async (msgId) => {
-                    setEditingMessageId(null);
-                    await regenerateMessage(msgId);
-                  }}
-                  onCopy={handleCopy}
-                  onNavigateBranch={handleNavigateBranch}
-                  onSubmitEdit={async (msgId, content) => {
-                    setEditingMessageId(null);
-                    await editMessage(msgId, content);
-                  }}
-                  onCancelEdit={() => setEditingMessageId(null)}
-                  streamError={streamError}
-                  onDismissError={clearStreamError}
-                  questionnaire={questionnaire}
-                  onQuestionnaireSelect={(option) => {
-                    const answer = option.description
-                      ? `${option.description}\n\nМой ответ: ${option.title}`
-                      : option.title;
-                    sendMessage(answer);
-                    dispatch(
-                      setChatQuestionnaire({
-                        questionnaire: null,
-                        sessionId: null,
-                      }),
-                    );
-                  }}
-                  onQuestionnaireSubmit={(text) => {
-                    sendMessage(text);
-                    dispatch(
-                      setChatQuestionnaire({
-                        questionnaire: null,
-                        sessionId: null,
-                      }),
-                    );
-                  }}
-                  onQuestionnaireSkip={() => {
-                    sendMessage("Пропустить");
-                    dispatch(
-                      setChatQuestionnaire({
-                        questionnaire: null,
-                        sessionId: null,
-                      }),
-                    );
-                  }}
-                />
-              </>
+              <ChatMessageList
+                messages={displayMessages}
+                allMessages={messages}
+                streamingContent={streamingContent}
+                isStreaming={isStreaming}
+                pendingUserMessage={pendingUserMessage ?? undefined}
+                editingMessageId={editingMessageId}
+                streamError={streamError}
+                onDismissError={clearStreamError}
+                questionnaire={questionnaire}
+                toolCalls={toolCalls}
+                userAvatarUrl={user?.avatarUrl}
+              />
             )}
-          </>
+          </ChatActionProvider>
         )}
       </div>
 

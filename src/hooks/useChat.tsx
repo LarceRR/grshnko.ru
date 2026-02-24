@@ -8,14 +8,6 @@ import type { ToolCallEvent, QuestionnaireData } from "../types/chat.types";
 
 /**
  * Map backend questionnaire displayData to frontend QuestionnaireData.
- *
- * Backend sends: { title, questions: [{ id, label, type, options }] }
- * For select/multiselect questions, each option becomes its own card.
- * For other types (text, boolean, etc.), the question itself becomes one card.
- *
- * Also handles alternative shapes:
- *   - { question, options: [{ title, description?, value? }] }  (already frontend format)
- *   - { title, options: string[] }  (flat list)
  */
 export function mapToolResultToQuestionnaire(displayData: unknown): {
   question?: string;
@@ -38,7 +30,6 @@ export function mapToolResultToQuestionnaire(displayData: unknown): {
   // Case 1: Already in frontend shape { question?, options: [{ title, ... }] }
   if (Array.isArray(d.options) && d.options.length > 0) {
     const first = d.options[0];
-    // If options are objects with a title field, treat as already mapped
     if (first && typeof first === "object" && "title" in first) {
       return {
         question:
@@ -55,7 +46,6 @@ export function mapToolResultToQuestionnaire(displayData: unknown): {
         })),
       };
     }
-    // If options are plain strings, convert to cards
     if (typeof first === "string") {
       return {
         question:
@@ -124,7 +114,6 @@ export function mapToolResultToQuestionnaire(displayData: unknown): {
         });
       }
     } else if (q.type !== "select" && q.type !== "multiselect") {
-      // Only create a single "card" for non-choice questions (e.g. free text); never use question text as the only option for select/multiselect
       groups.push({
         label: q.label || shortTitle,
         question: displayText || undefined,
@@ -143,19 +132,13 @@ export function mapToolResultToQuestionnaire(displayData: unknown): {
         description: displayText || undefined,
       });
     }
-    // If type is select/multiselect but options are missing or empty — skip: do not show the question as a fake option card
   }
 
   if (groups.length === 0) return null;
   return { question: title, options: flatCards, groups };
 }
 
-/**
- * Decode literal unicode escape sequences (e.g. "\u0434") that some LLM models
- * output as plain text instead of actual characters.
- */
 function decodeUnicodeEscapes(text: string): string {
-  // Match sequences like \u0434 (literal backslash-u-4hex)
   return text.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) =>
     String.fromCharCode(parseInt(hex, 16)),
   );
@@ -172,64 +155,67 @@ export function useChat(sessionId: string | null) {
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
 
-  const sendMessage = useCallback(
-    async (content: string, modelOverride?: string) => {
+  const executeStream = useCallback(
+    async (url: string, body: object, initialUserMessage: string | null = null) => {
       if (!sessionId) return;
+      
       dispatch(setIsStreaming(true));
-      setPendingUserMessage(content);
+      setPendingUserMessage(initialUserMessage);
       setStreamingContent("");
       setToolCalls([]);
       setStreamError(null);
       abortRef.current = new AbortController();
 
-      const url = `${API_URL}api/chat/sessions/${sessionId}/messages/stream`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ content, modelOverride }),
-        signal: abortRef.current.signal,
-      });
-
-      if (!response.body) {
-        dispatch(setIsStreaming(false));
-        return;
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
       try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(body),
+          signal: abortRef.current.signal,
+        });
+
+        if (!response.body) {
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
+          
           buffer += decoder.decode(value, { stream: true });
-          while (buffer.includes("\n\n")) {
-            const idx = buffer.indexOf("\n\n");
-            const block = buffer.slice(0, idx);
-            buffer = buffer.slice(idx + 2);
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() || "";
+
+          for (const block of parts) {
+            if (!block.trim()) continue;
+            
             let type = "message";
             let data: unknown = null;
+            
             for (const line of block.split("\n")) {
               if (line.startsWith("event:")) type = line.slice(6).trim();
               if (line.startsWith("data:")) {
+                const dataStr = line.slice(5).trim();
                 try {
-                  data = JSON.parse(line.slice(5).trim());
+                  data = JSON.parse(dataStr);
                 } catch {
-                  data = line.slice(5).trim();
+                  data = dataStr;
                 }
               }
             }
+
             switch (type) {
               case "token":
                 setStreamingContent(
                   (prev) =>
                     prev +
                     (data && typeof data === "object" && "content" in data
-                      ? decodeUnicodeEscapes(
-                          String((data as { content: string }).content),
-                        )
+                      ? decodeUnicodeEscapes(String((data as { content: string }).content))
                       : ""),
                 );
                 break;
@@ -252,64 +238,42 @@ export function useChat(sessionId: string | null) {
                       : tc,
                   ),
                 );
-                if (
-                  payload?.displayType === "questionnaire" &&
-                  payload?.displayData
-                ) {
-                  const mapped = mapToolResultToQuestionnaire(
-                    payload.displayData,
-                  );
+                if (payload?.displayType === "questionnaire" && payload?.displayData) {
+                  const mapped = mapToolResultToQuestionnaire(payload.displayData);
                   if (mapped && mapped.options.length > 0)
-                    dispatch(
-                      setChatQuestionnaire({
-                        questionnaire: mapped,
-                        sessionId,
-                      }),
-                    );
+                    dispatch(setChatQuestionnaire({ questionnaire: mapped, sessionId }));
                 }
                 break;
               }
               case "questionnaire":
-                dispatch(
-                  setChatQuestionnaire({
-                    questionnaire: (data as QuestionnaireData) ?? null,
-                    sessionId,
-                  }),
-                );
+                dispatch(setChatQuestionnaire({ questionnaire: (data as QuestionnaireData) ?? null, sessionId }));
                 break;
               case "session_title":
-                queryClient.setQueryData(
-                  ["chat", "session", sessionId],
-                  (prev: unknown) =>
-                    prev && typeof prev === "object"
-                      ? { ...prev, title: (data as { title: string })?.title }
-                      : prev,
+                queryClient.setQueryData(["chat", "session", sessionId], (prev: unknown) =>
+                  prev && typeof prev === "object"
+                    ? { ...prev, title: (data as { title: string })?.title }
+                    : prev,
                 );
-                queryClient.invalidateQueries({
-                  queryKey: ["chat", "sessions"],
-                });
+                queryClient.invalidateQueries({ queryKey: ["chat", "sessions"] });
                 break;
               case "error": {
-                const errMsg =
-                  data && typeof data === "object" && "message" in data
-                    ? String((data as { message: string }).message)
-                    : "Произошла ошибка";
-                console.error("Chat stream error:", data);
+                const errMsg = data && typeof data === "object" && "message" in data
+                  ? String((data as { message: string }).message)
+                  : "Произошла ошибка";
                 setStreamError(errMsg);
                 break;
               }
               case "done":
-                queryClient.invalidateQueries({
-                  queryKey: ["chat", "messages", sessionId],
-                });
-                break;
-              default:
+                queryClient.invalidateQueries({ queryKey: ["chat", "messages", sessionId] });
                 break;
             }
           }
         }
       } catch (err) {
-        if ((err as Error)?.name !== "AbortError") throw err;
+        if ((err as Error)?.name !== "AbortError") {
+          console.error("Chat stream error:", err);
+          setStreamError("Ошибка соединения");
+        }
       } finally {
         dispatch(setIsStreaming(false));
         setPendingUserMessage(null);
@@ -320,293 +284,33 @@ export function useChat(sessionId: string | null) {
     [sessionId, dispatch, queryClient],
   );
 
+  const sendMessage = useCallback(
+    (content: string, modelOverride?: string) => {
+      const url = `${API_URL}api/chat/sessions/${sessionId}/messages/stream`;
+      return executeStream(url, { content, modelOverride }, content);
+    },
+    [sessionId, executeStream],
+  );
+
   const stopGeneration = useCallback(() => {
     if (abortRef.current) abortRef.current.abort();
     if (sessionId) chatApi.stopGeneration(sessionId).catch(() => {});
   }, [sessionId]);
 
   const editMessage = useCallback(
-    async (messageId: string, content: string, modelOverride?: string) => {
-      if (!sessionId) return;
-      dispatch(setIsStreaming(true));
-      setStreamingContent("");
-      setToolCalls([]);
-      setStreamError(null);
-      abortRef.current = new AbortController();
+    (messageId: string, content: string, modelOverride?: string) => {
       const url = `${API_URL}api/chat/sessions/${sessionId}/messages/${messageId}/edit/stream`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ content, modelOverride }),
-        signal: abortRef.current.signal,
-      });
-      if (!response.body) {
-        dispatch(setIsStreaming(false));
-        return;
-      }
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          while (buffer.includes("\n\n")) {
-            const idx = buffer.indexOf("\n\n");
-            const block = buffer.slice(0, idx);
-            buffer = buffer.slice(idx + 2);
-            let type = "message";
-            let data: unknown = null;
-            for (const line of block.split("\n")) {
-              if (line.startsWith("event:")) type = line.slice(6).trim();
-              if (line.startsWith("data:")) {
-                try {
-                  data = JSON.parse(line.slice(5).trim());
-                } catch {
-                  data = line.slice(5).trim();
-                }
-              }
-            }
-            switch (type) {
-              case "token":
-                setStreamingContent(
-                  (prev) =>
-                    prev +
-                    (data && typeof data === "object" && "content" in data
-                      ? decodeUnicodeEscapes(
-                          String((data as { content: string }).content),
-                        )
-                      : ""),
-                );
-                break;
-              case "tool_call_start":
-                setToolCalls((prev) => [
-                  ...prev,
-                  { ...(data as object), status: "running" } as ToolCallEvent,
-                ]);
-                break;
-              case "tool_call_result": {
-                const payload = data as {
-                  callId?: string;
-                  displayType?: string;
-                  displayData?: unknown;
-                };
-                setToolCalls((prev) =>
-                  prev.map((tc) =>
-                    payload?.callId === tc.callId
-                      ? { ...tc, ...(data as object), status: "done" }
-                      : tc,
-                  ),
-                );
-                if (
-                  payload?.displayType === "questionnaire" &&
-                  payload?.displayData
-                ) {
-                  const mapped = mapToolResultToQuestionnaire(
-                    payload.displayData,
-                  );
-                  if (mapped && mapped.options.length > 0)
-                    dispatch(
-                      setChatQuestionnaire({
-                        questionnaire: mapped,
-                        sessionId,
-                      }),
-                    );
-                }
-                break;
-              }
-              case "questionnaire":
-                dispatch(
-                  setChatQuestionnaire({
-                    questionnaire: (data as QuestionnaireData) ?? null,
-                    sessionId,
-                  }),
-                );
-                break;
-              case "session_title":
-                queryClient.setQueryData(
-                  ["chat", "session", sessionId],
-                  (prev: unknown) =>
-                    prev && typeof prev === "object"
-                      ? { ...prev, title: (data as { title: string })?.title }
-                      : prev,
-                );
-                queryClient.invalidateQueries({
-                  queryKey: ["chat", "sessions"],
-                });
-                break;
-              case "error": {
-                const errMsg =
-                  data && typeof data === "object" && "message" in data
-                    ? String((data as { message: string }).message)
-                    : "Произошла ошибка";
-                console.error("Chat stream error:", data);
-                setStreamError(errMsg);
-                break;
-              }
-              case "done":
-                queryClient.invalidateQueries({
-                  queryKey: ["chat", "messages", sessionId],
-                });
-                break;
-              default:
-                break;
-            }
-          }
-        }
-      } catch (err) {
-        if ((err as Error)?.name !== "AbortError") throw err;
-      } finally {
-        dispatch(setIsStreaming(false));
-        setStreamingContent("");
-        setToolCalls([]);
-      }
+      return executeStream(url, { content, modelOverride });
     },
-    [sessionId, dispatch, queryClient],
+    [sessionId, executeStream],
   );
 
   const regenerateMessage = useCallback(
-    async (messageId: string) => {
-      if (!sessionId) return;
-      dispatch(setIsStreaming(true));
-      setStreamingContent("");
-      setToolCalls([]);
-      setStreamError(null);
-      abortRef.current = new AbortController();
+    (messageId: string) => {
       const url = `${API_URL}api/chat/sessions/${sessionId}/messages/${messageId}/regenerate/stream`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({}),
-        signal: abortRef.current.signal,
-      });
-      if (!response.body) {
-        dispatch(setIsStreaming(false));
-        return;
-      }
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          while (buffer.includes("\n\n")) {
-            const idx = buffer.indexOf("\n\n");
-            const block = buffer.slice(0, idx);
-            buffer = buffer.slice(idx + 2);
-            let type = "message";
-            let data: unknown = null;
-            for (const line of block.split("\n")) {
-              if (line.startsWith("event:")) type = line.slice(6).trim();
-              if (line.startsWith("data:")) {
-                try {
-                  data = JSON.parse(line.slice(5).trim());
-                } catch {
-                  data = line.slice(5).trim();
-                }
-              }
-            }
-            switch (type) {
-              case "token":
-                setStreamingContent(
-                  (prev) =>
-                    prev +
-                    (data && typeof data === "object" && "content" in data
-                      ? decodeUnicodeEscapes(
-                          String((data as { content: string }).content),
-                        )
-                      : ""),
-                );
-                break;
-              case "tool_call_start":
-                setToolCalls((prev) => [
-                  ...prev,
-                  { ...(data as object), status: "running" } as ToolCallEvent,
-                ]);
-                break;
-              case "tool_call_result": {
-                const payload = data as {
-                  callId?: string;
-                  displayType?: string;
-                  displayData?: unknown;
-                };
-                setToolCalls((prev) =>
-                  prev.map((tc) =>
-                    payload?.callId === tc.callId
-                      ? { ...tc, ...(data as object), status: "done" }
-                      : tc,
-                  ),
-                );
-                if (
-                  payload?.displayType === "questionnaire" &&
-                  payload?.displayData
-                ) {
-                  const mapped = mapToolResultToQuestionnaire(
-                    payload.displayData,
-                  );
-                  if (mapped && mapped.options.length > 0)
-                    dispatch(
-                      setChatQuestionnaire({
-                        questionnaire: mapped,
-                        sessionId,
-                      }),
-                    );
-                }
-                break;
-              }
-              case "questionnaire":
-                dispatch(
-                  setChatQuestionnaire({
-                    questionnaire: (data as QuestionnaireData) ?? null,
-                    sessionId,
-                  }),
-                );
-                break;
-              case "session_title":
-                queryClient.setQueryData(
-                  ["chat", "session", sessionId],
-                  (prev: unknown) =>
-                    prev && typeof prev === "object"
-                      ? { ...prev, title: (data as { title: string })?.title }
-                      : prev,
-                );
-                queryClient.invalidateQueries({
-                  queryKey: ["chat", "sessions"],
-                });
-                break;
-              case "error": {
-                const errMsg =
-                  data && typeof data === "object" && "message" in data
-                    ? String((data as { message: string }).message)
-                    : "Произошла ошибка";
-                console.error("Chat stream error:", data);
-                setStreamError(errMsg);
-                break;
-              }
-              case "done":
-                queryClient.invalidateQueries({
-                  queryKey: ["chat", "messages", sessionId],
-                });
-                break;
-              default:
-                break;
-            }
-          }
-        }
-      } catch (err) {
-        if ((err as Error)?.name !== "AbortError") throw err;
-      } finally {
-        dispatch(setIsStreaming(false));
-        setStreamingContent("");
-        setToolCalls([]);
-      }
+      return executeStream(url, {});
     },
-    [sessionId, dispatch, queryClient],
+    [sessionId, executeStream],
   );
 
   const clearStreamError = useCallback(() => setStreamError(null), []);

@@ -1,11 +1,16 @@
 .message-actions {
-  margin-top: 4px;
+  position: absolute;
+  left: -60px;
+  bottom: 10px;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 100;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  padding-top: 4px;
 
-  .chat-message:hover & {
-    opacity: 1;
-  }
+  // The hover logic is now in .chat-message:hover
 
   &__row {
     display: inline-flex;
@@ -21,8 +26,8 @@
 
     // Force icon color so they don't inherit white from global button rules
     svg {
-      color: var(--text-color-secondary) !important;
-      stroke: var(--text-color-secondary) !important;
+      color: var(--text-color) !important;
+      stroke: var(--text-color) !important;
     }
 
     &:hover {
@@ -33,19 +38,6 @@
         color: var(--text-color) !important;
         stroke: var(--text-color) !important;
       }
-    }
-  }
-
-  // Inside user bubble (primary color bg), use lighter icons
-  .chat-message--user & &__btn {
-    svg {
-      color: rgba(255, 255, 255, 0.6) !important;
-      stroke: rgba(255, 255, 255, 0.6) !important;
-    }
-
-    &:hover svg {
-      color: #fff !important;
-      stroke: #fff !important;
     }
   }
 }

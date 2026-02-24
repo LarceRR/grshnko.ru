@@ -28,6 +28,7 @@ export const APP_ROUTES: AppRoute[] = [
     requireAdmin: true,
     children: [
       { path: "/system/users", label: "Пользователи", requireAdmin: true, enabled: true },
+      { path: "/system/agents", label: "Агенты", requireAdmin: true, enabled: true },
       { path: "/system/llm-models", label: "LLM модели", requireAdmin: true, enabled: true },
       { path: "/system/themes", label: "Темы сайта", requireAdmin: true, enabled: true },
     ],

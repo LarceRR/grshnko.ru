@@ -10,7 +10,8 @@ $gap-from-bar: 10px; // space after the active bar before icon
   border-radius: 10px;
   position: sticky;
   top: 20px;
-  align-self: flex-start; /* без этого в flex-контейнере sticky не срабатывает */
+  align-self: flex-start;
+  /* без этого в flex-контейнере sticky не срабатывает */
   height: calc(100vh - 40px);
   width: 78px;
   flex-shrink: 0;
@@ -27,6 +28,8 @@ $gap-from-bar: 10px; // space after the active bar before icon
 
     .left-nav__item {
       justify-content: flex-start;
+      flex-direction: row;
+      gap: 12px;
     }
   }
 
@@ -105,6 +108,12 @@ $gap-from-bar: 10px; // space after the active bar before icon
     display: flex;
     width: 100%;
     border-radius: 8px;
+
+    &:hover {
+      .left-nav__label-collapsed {
+        display: block;
+      }
+    }
   }
 
   // ── Nav link ─────────────────────────────────────────────────
@@ -112,7 +121,8 @@ $gap-from-bar: 10px; // space after the active bar before icon
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 0px;
+    flex-direction: column;
     height: 40px;
     min-height: 40px;
     padding: 0 12px 0 14px;
@@ -160,6 +170,17 @@ $gap-from-bar: 10px; // space after the active bar before icon
     overflow: hidden;
     text-overflow: ellipsis;
     color: inherit;
+  }
+
+  &__label-collapsed {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: center;
+    display: none;
   }
 
   // ── Bottom: NavUser + toggle ──────────────────────────────────

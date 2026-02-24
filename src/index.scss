@@ -90,6 +90,15 @@ body {
   strong {
     font-weight: 700; /* Жирное начертание для элемента <strong> */
   }
+button,
+input,
+textarea,
+select,
+.ant-btn,
+.ant-input,
+.ant-select-selector {
+  border-radius: var(--border-radius-main) !important;
+}
 
 input, textarea {
   font-size: 16px!important;
@@ -163,7 +172,8 @@ input, textarea {
   flex: 1;
   width: 100%;
   gap: 20px;
-  max-width: 100%;
+  --border-radius-main: 10px;
+  --max-width: 1200px;
   min-height: 0;
   overflow: hidden;
 }

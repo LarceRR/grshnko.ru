@@ -66,6 +66,21 @@ export const chatApi = {
       {},
       withAuth,
     ),
+
+  createAgent: (data: any) =>
+    axios.post<ChatAgent>(`${API_URL}api/chat/agents`, data, withAuth),
+
+  updateAgent: (id: string, data: Partial<ChatAgent>) =>
+    axios.patch<ChatAgent>(`${API_URL}api/chat/agents/${id}`, data, withAuth),
+
+  deleteAgent: (id: string) =>
+    axios.delete(`${API_URL}api/chat/agents/${id}`, withAuth),
+
+  getTools: () =>
+    axios.get<{ id: string; name: string; description: string }[]>(
+      `${API_URL}api/chat/tools`,
+      withAuth,
+    ),
 };
 
 // SSE streaming is done via fetch (POST with credentials), not axios

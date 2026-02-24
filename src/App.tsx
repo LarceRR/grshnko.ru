@@ -11,6 +11,8 @@ import Profile from "./pages/Profile/Profile";
 import SheduledPosts from "./pages/SheduledPosts/SheduledPosts";
 import System from "./pages/System/System";
 import UsersList from "./pages/System/system-pages/UsersListPage/UsersListPage";
+import AgentsListPage from "./pages/System/system-pages/AgentsPage/AgentsListPage";
+import AgentEditPage from "./pages/System/system-pages/AgentsPage/AgentEditPage";
 import LLMModelsPage from "./pages/System/system-pages/LLMModelsPage/LLMModelsPage";
 import ThemesPage from "./pages/System/system-pages/ThemesPage/ThemesPage";
 import ThemeEditPage from "./pages/System/system-pages/ThemesPage/ThemeEditPage";
@@ -82,6 +84,8 @@ export const App = () => {
           <Route path="/sheduled-posts" element={<SheduledPosts />} />
           <Route path="/system" element={<System />} />
           <Route path="/system/users" element={<UsersList />} />
+          <Route path="/system/agents" element={<AgentsListPage />} />
+          <Route path="/system/agents/:id" element={<AgentEditPage />} />
           <Route path="/system/llm-models" element={<LLMModelsPage />} />
           <Route path="/system/themes" element={<ThemesPage />} />
           <Route path="/system/themes/:id" element={<ThemeEditPage />} />

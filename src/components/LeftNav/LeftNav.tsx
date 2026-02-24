@@ -18,6 +18,7 @@ import {
   ChevronRight,
   ChevronLeft,
   MessageCircle,
+  GraduationCap,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_ROUTES, AppRoute } from "../../config/routes.config";
@@ -36,6 +37,7 @@ const ROUTE_ICONS: Record<string, React.ReactNode> = {
   "/profile": <User size={22} />,
   "/notifications": <Bell size={22} />,
   "/system": <MonitorCog size={22} />,
+  "/system/agents": <GraduationCap size={22} />,
   "/system/users": <Users size={22} />,
   "/system/llm-models": <Bot size={22} />,
   "/system/themes": <Palette size={22} />,
@@ -131,6 +133,7 @@ const LeftNav: React.FC = () => {
           }
         >
           <span className="left-nav__icon">{icon}</span>
+          {!expanded && <span className="left-nav__label-collapsed">{label.slice(0, 8)}...</span>}
           {expanded && <span className="left-nav__label">{label}</span>}
         </NavLink>
       </div>

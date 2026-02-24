@@ -4,7 +4,7 @@
   gap: 20px;
   min-height: 0;
   background: var(--page-background);
-  border-radius: 12px;
+  border-radius: var(--border-radius-main);
   overflow: hidden;
 
   &__sidebar-desktop {
@@ -115,7 +115,7 @@
 
   &__empty-btn {
     margin-top: 8px;
-    border-radius: 10px !important;
+    border-radius: var(--border-radius-main) !important;
     height: 42px !important;
     padding: 0 24px !important;
     font-weight: 500;

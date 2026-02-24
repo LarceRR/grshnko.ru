@@ -1,7 +1,7 @@
 .tool-call-block {
   margin-top: 8px;
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--border-radius-main);
   overflow: hidden;
   max-width: 100%;
   min-width: 0;

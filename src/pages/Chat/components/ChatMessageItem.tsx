@@ -1,16 +1,18 @@
 import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import Markdown from "react-markdown";
 import { motion } from "framer-motion";
 import { ToolCallBlock } from "./tools/ToolCallBlock";
 import { QuestionnaireCards } from "./tools/QuestionnaireCards";
 import { MessageActions } from "./branching/MessageActions";
 import { EditMessageInline } from "./branching/EditMessageInline";
+import UserAvatar from "../../../components/UserAvatar/UserAvatar";
 import type {
   ChatMessage,
   QuestionnaireData,
-  QuestionnaireOption,
 } from "../../../types/chat.types";
 import { stripToolBlocks } from "../../../utils/stripToolBlocks";
+import { useChatActions } from "../context/ChatActionContext";
 import "./ChatMessageItem.scss";
 
 function formatTime(isoDate: string): string {
@@ -27,22 +29,17 @@ function formatTime(isoDate: string): string {
 
 interface ChatMessageItemProps {
   message: ChatMessage;
-  /** Tool results from the next message (TOOL role) when displaying an assistant message with tool calls */
+  /** Tool results associated with this message */
   toolResultsFromNextMessage?: unknown;
   isStreaming?: boolean;
   streamingContent?: string;
   editingMessageId?: string | null;
-  onEdit?: (messageId: string) => void;
-  onRegenerate?: (messageId: string) => void;
-  onCopy?: (content: string) => void;
-  onNavigateBranch?: (messageId: string, branchIndex: number) => void;
-  onSubmitEdit?: (messageId: string, content: string) => void;
-  onCancelEdit?: () => void;
   /** Questionnaire data to render inline (inside the tool call block) */
   questionnaire?: QuestionnaireData | null;
-  onQuestionnaireSelect?: (option: QuestionnaireOption) => void;
-  onQuestionnaireSubmit?: (text: string) => void;
-  onQuestionnaireSkip?: () => void;
+  /** Explicit tool calls (useful for streaming) */
+  toolCalls?: any[];
+  /** Current user's avatar URL */
+  userAvatarUrl?: string | null;
 }
 
 interface ToolCallEntry {
@@ -61,11 +58,25 @@ interface ToolResultEntry {
 }
 
 function parseToolCalls(toolCalls: unknown): ToolCallEntry[] {
+  if (typeof toolCalls === "string") {
+    try {
+      return JSON.parse(toolCalls);
+    } catch {
+      return [];
+    }
+  }
   if (!Array.isArray(toolCalls)) return [];
   return toolCalls as ToolCallEntry[];
 }
 
 function parseToolResults(toolResults: unknown): ToolResultEntry[] {
+  if (typeof toolResults === "string") {
+    try {
+      return JSON.parse(toolResults);
+    } catch {
+      return [];
+    }
+  }
   if (!Array.isArray(toolResults)) return [];
   return toolResults as ToolResultEntry[];
 }
@@ -75,18 +86,24 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   isStreaming,
   streamingContent,
   editingMessageId,
-  onEdit,
-  onRegenerate,
-  onCopy,
-  onNavigateBranch,
-  onSubmitEdit,
-  onCancelEdit,
   questionnaire,
-  onQuestionnaireSelect,
-  onQuestionnaireSubmit,
-  onQuestionnaireSkip,
   toolResultsFromNextMessage,
+  toolCalls: toolCallsProp,
+  userAvatarUrl,
 }) => {
+  const {
+    onEdit,
+    regenerateMessage,
+    onCopy,
+    onNavigateBranch,
+    onSubmitEdit,
+    onCancelEdit,
+    onQuestionnaireSelect,
+    onQuestionnaireSubmit,
+    onQuestionnaireSkip,
+  } = useChatActions();
+  const navigate = useNavigate();
+
   const isUser = message.role === "USER";
   const isSystem = message.role === "SYSTEM";
   const isAssistant = message.role === "ASSISTANT";
@@ -97,7 +114,7 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
       : (message.content ?? "");
   const content = stripToolBlocks(rawContent);
 
-  const toolCalls = parseToolCalls(message.toolCalls);
+  const toolCalls = toolCallsProp || parseToolCalls(message.toolCalls);
   const toolResults = parseToolResults(
     Array.isArray(toolResultsFromNextMessage)
       ? toolResultsFromNextMessage
@@ -112,12 +129,8 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
     );
   }
 
-  // Hide TOOL role messages (internal messages, not for display)
-  if (message.role === "TOOL") {
-    return null;
-  }
+  if (message.role === "TOOL") return null;
 
-  // Hide empty assistant messages (e.g. tool-call-only with no content, or whitespace-only)
   if (
     isAssistant &&
     !isStreaming &&
@@ -145,12 +158,17 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
       data-message-id={message.id}
     >
       {isAssistant && (
-        <div className="chat-message__avatar" title="Ассистент">
+        <div 
+          className="chat-message__avatar" 
+          title="Редактировать агента"
+          onClick={() => message.agentId && navigate(`/system/agents/${message.agentId}`)}
+          style={{ cursor: 'pointer' }}
+        >
           <span className="chat-message__avatar-inner">AI</span>
         </div>
       )}
       <div className="chat-message__bubble">
-        {isEditing && onCancelEdit && onSubmitEdit ? (
+        {isEditing ? (
           <EditMessageInline
             messageId={message.id}
             initialContent={message.content ?? ""}
@@ -175,61 +193,57 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
             ) : null}
             {!isEditing &&
               toolCalls.length > 0 &&
-              (() => {
-                return toolCalls.map((tc, i) => {
-                  const callId = tc.callId ?? tc.id;
-                  const res = getResult(callId);
-                  const args =
-                    typeof tc.arguments === "string"
-                      ? (() => {
-                          try {
-                            return JSON.parse(tc.arguments) as Record<
-                              string,
-                              unknown
-                            >;
-                          } catch {
-                            return {};
-                          }
-                        })()
-                      : ((tc.arguments as Record<string, unknown>) ?? {});
-                  const status = res
-                    ? res.isError
-                      ? "error"
-                      : "done"
-                    : "running";
-                  const isQuestionnaireTool = (tc.name ?? "")
-                    .toLowerCase()
-                    .includes("questionnaire");
-                  return (
-                    <ToolCallBlock
-                      key={callId ?? i}
-                      toolName={tc.name ?? "tool"}
-                      arguments={args}
-                      result={res?.result}
-                      status={status}
-                      displayType={res?.displayType}
-                      displayData={res?.displayData}
-                      questionnaire={
-                        isQuestionnaireTool ? questionnaire : undefined
-                      }
-                      onQuestionnaireSelect={
-                        isQuestionnaireTool ? onQuestionnaireSelect : undefined
-                      }
-                      onQuestionnaireSubmit={
-                        isQuestionnaireTool ? onQuestionnaireSubmit : undefined
-                      }
-                      onQuestionnaireSkip={
-                        isQuestionnaireTool ? onQuestionnaireSkip : undefined
-                      }
-                    />
-                  );
-                });
-              })()}
-            {/* Fallback: render questionnaire directly if no tool call block claimed it */}
+              toolCalls.map((tc, i) => {
+                const callId = tc.callId ?? tc.id;
+                const res = getResult(callId);
+                const args =
+                  typeof tc.arguments === "string"
+                    ? (() => {
+                        try {
+                          return JSON.parse(tc.arguments) as Record<
+                            string,
+                            unknown
+                          >;
+                        } catch {
+                          return {};
+                        }
+                      })()
+                    : ((tc.arguments as Record<string, unknown>) ?? {});
+                const status = (tc as any).status || (res
+                  ? res.isError
+                    ? "error"
+                    : "done"
+                  : "running");
+                const isQuestionnaireTool = (tc.name ?? "")
+                  .toLowerCase()
+                  .includes("questionnaire");
+                return (
+                  <ToolCallBlock
+                    key={callId ?? i}
+                    toolName={tc.name ?? "tool"}
+                    arguments={args}
+                    result={res?.result}
+                    status={status}
+                    displayType={res?.displayType}
+                    displayData={res?.displayData}
+                    questionnaire={
+                      isQuestionnaireTool ? questionnaire : undefined
+                    }
+                    onQuestionnaireSelect={
+                      isQuestionnaireTool ? onQuestionnaireSelect : undefined
+                    }
+                    onQuestionnaireSubmit={
+                      isQuestionnaireTool ? onQuestionnaireSubmit : undefined
+                    }
+                    onQuestionnaireSkip={
+                      isQuestionnaireTool ? onQuestionnaireSkip : undefined
+                    }
+                  />
+                );
+              })}
             {questionnaire &&
               (questionnaire.options?.length > 0 ||
                 questionnaire.groups?.length) &&
-              (onQuestionnaireSelect || onQuestionnaireSubmit) &&
               !toolCalls.some((tc) =>
                 (tc.name ?? "").toLowerCase().includes("questionnaire"),
               ) && (
@@ -237,7 +251,7 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
                   question={questionnaire.question}
                   options={questionnaire.options}
                   groups={questionnaire.groups}
-                  onSelect={onQuestionnaireSelect ?? (() => {})}
+                  onSelect={onQuestionnaireSelect}
                   onSubmit={onQuestionnaireSubmit}
                   onSkip={onQuestionnaireSkip}
                   disabled={false}
@@ -246,23 +260,29 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
             {!isStreaming && timeStr && (
               <span className="chat-message__time">{timeStr}</span>
             )}
-            {onEdit != null &&
-              onRegenerate != null &&
-              onCopy != null &&
-              onNavigateBranch != null && (
-                <MessageActions
-                  message={message}
-                  branchInfo={message.branchInfo ?? null}
-                  onEdit={onEdit}
-                  onRegenerate={onRegenerate}
-                  onCopy={onCopy}
-                  onNavigateBranch={onNavigateBranch}
-                  isStreaming={isStreaming}
-                />
-              )}
           </>
         )}
+        {!isStreaming && !isEditing && (
+          <MessageActions
+            message={message}
+            branchInfo={message.branchInfo ?? null}
+            onEdit={onEdit}
+            onRegenerate={regenerateMessage}
+            onCopy={onCopy}
+            onNavigateBranch={onNavigateBranch}
+            isStreaming={isStreaming}
+          />
+        )}
       </div>
+      {isUser && (
+        <UserAvatar
+          avatarUrl={userAvatarUrl}
+          size={30}
+          className="chat-message__avatar"
+          style={{ cursor: 'pointer' }}
+          onClick={() => navigate("/profile")}
+        />
+      )}
     </div>
   );
 };
