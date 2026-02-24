@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
     return () => clearTimeout(timer);
   }, [requests]);
 
-  if (size[0] > 1028) {
+  if (size.width > 1028) {
     return (
       <nav className="navigator-wrapper">
         <div className="navigator-links">

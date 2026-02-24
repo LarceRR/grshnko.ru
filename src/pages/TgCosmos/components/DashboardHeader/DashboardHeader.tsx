@@ -24,7 +24,7 @@ const DashboardHeader = () => {
 
   const { size } = useWindowSize();
 
-  if (size[0] > 1028) {
+  if (size.width > 1028) {
     return (
       <div className="dashboard-block-wrapper">
         <ServerStatus />

@@ -5,7 +5,7 @@ import { Input, Button, Popconfirm, Select, InputNumber, Switch, Typography, Bre
 import { chatApi } from "../../../../api/chat";
 import type { ChatAgent } from "../../../../types/chat.types";
 import { useNotify } from "../../../../hooks/useNotify";
-import { Save, Trash2, ArrowLeft, Bot } from "lucide-react";
+import { Save, Trash2, ArrowLeft } from "lucide-react";
 import "./AgentsPage.scss";
 import { useWindowSize } from "../../../../hooks/useWindowSize";
 
