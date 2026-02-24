@@ -36,8 +36,9 @@
     line-height: 1.5;
 
     &--error {
-      background: var(--notification-error-bg);
-      color: var(--notification-error-text);
+      border: 1px dashed var(--notification-error-bg);
+      background: color-mix(in srgb, var(--notification-error-bg) 10%, var(--hover-background));
+      color: var(--notification-error-bg);
     }
   }
 }

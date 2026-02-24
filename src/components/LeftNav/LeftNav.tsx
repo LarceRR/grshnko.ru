@@ -65,10 +65,29 @@ function findActiveRoute(pathname: string): AppRoute | undefined {
     .sort((a, b) => b.path.length - a.path.length)[0];
 }
 
+// Parent route of the active one when inside a group (e.g. /system for /system/agents)
+function findParentGroupRoute(
+  activeRoute: AppRoute | undefined,
+  routes: AppRoute[],
+): AppRoute | undefined {
+  if (!activeRoute) return undefined;
+  return routes.find(
+    (r) =>
+      r.children?.length &&
+      (activeRoute.path === r.path || activeRoute.path.startsWith(r.path + "/")),
+  );
+}
+
+const ACTIVE_BAR_H = 24;
+
 const LeftNav: React.FC = () => {
   const location = useLocation();
   const [expanded, setExpanded] = useState(false);
-  const [triangleY, setTriangleY] = useState<number | null>(null);
+  const [indicator, setIndicator] = useState<{
+    top: number;
+    height: number;
+    showCaps: boolean;
+  } | null>(null);
 
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const containerRef = useRef<HTMLDivElement>(null);
@@ -93,14 +112,42 @@ const LeftNav: React.FC = () => {
   });
 
   const activeRoute = findActiveRoute(location.pathname);
+  const isAdmin = user?.role?.key === "ADMIN";
+  const visibleRoutes = APP_ROUTES.filter((r) => !r.requireAdmin || isAdmin);
+  const parentGroupRoute = findParentGroupRoute(activeRoute, visibleRoutes);
 
   useEffect(() => {
-    if (!activeRoute) return;
-    const el = itemRefs.current.get(activeRoute.path);
-    if (el) {
-      setTriangleY(el.offsetTop + el.offsetHeight / 2);
+    if (!activeRoute) {
+      setIndicator(null);
+      return;
     }
-  }, [location.pathname, expanded, activeRoute]);
+    const activeEl = itemRefs.current.get(activeRoute.path);
+    if (!activeEl) return;
+
+    const activeCenter = activeEl.offsetTop + activeEl.offsetHeight / 2;
+
+    // When we're on a child of a group: line from parent button to active button
+    if (
+      parentGroupRoute &&
+      parentGroupRoute.path !== activeRoute.path &&
+      parentGroupRoute.children?.length
+    ) {
+      const parentEl = itemRefs.current.get(parentGroupRoute.path);
+      if (parentEl) {
+        const parentCenter = parentEl.offsetTop + parentEl.offsetHeight / 2;
+        const top = Math.min(parentCenter, activeCenter);
+        const height = Math.abs(activeCenter - parentCenter);
+        setIndicator({ top, height, showCaps: true });
+        return;
+      }
+    }
+
+    setIndicator({
+      top: activeCenter - ACTIVE_BAR_H / 2,
+      height: ACTIVE_BAR_H,
+      showCaps: false,
+    });
+  }, [location.pathname, expanded, activeRoute, parentGroupRoute]);
 
   const setRef = (path: string) => (el: HTMLDivElement | null) => {
     if (el) itemRefs.current.set(path, el);
@@ -140,17 +187,18 @@ const LeftNav: React.FC = () => {
     );
   };
 
-  const isAdmin = user?.role?.key === "ADMIN";
-  const visibleRoutes = APP_ROUTES.filter((r) => !r.requireAdmin || isAdmin);
-
   return (
     <nav className={`left-nav${expanded ? " left-nav--expanded" : ""}`}>
       <div className="left-nav__items" ref={containerRef}>
-        {triangleY !== null && (
+        {indicator && (
           <div
-            className="left-nav__active-bar"
-            style={{ top: triangleY, transform: "translateY(-50%)" }}
-          />
+            className={`left-nav__indicator${indicator.showCaps ? " left-nav__indicator--with-caps" : ""}`}
+            style={{ top: indicator.top, height: indicator.height }}
+          >
+            <div className="left-nav__connector-cap left-nav__connector-cap--top" />
+            <div className="left-nav__indicator-bar" />
+            <div className="left-nav__connector-cap left-nav__connector-cap--bottom" />
+          </div>
         )}
 
         {visibleRoutes.map((route) => {

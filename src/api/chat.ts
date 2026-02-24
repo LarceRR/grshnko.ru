@@ -70,8 +70,16 @@ export const chatApi = {
   createAgent: (data: any) =>
     axios.post<ChatAgent>(`${API_URL}api/chat/agents`, data, withAuth),
 
-  updateAgent: (id: string, data: Partial<ChatAgent>) =>
-    axios.patch<ChatAgent>(`${API_URL}api/chat/agents/${id}`, data, withAuth),
+  updateAgent: (id: string, data: Partial<ChatAgent>) => {
+    const allowedKeys = [
+      "name", "description", "systemPrompt", "tools", "preferredModel",
+      "temperature", "maxTokens", "welcomeMessage", "avatar", "labels", "isPublic",
+    ] as const;
+    const payload = Object.fromEntries(
+      allowedKeys.filter((k) => data[k] !== undefined).map((k) => [k, data[k]]),
+    );
+    return axios.patch<ChatAgent>(`${API_URL}api/chat/agents/${id}`, payload, withAuth);
+  },
 
   deleteAgent: (id: string) =>
     axios.delete(`${API_URL}api/chat/agents/${id}`, withAuth),

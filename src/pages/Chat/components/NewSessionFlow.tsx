@@ -19,16 +19,17 @@ export const NewSessionFlow: React.FC<NewSessionFlowProps> = ({
   loading,
 }) => {
   const [search, setSearch] = useState("");
+  const agentList = Array.isArray(agents) ? agents : [];
 
   const filtered = search.trim()
-    ? agents.filter(
+    ? agentList.filter(
         (a) =>
           a.name.toLowerCase().includes(search.toLowerCase()) ||
           (a.description &&
             a.description.toLowerCase().includes(search.toLowerCase())) ||
-          a.labels.some((l) => l.toLowerCase().includes(search.toLowerCase())),
+          a.labels?.some((l) => l.toLowerCase().includes(search.toLowerCase())),
       )
-    : agents;
+    : agentList;
 
   return (
     <Modal

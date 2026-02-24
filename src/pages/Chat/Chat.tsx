@@ -30,14 +30,10 @@ export default function Chat() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isStreaming = useAppSelector((s) => s.chat.isStreaming);
-  const questionnaireState = useAppSelector((s) => ({
-    questionnaire: s.chat.questionnaire,
-    questionnaireSessionId: s.chat.questionnaireSessionId,
-  }));
-  const questionnaire =
-    questionnaireState.questionnaireSessionId === sessionId
-      ? questionnaireState.questionnaire
-      : null;
+  const questionnaire = useAppSelector((s) => s.chat.questionnaire);
+  const questionnaireSessionId = useAppSelector((s) => s.chat.questionnaireSessionId);
+  const questionnaireForSession =
+    questionnaireSessionId === sessionId ? questionnaire : null;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [newSessionModalOpen, setNewSessionModalOpen] = useState(false);
@@ -86,7 +82,7 @@ export default function Chat() {
     queryFn: () => chatApi.getAgents({ take: 100 }).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   });
-  const agents = agentsData?.data ?? [];
+  const agents = Array.isArray(agentsData?.data) ? agentsData.data : [];
   const agentSwitchTarget = agentSwitchModal.agentId
     ? (agents.find((a) => a.id === agentSwitchModal.agentId) ?? null)
     : null;
@@ -104,11 +100,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (!sessionId || !messages.length) return;
-    if (
-      questionnaireState.questionnaireSessionId === sessionId &&
-      questionnaireState.questionnaire
-    )
-      return;
+    if (questionnaireSessionId === sessionId && questionnaire) return;
     for (let i = messages.length - 1; i >= 0; i--) {
       const msg = messages[i];
       if (msg.role !== "TOOL" || !Array.isArray(msg.toolResults)) continue;
@@ -128,13 +120,7 @@ export default function Chat() {
         break;
       }
     }
-  }, [
-    sessionId,
-    messages,
-    dispatch,
-    questionnaireState.questionnaireSessionId,
-    questionnaireState.questionnaire,
-  ]);
+  }, [sessionId, messages, dispatch, questionnaireSessionId, questionnaire]);
 
   const handleNewChatSelect = async (agentId: string) => {
     setNewSessionModalOpen(false);
@@ -302,7 +288,7 @@ export default function Chat() {
                 editingMessageId={editingMessageId}
                 streamError={streamError}
                 onDismissError={clearStreamError}
-                questionnaire={questionnaire}
+                questionnaire={questionnaireForSession}
                 toolCalls={toolCalls}
                 userAvatarUrl={user?.avatarUrl}
               />

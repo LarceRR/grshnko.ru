@@ -21,7 +21,7 @@
   // Override global button > span { color: white }
   span {
     color: var(--text-color) !important;
-    line-height: 1.4 !important;
+    line-height: 0 !important;
   }
 
   &__icon {
@@ -43,7 +43,7 @@
   }
 
   &--error &__icon {
-    color: var(--notification-error-text) !important;
+    color: var(--notification-error-bg) !important;
   }
 
   &__spinner {

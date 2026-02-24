@@ -17,14 +17,16 @@ const statusLabels = {
 
 /** Map technical tool names to user-friendly Russian labels */
 const toolDisplayNames: Record<string, string> = {
-  showQuestionnaire: "Уточняю детали",
-  createLedStripAnimation: "Создаю анимацию",
-  generateTheme: "Генерирую тему",
-  createAgent: "Создаю агента",
-  readFile: "Читаю файл",
-  writeFile: "Записываю файл",
-  editFile: "Редактирую файл",
-  executeCode: "Выполняю код",
+  showQuestionnaire: "Уточняю детали...",
+  createLedStripAnimation: "Создаю анимацию...",
+  generateTheme: "Генерирую тему...",
+  createAgent: "Создаю агента...",
+  getHomeDevices: "Получаю домашние устройства...",
+  sendAnimationToHomeDevice: "Отправляю анимацию на устройство...",
+  readFile: "Читаю файл...",
+  writeFile: "Записываю файл...",
+  editFile: "Редактирую файл...",
+  executeCode: "Выполняю код...",
 };
 
 function getToolDisplayName(toolName: string): string {

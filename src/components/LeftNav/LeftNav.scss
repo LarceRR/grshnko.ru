@@ -1,7 +1,8 @@
 $nav-collapsed: 56px;
 $nav-expanded: 220px;
 $item-h: 40px;
-$active-bar-w: 4px;
+$active-bar-w: 2px;
+$active-bar-hat-w: 4px;
 $active-bar-h: 24px;
 $item-padding-x: 12px;
 $gap-from-bar: 10px; // space after the active bar before icon
@@ -55,17 +56,54 @@ $gap-from-bar: 10px; // space after the active bar before icon
     }
   }
 
-  // ── Active item vertical bar ────────────────────────────────
-  &__active-bar {
+  // ── Unified indicator: one element for all routes (smooth jump between sections) ──
+  // Bounce: flies to target, overshoots a bit, then settles back
+  $indicator-ease-bounce: cubic-bezier(0.22, 1.65, 0.5, 0.92);
+  $indicator-duration: 0.5s;
+
+  &__indicator {
     position: absolute;
     left: 0;
     width: $active-bar-w;
-    height: $active-bar-h;
-    background: var(--button-primary-bg);
-    border-radius: 0 3px 3px 0;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2;
     pointer-events: none;
+    transition:
+      top $indicator-duration $indicator-ease-bounce,
+      height $indicator-duration $indicator-ease-bounce;
+  }
+
+  &__indicator-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: $active-bar-w;
+    background: var(--button-primary-bg);
+    border-radius: 0 3px 3px 0;
+  }
+
+  &__connector-cap {
+    position: absolute;
+    left: 0;
+    width: 6px;
+    height: $active-bar-w;
+    background: var(--button-primary-bg);
+    border-radius: 0 3px 3px 0;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    .left-nav__indicator--with-caps & {
+      opacity: 1;
+    }
+
+    &--top {
+      top: 0;
+    }
+
+    &--bottom {
+      bottom: 0;
+    }
   }
 
   // ── Group ────────────────────────────────────────────────────
@@ -261,7 +299,8 @@ $gap-from-bar: 10px; // space after the active bar before icon
       }
     }
 
-    &__active-bar {
+    &__active-bar,
+    &__indicator {
       display: none;
     }
 

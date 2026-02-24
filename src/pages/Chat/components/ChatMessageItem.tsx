@@ -214,13 +214,14 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
                     ? "error"
                     : "done"
                   : "running");
-                const isQuestionnaireTool = (tc.name ?? "")
+                const toolName = (tc as { name?: string; toolName?: string }).toolName ?? (tc as { name?: string }).name ?? "tool";
+                const isQuestionnaireTool = (toolName ?? "")
                   .toLowerCase()
                   .includes("questionnaire");
                 return (
                   <ToolCallBlock
                     key={callId ?? i}
-                    toolName={tc.name ?? "tool"}
+                    toolName={toolName}
                     arguments={args}
                     result={res?.result}
                     status={status}
@@ -244,9 +245,10 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
             {questionnaire &&
               (questionnaire.options?.length > 0 ||
                 questionnaire.groups?.length) &&
-              !toolCalls.some((tc) =>
-                (tc.name ?? "").toLowerCase().includes("questionnaire"),
-              ) && (
+              !toolCalls.some((tc) => {
+                const n = (tc as { name?: string; toolName?: string }).toolName ?? (tc as { name?: string }).name ?? "";
+                return n.toLowerCase().includes("questionnaire");
+              }) && (
                 <QuestionnaireCards
                   question={questionnaire.question}
                   options={questionnaire.options}
