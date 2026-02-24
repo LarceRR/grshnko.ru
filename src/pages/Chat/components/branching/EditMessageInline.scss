@@ -1,0 +1,22 @@
+.edit-message-inline {
+  margin-top: 8px;
+  animation: chatSlideUp 0.2s ease-out;
+
+  &__input {
+    margin-bottom: 8px;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+
+    .ant-btn {
+      border-radius: 8px !important;
+      font-size: 13px;
+    }
+  }
+}

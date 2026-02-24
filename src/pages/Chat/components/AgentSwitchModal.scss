@@ -1,0 +1,16 @@
+.agent-switch-modal {
+  &__text {
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .ant-btn {
+      border-radius: 8px !important;
+    }
+  }
+}

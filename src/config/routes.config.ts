@@ -14,6 +14,7 @@ export interface AppRoute {
 export const APP_ROUTES: AppRoute[] = [
   { path: "/", label: "Главная", enabled: true },
   { path: "/tgcosmos/allPosts", label: "Все посты", enabled: false },
+  { path: "/chat", label: "Чат", enabled: true },
   { path: "/animations", label: "Анимации", enabled: true },
   { path: "/devices", label: "Устройства", enabled: true },
   { path: "/ota", label: "OTA / Прошивки", enabled: true },

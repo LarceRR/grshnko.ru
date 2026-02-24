@@ -1,0 +1,43 @@
+.tool-call-details {
+  padding: 8px 12px 12px;
+  font-size: 12px;
+  border-top: 1px solid var(--border-color);
+  line-height: 1.5;
+
+  &__section {
+    margin-top: 8px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  &__label {
+    color: var(--text-color-secondary);
+    margin-bottom: 4px;
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.4;
+  }
+
+  &__json {
+    margin: 0;
+    padding: 8px 10px;
+    background: var(--hover-background);
+    border-radius: 6px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 300px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 12px;
+    line-height: 1.5;
+
+    &--error {
+      background: var(--notification-error-bg);
+      color: var(--notification-error-text);
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Select, Tag } from "antd";
 import { getThemes, generateTheme } from "../../../../api/themes";
 import { getLLMModels } from "../../../../api/llmModels";
+import { ModelSelect } from "../../../../components/ModelSelect/ModelSelect";
 import { useSelectedTheme } from "../../../../contexts/SelectedThemeContext";
 import { useNotify } from "../../../../hooks/useNotify";
 import type { Theme } from "../../../../types/theme";
@@ -180,17 +181,11 @@ export default function ThemesPage() {
             className="generate-prompt"
           />
           <div className="generate-row">
-            <Select
-              placeholder="Модель (необязательно)"
-              allowClear
-              value={generateModel || undefined}
+            <ModelSelect
+              models={llmModels}
+              value={generateModel ?? undefined}
               onChange={setGenerateModel}
-              options={llmModels
-                .filter((m) => m.isActive)
-                .map((m) => ({
-                  value: m.modelId,
-                  label: m.displayName || m.modelId,
-                }))}
+              placeholder="Модель (необязательно)"
               className="generate-model-select"
             />
             <Button

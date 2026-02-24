@@ -1,0 +1,135 @@
+.chat-page {
+  display: flex;
+  height: 100%;
+  gap: 20px;
+  min-height: 0;
+  background: var(--page-background);
+  border-radius: 12px;
+  overflow: hidden;
+
+  &__sidebar-desktop {
+    display: none;
+
+    @media (min-width: 769px) {
+      display: flex;
+      height: 100%;
+    }
+  }
+
+  &__main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    background: var(--chat-bg, var(--page-background));
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-background);
+    flex-shrink: 0;
+    backdrop-filter: blur(12px);
+    z-index: 2;
+  }
+
+  &__menu-btn {
+    padding: 4px;
+  }
+
+  .mobile-only {
+    display: block;
+
+    @media (min-width: 769px) {
+      display: none;
+    }
+  }
+
+  &__title {
+    flex: 1;
+    min-width: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 24px;
+  }
+
+  &__questionnaire {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border-color);
+    background: var(--card-background);
+    animation: chatSlideUp 0.25s ease-out;
+  }
+
+  &__footer {
+    flex-shrink: 0;
+  }
+
+  &__empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 24px;
+    color: var(--text-color-secondary);
+    animation: chatSlideUp 0.3s ease-out;
+  }
+
+  &__empty-title {
+    margin: 4px 0 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-color);
+    line-height: 1.3;
+  }
+
+  &__empty-desc {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-color-secondary);
+    line-height: 1.5;
+  }
+
+  &__empty-btn {
+    margin-top: 8px;
+    border-radius: 10px !important;
+    height: 42px !important;
+    padding: 0 24px !important;
+    font-weight: 500;
+  }
+}
+
+@keyframes chatSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

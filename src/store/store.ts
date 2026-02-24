@@ -8,6 +8,7 @@ import serverStatusSlice from "../features/systemStatusSlice";
 import tabSlice from "../features/tabsSlide";
 import currentVideoSlice from "../features/currentVideoSlice";
 import selectedChannelSlice from "../features/selectedChannelSlice";
+import chatReducer from "../features/chatSlice";
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
     currentTab: tabSlice,
     currentVideo: currentVideoSlice,
     selectedChannel: selectedChannelSlice,
+    chat: chatReducer,
   },
 });
 

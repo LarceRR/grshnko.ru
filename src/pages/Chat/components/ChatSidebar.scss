@@ -1,0 +1,47 @@
+.chat-sidebar {
+  width: 280px;
+  min-width: 280px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+
+  &__header {
+    padding: 14px 12px;
+    background: var(--card-background);
+    margin-bottom: 10px;
+    border-radius: 10px;
+  }
+
+  &__new-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 10px !important;
+    height: 38px !important;
+    font-weight: 500;
+  }
+
+  &__list {
+    flex: 1;
+    background: var(--card-background);
+    border-radius: 10px;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__loading,
+  &__empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--text-color-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+// Mobile is handled by Ant Drawer, no need for fixed positioning here

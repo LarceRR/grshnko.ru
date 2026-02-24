@@ -230,8 +230,15 @@ input, textarea {
     /* 🛑 Бордеры, разделители */
     --border-color: #0000001A;
     --divider-color: #EAECEF;
+
+    /* 💬 Чат — алиасы для модуля Chat */
+    --page-background: var(--background-color);
+    --primary-color: var(--button-primary-bg);
+    --primary-color-light: color-mix(in srgb, var(--button-primary-bg) 12%, transparent);
+    --text-color-secondary: var(--text-secondary);
+    --hover-background: var(--button-secondary-hover);
   }
-  
+
   [data-theme='dark'] {
     /* Навигатор */
     --nav-background: #0D111790;
@@ -279,8 +286,15 @@ input, textarea {
     /* 🛑 Бордеры, разделители */
     --border-color: #30363D;
     --divider-color: #21262D;
+
+    /* 💬 Чат — алиасы для модуля Chat */
+    --page-background: var(--background-color);
+    --primary-color: var(--button-primary-bg);
+    --primary-color-light: color-mix(in srgb, var(--button-primary-bg) 12%, transparent);
+    --text-color-secondary: var(--text-secondary);
+    --hover-background: var(--button-secondary-hover);
   }
-  
+
 .empty-data {
   width: 100%;
   padding: 30px;

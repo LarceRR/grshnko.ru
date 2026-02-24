@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Modal, Popconfirm, Select } from "antd";
-import { ChevronDown } from "lucide-react";
+import { Modal, Popconfirm } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getDevices } from "../../api/devices";
@@ -13,6 +12,7 @@ import {
   deleteAnimation,
 } from "../../api/animations";
 import { getLLMModels } from "../../api/llmModels";
+import { ModelSelect } from "../../components/ModelSelect/ModelSelect";
 import type {
   AnimationCreated,
   AnimationListItem,
@@ -84,7 +84,11 @@ export default function Animations() {
 
   const handleEnhancePrompt = async () => {
     if (!prompt.trim()) {
-      notify({ title: "Ошибка", body: "Введите промпт для улучшения", type: "error" });
+      notify({
+        title: "Ошибка",
+        body: "Введите промпт для улучшения",
+        type: "error",
+      });
       return;
     }
     enhanceAbortRef.current?.abort();
@@ -121,13 +125,18 @@ export default function Animations() {
     enhanceAbortRef.current?.abort();
     enhanceAbortRef.current = null;
     setEnhancing(false);
-    notify({ title: "Отменено", body: "Улучшение промпта отменено", type: "success" });
+    notify({
+      title: "Отменено",
+      body: "Улучшение промпта отменено",
+      type: "success",
+    });
   }, [notify]);
 
   const handleCreate = async (useEnhanced = false) => {
-    const finalPrompt = useEnhanced && enhancedPrompt.trim()
-      ? enhancedPrompt.trim()
-      : prompt.trim() || undefined;
+    const finalPrompt =
+      useEnhanced && enhancedPrompt.trim()
+        ? enhancedPrompt.trim()
+        : prompt.trim() || undefined;
     createAbortRef.current?.abort();
     const ac = new AbortController();
     createAbortRef.current = ac;
@@ -164,7 +173,11 @@ export default function Animations() {
     createAbortRef.current?.abort();
     createAbortRef.current = null;
     setCreating(false);
-    notify({ title: "Отменено", body: "Генерация анимации отменена", type: "success" });
+    notify({
+      title: "Отменено",
+      body: "Генерация анимации отменена",
+      type: "success",
+    });
   }, [notify]);
 
   const handleDelete = async (id: string) => {
@@ -235,35 +248,14 @@ export default function Animations() {
             </div>
             <div className="model-select-wrap">
               <label>Модель</label>
-              <Select
-                value={selectedModel}
+              <ModelSelect
+                models={llmModels}
+                value={selectedModel ?? undefined}
                 onChange={setSelectedModel}
                 placeholder="Выберите модель (необязательно)"
-                allowClear
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label as string)
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase()) ?? false
-                }
-                style={{
-                  width: "100%",
-                }}
-                suffixIcon={<ChevronDown />}
                 loading={modelsLoading}
-              >
-                {llmModels
-                  .filter((model) => model.isActive)
-                  .map((model) => (
-                    <Select.Option
-                      key={model._id}
-                      value={model.modelId}
-                      label={model.displayName || model.modelId}
-                    >
-                      {model.displayName || model.modelId}
-                    </Select.Option>
-                  ))}
-              </Select>
+                className="animations-model-select"
+              />
             </div>
             <div className="create-buttons">
               <button
@@ -336,7 +328,8 @@ export default function Animations() {
 
         <p className="create-hint">
           Промпт можно оставить пустым — тогда будет сгенерирована случайная
-          анимация. Кнопка «Улучшить промпт» создаст подробный технический промпт для лучшего результата.
+          анимация. Кнопка «Улучшить промпт» создаст подробный технический
+          промпт для лучшего результата.
         </p>
       </section>
 

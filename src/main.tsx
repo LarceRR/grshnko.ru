@@ -15,18 +15,14 @@ import "./fonts/TildaSans-Light/TildaSans-Light.css";
 import "./fonts/TildaSans-Medium/TildaSans-Medium.css";
 import "./fonts/TildaSans-Regular/TildaSans-Regular.css";
 import "./fonts/TildaSans-Semibold/TildaSans-Semibold.css";
-import AntDRedisagnedProvider from "./components/AntDRedesignedProvider/AntDRedesignedProvider";
-
 const queryClient = new QueryClient({});
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <Provider store={store}>
       <BrowserRouter>
-        <AntDRedisagnedProvider>
-          <App />
-        </AntDRedisagnedProvider>
+        <App />
       </BrowserRouter>
     </Provider>
-  </QueryClientProvider>
+  </QueryClientProvider>,
 );

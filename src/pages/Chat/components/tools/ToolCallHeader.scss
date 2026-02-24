@@ -1,0 +1,75 @@
+.tool-call-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  transition: background 0.12s;
+  border-radius: 0;
+
+  // Override global button rules
+  &:hover {
+    background: var(--hover-background);
+    opacity: 1 !important;
+  }
+
+  // Override global button > span { color: white }
+  span {
+    color: var(--text-color) !important;
+    line-height: 1.4 !important;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    color: var(--text-color-secondary) !important;
+
+    svg {
+      color: inherit !important;
+      stroke: currentColor !important;
+    }
+  }
+
+  &--running &__icon {
+    color: var(--primary-color) !important;
+  }
+
+  &--done &__icon {
+    color: var(--notification-success-text) !important;
+  }
+
+  &--error &__icon {
+    color: var(--notification-error-text) !important;
+  }
+
+  &__spinner {
+    animation: toolSpin 0.8s linear infinite;
+  }
+
+  &__name {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text-color) !important;
+  }
+
+  &__status {
+    font-size: 11px;
+    color: var(--text-color-secondary) !important;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    color: var(--text-color-secondary) !important;
+    transition: transform 0.2s;
+  }
+}
+
+@keyframes toolSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

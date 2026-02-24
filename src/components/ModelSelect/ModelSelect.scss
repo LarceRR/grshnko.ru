@@ -1,0 +1,27 @@
+.model-select-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &__name {
+    font-size: inherit;
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+.model-select-option-wrap {
+  .model-select-option__meta {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Тёмная тема: подзаголовок опции
+[data-theme="dark"] .model-select-option__meta,
+.ant-select-dropdown[data-theme="dark"] .model-select-option__meta {
+  color: rgba(255, 255, 255, 0.4);
+}

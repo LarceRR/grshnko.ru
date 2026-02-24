@@ -17,6 +17,7 @@ import {
   MoreHorizontal,
   ChevronRight,
   ChevronLeft,
+  MessageCircle,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_ROUTES, AppRoute } from "../../config/routes.config";
@@ -27,6 +28,7 @@ import "./LeftNav.scss";
 const ROUTE_ICONS: Record<string, React.ReactNode> = {
   "/": <Home size={22} />,
   "/tgcosmos/allPosts": <LayoutGrid size={22} />,
+  "/chat": <MessageCircle size={22} />,
   "/animations": <Sparkles size={22} />,
   "/devices": <Smartphone size={22} />,
   "/ota": <Cpu size={22} />,

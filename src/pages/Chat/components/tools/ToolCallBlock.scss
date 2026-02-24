@@ -1,0 +1,18 @@
+.tool-call-block {
+  margin-top: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 100%;
+  min-width: 0;
+  background: var(--page-background);
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--primary-color) 30%, var(--border-color));
+  }
+
+  &__details {
+    overflow: hidden;
+  }
+}

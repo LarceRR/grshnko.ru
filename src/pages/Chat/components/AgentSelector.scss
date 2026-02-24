@@ -1,0 +1,9 @@
+.agent-selector {
+  min-width: 160px;
+  max-width: 200px;
+
+  .ant-select-selector {
+    border-radius: 8px !important;
+    font-size: 13px;
+  }
+}

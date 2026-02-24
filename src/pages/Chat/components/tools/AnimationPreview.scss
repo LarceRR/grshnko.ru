@@ -1,0 +1,19 @@
+.animation-preview {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-top: 1px solid var(--border-color);
+
+  &__desc {
+    margin: 0 0 6px;
+    color: var(--text-color-secondary);
+  }
+
+  &__link {
+    color: var(--primary-color);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

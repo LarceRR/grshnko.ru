@@ -1,0 +1,51 @@
+.message-actions {
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  .chat-message:hover & {
+    opacity: 1;
+  }
+
+  &__row {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__btn {
+    padding: 2px 4px !important;
+    opacity: 0.5;
+    transition: opacity 0.12s;
+    border-radius: 6px !important;
+
+    // Force icon color so they don't inherit white from global button rules
+    svg {
+      color: var(--text-color-secondary) !important;
+      stroke: var(--text-color-secondary) !important;
+    }
+
+    &:hover {
+      opacity: 1 !important;
+      background: var(--hover-background) !important;
+
+      svg {
+        color: var(--text-color) !important;
+        stroke: var(--text-color) !important;
+      }
+    }
+  }
+
+  // Inside user bubble (primary color bg), use lighter icons
+  .chat-message--user & &__btn {
+    svg {
+      color: rgba(255, 255, 255, 0.6) !important;
+      stroke: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    &:hover svg {
+      color: #fff !important;
+      stroke: #fff !important;
+    }
+  }
+}
