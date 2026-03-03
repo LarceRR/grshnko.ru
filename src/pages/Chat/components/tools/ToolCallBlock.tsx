@@ -46,6 +46,15 @@ export const ToolCallBlock: React.FC<ToolCallBlockProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
 
+  const questionnaireDisplayData = displayData as
+    | Record<string, unknown>
+    | undefined;
+  const submittedText = questionnaireDisplayData?.submittedText;
+  const hasUserAnswer =
+    displayType === "questionnaire" &&
+    submittedText != null &&
+    String(submittedText).trim() !== "";
+
   return (
     <div className="tool-call-block">
       <ToolCallHeader
@@ -77,9 +86,18 @@ export const ToolCallBlock: React.FC<ToolCallBlockProps> = ({
       {displayType === "theme" && displayData ? (
         <ThemePreview data={displayData as Record<string, unknown>} />
       ) : null}
+      {hasUserAnswer ? (
+        <div className="tool-call-block__questionnaire-result">
+          <span className="tool-call-block__questionnaire-result-label">
+            Ответ:
+          </span>{" "}
+          {String(submittedText)}
+        </div>
+      ) : null}
       {questionnaire &&
         (questionnaire.options?.length > 0 || questionnaire.groups?.length) &&
-        (onQuestionnaireSelect || onQuestionnaireSubmit) && (
+        (onQuestionnaireSelect || onQuestionnaireSubmit) &&
+        !hasUserAnswer && (
           <QuestionnaireCards
             question={questionnaire.question}
             options={questionnaire.options}

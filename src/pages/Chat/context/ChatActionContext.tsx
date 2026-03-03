@@ -2,7 +2,11 @@ import React, { createContext, useContext, ReactNode } from "react";
 
 interface ChatActionContextType {
   sendMessage: (content: string, modelOverride?: string) => void;
-  editMessage: (messageId: string, content: string, modelOverride?: string) => void;
+  editMessage: (
+    messageId: string,
+    content: string,
+    modelOverride?: string,
+  ) => void;
   regenerateMessage: (messageId: string) => void;
   stopGeneration: () => void;
   onEdit: (messageId: string) => void;
@@ -10,12 +14,20 @@ interface ChatActionContextType {
   onNavigateBranch: (messageId: string, branchIndex: number) => void;
   onSubmitEdit: (messageId: string, content: string) => void;
   onCancelEdit: () => void;
-  onQuestionnaireSelect: (option: any) => void;
-  onQuestionnaireSubmit: (text: string) => void;
+  onQuestionnaireSelect: (
+    option: any,
+    context?: { callId: string; assistantMessageId: string },
+  ) => void;
+  onQuestionnaireSubmit: (
+    text: string,
+    context?: { callId: string; assistantMessageId: string },
+  ) => void;
   onQuestionnaireSkip: () => void;
 }
 
-const ChatActionContext = createContext<ChatActionContextType | undefined>(undefined);
+const ChatActionContext = createContext<ChatActionContextType | undefined>(
+  undefined,
+);
 
 export const useChatActions = () => {
   const context = useContext(ChatActionContext);
@@ -29,7 +41,10 @@ interface ChatActionProviderProps extends ChatActionContextType {
   children: ReactNode;
 }
 
-export const ChatActionProvider: React.FC<ChatActionProviderProps> = ({ children, ...actions }) => {
+export const ChatActionProvider: React.FC<ChatActionProviderProps> = ({
+  children,
+  ...actions
+}) => {
   return (
     <ChatActionContext.Provider value={actions}>
       {children}

@@ -9,6 +9,7 @@ import {
 } from "../../../../api/llmModels";
 import type { LLMModel, CreateLLMModelBody } from "../../../../types/llmModel";
 import { useNotify } from "../../../../hooks/useNotify";
+import { getPageHeaderIcon } from "../../../../config/route-icons";
 import { Edit, Trash2 } from "lucide-react";
 import "./LLMModelsPage.scss";
 
@@ -116,11 +117,15 @@ export default function LLMModelsPage() {
   if (isLoading) return <div>Загрузка моделей...</div>;
   if (isError) return <div>Ошибка при загрузке моделей</div>;
 
+  const headerIcon = getPageHeaderIcon("/system/llm-models");
   return (
     <div className="llm-models-page">
       {contextHolder}
       <div className="llm-models-header">
-        <h2>Управление LLM моделями</h2>
+        <div className="page-header__title">
+          {headerIcon}
+          <h2>Управление LLM моделями</h2>
+        </div>
         <Button type="primary" onClick={handleOpenCreate}>
           Создать модель
         </Button>

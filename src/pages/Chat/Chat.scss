@@ -16,6 +16,24 @@
     }
   }
 
+  &__artifacts-desktop {
+    display: none;
+
+    @media (min-width: 1100px) {
+      display: flex;
+      height: 100%;
+    }
+  }
+
+  &__files-desktop {
+    display: none;
+
+    @media (min-width: 1100px) {
+      display: flex;
+      height: 100%;
+    }
+  }
+
   &__main {
     flex: 1;
     display: flex;
@@ -31,11 +49,39 @@
     align-items: center;
     gap: 12px;
     padding: 14px 20px;
-    border-bottom: 1px solid var(--border-color);
     background: var(--card-background);
+    border-radius: var(--border-radius-main);
     flex-shrink: 0;
     backdrop-filter: blur(12px);
     z-index: 2;
+
+    .ant-btn-icon {
+      color: var(--primary-color)!important;
+    }
+  }
+
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__header-btn {
+    padding: 8px;
+    border-radius: var(--border-radius-main);
+    background: transparent !important;
+    border: none !important;
+    transition: color 0.2s, background 0.2s;
+
+    .anticon,
+    svg {
+      color: var(--primary-color)!important;
+    }
+
+    &:hover {
+      color: var(--primary-color) !important;
+      background: color-mix(in srgb, var(--primary-color) 12%, transparent) !important;
+    }
   }
 
   &__menu-btn {
@@ -56,6 +102,47 @@
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.4;
+  }
+
+  &__dm-header {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+
+  &__dm-avatar {
+    flex-shrink: 0;
+  }
+
+  &__dm-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__dm-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__dm-status {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    line-height: 1.3;
+    white-space: nowrap;
   }
 
   &__body {
@@ -86,6 +173,18 @@
     flex-shrink: 0;
   }
 
+  &__mobile-session-list {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+      display: flex;
+    }
+  }
+
   &__empty-state {
     flex: 1;
     display: flex;
@@ -96,6 +195,12 @@
     padding: 40px 24px;
     color: var(--text-color-secondary);
     animation: chatSlideUp 0.3s ease-out;
+
+    &--desktop-only {
+      @media (max-width: 768px) {
+        display: none;
+      }
+    }
   }
 
   &__empty-title {

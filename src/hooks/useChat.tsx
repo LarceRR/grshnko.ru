@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAppDispatch } from "../store/hooks";
 import { setChatQuestionnaire, setIsStreaming } from "../features/chatSlice";
@@ -147,20 +147,46 @@ function decodeUnicodeEscapes(text: string): string {
 export function useChat(sessionId: string | null) {
   const [streamingContent, setStreamingContent] = useState("");
   const [toolCalls, setToolCalls] = useState<ToolCallEvent[]>([]);
-  const [pendingUserMessage, setPendingUserMessage] = useState<string | null>(
-    null,
-  );
+  const [pendingMessage, setPendingMessage] = useState<{
+    clientId: string;
+    content: string;
+    createdAtMs: number;
+  } | null>(null);
   const [streamError, setStreamError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
 
+  // Cleanup abort controller on unmount or sessionId change
+  useEffect(() => {
+    return () => {
+      if (abortRef.current && !abortRef.current.signal.aborted) {
+        abortRef.current.abort();
+      }
+    };
+  }, []);
+
   const executeStream = useCallback(
-    async (url: string, body: object, initialUserMessage: string | null = null) => {
+    async (
+      url: string,
+      body: object,
+      initialUserMessage: string | null = null,
+    ) => {
       if (!sessionId) return;
-      
+      let streamEndedWithDone = false;
+
       dispatch(setIsStreaming(true));
-      setPendingUserMessage(initialUserMessage);
+      if (initialUserMessage) {
+        const clientId =
+          ((body as Record<string, unknown>).clientId as string) ?? "";
+        setPendingMessage({
+          clientId,
+          content: initialUserMessage,
+          createdAtMs: Date.now(),
+        });
+      } else {
+        setPendingMessage(null);
+      }
       setStreamingContent("");
       setToolCalls([]);
       setStreamError(null);
@@ -186,25 +212,30 @@ export function useChat(sessionId: string | null) {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
+
           buffer += decoder.decode(value, { stream: true });
           const parts = buffer.split("\n\n");
           buffer = parts.pop() || "";
 
           for (const block of parts) {
             if (!block.trim()) continue;
-            
+
             let type = "message";
             let data: unknown = null;
-            
+
             for (const line of block.split("\n")) {
               if (line.startsWith("event:")) type = line.slice(6).trim();
               if (line.startsWith("data:")) {
                 const dataStr = line.slice(5).trim();
                 try {
                   data = JSON.parse(dataStr);
-                } catch {
-                  data = dataStr;
+                } catch (parseError) {
+                  // Log parsing errors for debugging but continue processing
+                  console.warn(
+                    `Failed to parse SSE data: ${dataStr.slice(0, 100)}`,
+                    parseError,
+                  );
+                  data = { raw: dataStr };
                 }
               }
             }
@@ -215,7 +246,9 @@ export function useChat(sessionId: string | null) {
                   (prev) =>
                     prev +
                     (data && typeof data === "object" && "content" in data
-                      ? decodeUnicodeEscapes(String((data as { content: string }).content))
+                      ? decodeUnicodeEscapes(
+                          String((data as { content: string }).content),
+                        )
                       : ""),
                 );
                 break;
@@ -238,33 +271,58 @@ export function useChat(sessionId: string | null) {
                       : tc,
                   ),
                 );
-                if (payload?.displayType === "questionnaire" && payload?.displayData) {
-                  const mapped = mapToolResultToQuestionnaire(payload.displayData);
+                if (
+                  payload?.displayType === "questionnaire" &&
+                  payload?.displayData
+                ) {
+                  const mapped = mapToolResultToQuestionnaire(
+                    payload.displayData,
+                  );
                   if (mapped && mapped.options.length > 0)
-                    dispatch(setChatQuestionnaire({ questionnaire: mapped, sessionId }));
+                    dispatch(
+                      setChatQuestionnaire({
+                        questionnaire: mapped,
+                        sessionId,
+                      }),
+                    );
                 }
                 break;
               }
               case "questionnaire":
-                dispatch(setChatQuestionnaire({ questionnaire: (data as QuestionnaireData) ?? null, sessionId }));
+                dispatch(
+                  setChatQuestionnaire({
+                    questionnaire: (data as QuestionnaireData) ?? null,
+                    sessionId,
+                  }),
+                );
                 break;
               case "session_title":
-                queryClient.setQueryData(["chat", "session", sessionId], (prev: unknown) =>
-                  prev && typeof prev === "object"
-                    ? { ...prev, title: (data as { title: string })?.title }
-                    : prev,
+                queryClient.setQueryData(
+                  ["chat", "session", sessionId],
+                  (prev: unknown) =>
+                    prev && typeof prev === "object"
+                      ? { ...prev, title: (data as { title: string })?.title }
+                      : prev,
                 );
-                queryClient.invalidateQueries({ queryKey: ["chat", "sessions"] });
+                queryClient.invalidateQueries({
+                  queryKey: ["chat", "sessions"],
+                });
                 break;
               case "error": {
-                const errMsg = data && typeof data === "object" && "message" in data
-                  ? String((data as { message: string }).message)
-                  : "Произошла ошибка";
+                const errMsg =
+                  data && typeof data === "object" && "message" in data
+                    ? String((data as { message: string }).message)
+                    : "Произошла ошибка";
                 setStreamError(errMsg);
                 break;
               }
               case "done":
-                queryClient.invalidateQueries({ queryKey: ["chat", "messages", sessionId] });
+                streamEndedWithDone = true;
+                // Refetch and clear pending only after new list is in place so the same
+                // React key (clientId) keeps the row — no remount, no re-animation
+                void queryClient
+                  .refetchQueries({ queryKey: ["chat", "messages", sessionId] })
+                  .then(() => setPendingMessage(null));
                 break;
             }
           }
@@ -276,7 +334,9 @@ export function useChat(sessionId: string | null) {
         }
       } finally {
         dispatch(setIsStreaming(false));
-        setPendingUserMessage(null);
+        if (!streamEndedWithDone) {
+          setPendingMessage(null);
+        }
         setStreamingContent("");
         setToolCalls([]);
       }
@@ -285,9 +345,29 @@ export function useChat(sessionId: string | null) {
   );
 
   const sendMessage = useCallback(
-    (content: string, modelOverride?: string) => {
+    (
+      content: string,
+      modelOverride?: string,
+      questionnaireResult?: {
+        callId: string;
+        assistantMessageId: string;
+        submittedText: string;
+      },
+    ) => {
+      const clientId = crypto.randomUUID();
       const url = `${API_URL}api/chat/sessions/${sessionId}/messages/stream`;
-      return executeStream(url, { content, modelOverride }, content);
+      const body: Record<string, unknown> = {
+        content,
+        modelOverride,
+        clientId,
+      };
+      if (questionnaireResult)
+        body.questionnaireResult = {
+          callId: questionnaireResult.callId,
+          assistantMessageId: questionnaireResult.assistantMessageId,
+          submittedText: questionnaireResult.submittedText,
+        };
+      return executeStream(url, body, content);
     },
     [sessionId, executeStream],
   );
@@ -322,7 +402,7 @@ export function useChat(sessionId: string | null) {
     stopGeneration,
     streamingContent,
     toolCalls,
-    pendingUserMessage,
+    pendingMessage,
     streamError,
     clearStreamError,
   };

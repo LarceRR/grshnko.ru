@@ -26,6 +26,7 @@ import TableMedia from "./TableMedia/TableMedia";
 import debounce from "lodash.debounce";
 import SheduledPostFilter from "./SheduledPostsFilter";
 import { Popover } from "antd";
+import { getPageHeaderIcon } from "../../config/route-icons";
 
 const SheduledPosts = ({ userId }: { userId?: string }) => {
   const queryClient = useQueryClient();
@@ -55,7 +56,7 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
       debounce((posts: ScheduledPost[]) => {
         setFilteredPosts(posts);
       }, 200),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -197,7 +198,7 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
         ),
       },
     ],
-    [queryClient, userId, navigate, notify, user]
+    [queryClient, userId, navigate, notify, user],
   );
 
   const table = useReactTable({
@@ -230,7 +231,10 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
     <div className="sheduled-posts">
       {contextHolder}
       <div className="sheduled-posts-header">
-        <h2>Отложенные посты</h2>
+        <div className="page-header__title">
+          {getPageHeaderIcon("/sheduled-posts")}
+          <h2>Отложенные посты</h2>
+        </div>
         <SheduledPostFilter
           userId={userId}
           onFilter={(posts) => handleFilterDebounced(posts)}
@@ -246,7 +250,7 @@ const SheduledPosts = ({ userId }: { userId?: string }) => {
                   <th key={header.id}>
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext()
+                      header.getContext(),
                     )}
                   </th>
                 ))}

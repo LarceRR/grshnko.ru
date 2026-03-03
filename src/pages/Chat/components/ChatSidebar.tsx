@@ -12,6 +12,7 @@ interface ChatSidebarProps {
   onNewChat: () => void;
   onDeleteSession: (id: string) => void;
   isLoading?: boolean;
+  currentUserId?: string | null;
 }
 
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -21,6 +22,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onNewChat,
   onDeleteSession,
   isLoading,
+  currentUserId,
 }) => {
   return (
     <aside className="chat-sidebar">
@@ -48,6 +50,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               isActive={s.id === activeSessionId}
               onSelect={() => onSelectSession(s.id)}
               onDelete={() => onDeleteSession(s.id)}
+              currentUserId={currentUserId}
             />
           ))
         )}

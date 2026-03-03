@@ -1,49 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import {
-  Home,
-  LayoutGrid,
-  Sparkles,
-  Smartphone,
-  Cpu,
-  CalendarClock,
-  User,
-  Bell,
-  MonitorCog,
-  Users,
-  Bot,
-  Palette,
-  Settings,
-  MoreHorizontal,
-  ChevronRight,
-  ChevronLeft,
-  MessageCircle,
-  GraduationCap,
-} from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_ROUTES, AppRoute } from "../../config/routes.config";
+import { ROUTE_ICONS } from "../../config/route-icons";
 import { getUser } from "../../api/user";
+import { chatApi } from "../../api/chat";
+import { useChatSocket } from "../../hooks/useChatSocket";
 import NavUser from "../Navigator/NavUser/NavUser";
 import "./LeftNav.scss";
-
-const ROUTE_ICONS: Record<string, React.ReactNode> = {
-  "/": <Home size={22} />,
-  "/tgcosmos/allPosts": <LayoutGrid size={22} />,
-  "/chat": <MessageCircle size={22} />,
-  "/animations": <Sparkles size={22} />,
-  "/devices": <Smartphone size={22} />,
-  "/ota": <Cpu size={22} />,
-  "/sheduled-posts": <CalendarClock size={22} />,
-  "/profile": <User size={22} />,
-  "/notifications": <Bell size={22} />,
-  "/system": <MonitorCog size={22} />,
-  "/system/agents": <GraduationCap size={22} />,
-  "/system/users": <Users size={22} />,
-  "/system/llm-models": <Bot size={22} />,
-  "/system/themes": <Palette size={22} />,
-  "/settings": <Settings size={22} />,
-  "/other": <MoreHorizontal size={22} />,
-};
 
 function flattenRoutes(routes: AppRoute[]): AppRoute[] {
   return routes.flatMap((r) => [
@@ -74,7 +39,8 @@ function findParentGroupRoute(
   return routes.find(
     (r) =>
       r.children?.length &&
-      (activeRoute.path === r.path || activeRoute.path.startsWith(r.path + "/")),
+      (activeRoute.path === r.path ||
+        activeRoute.path.startsWith(r.path + "/")),
   );
 }
 
@@ -82,6 +48,7 @@ const ACTIVE_BAR_H = 24;
 
 const LeftNav: React.FC = () => {
   const location = useLocation();
+  useChatSocket(null);
   const [expanded, setExpanded] = useState(false);
   const [indicator, setIndicator] = useState<{
     top: number;
@@ -96,6 +63,21 @@ const LeftNav: React.FC = () => {
     queryKey: ["user"],
     queryFn: () => getUser(),
     retry: false,
+  });
+  const { data: unreadChatCount = 0 } = useQuery({
+    queryKey: ["chat", "sessions", { take: 100, status: "ACTIVE" }],
+    queryFn: async () => {
+      try {
+        const res = await chatApi.getSessions({ take: 100, status: "ACTIVE" });
+        const sessions = Array.isArray(res.data?.data) ? res.data.data : [];
+        return sessions.reduce((sum, s) => sum + (s.unreadCount ?? 0), 0);
+      } catch {
+        return 0;
+      }
+    },
+    enabled: !!user,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   // Только читаем из кэша: страница Profile при /profile/:id сама кладёт данные с ключом ["user", id]
@@ -180,7 +162,11 @@ const LeftNav: React.FC = () => {
           }
         >
           <span className="left-nav__icon">{icon}</span>
-          {!expanded && <span className="left-nav__label-collapsed">{label.slice(0, 8)}...</span>}
+          {route.path === "/chat" && unreadChatCount > 0 && (
+            <span className="left-nav__badge">
+              {unreadChatCount > 99 ? "99+" : unreadChatCount}
+            </span>
+          )}
           {expanded && <span className="left-nav__label">{label}</span>}
         </NavLink>
       </div>

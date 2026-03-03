@@ -1,4 +1,5 @@
 import type { ChatMessage } from "../types/chat.types";
+import { extractToolCallsFromContent } from "./stripToolBlocks";
 
 /**
  * Groups messages by date for display as separators.
@@ -51,7 +52,7 @@ export function associateToolResults(messages: ChatMessage[]) {
             return msg;
         }
 
-        // Parse tool calls if they are unknown (likely JSON string or array)
+        // Parse tool calls: from message.toolCalls or extract from content (e.g. ```tool...```)
         let toolCalls: any[] = [];
         try {
             const rawCalls = (msg as any).toolCalls;
@@ -59,9 +60,12 @@ export function associateToolResults(messages: ChatMessage[]) {
                 ? JSON.parse(rawCalls)
                 : (Array.isArray(rawCalls) ? rawCalls : []);
         } catch {
-            return msg;
+            // ignore
         }
-
+        if (!toolCalls || toolCalls.length === 0) {
+            const fromContent = extractToolCallsFromContent((msg as any).content ?? "");
+            toolCalls = fromContent.length > 0 ? fromContent : [];
+        }
         if (!toolCalls || toolCalls.length === 0) return msg;
 
         // Collect all results for these callIds from subsequent messages

@@ -1,0 +1,234 @@
+.permissions-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+
+  > h2 {
+    margin: 0;
+    color: var(--text-color);
+  }
+
+  .ant-tabs-nav {
+    margin-bottom: 16px;
+  }
+
+  .tab-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .perm-matrix {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+
+      th,
+      td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border-color);
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      th {
+        position: sticky;
+        top: 0;
+        background: var(--card-background);
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        z-index: 1;
+      }
+
+      td:first-child {
+        max-width: 260px;
+        white-space: normal;
+      }
+
+      .perm-name {
+        font-weight: 500;
+        color: var(--text-color);
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      .perm-desc {
+        color: var(--text-secondary);
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      .perm-category {
+        td {
+          padding-top: 16px;
+          font-weight: 700;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--text-secondary);
+          border-bottom: 2px solid var(--border-color);
+        }
+      }
+
+      tbody tr:hover {
+        background: var(--input-background);
+      }
+    }
+  }
+
+  .user-perm-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .user-info-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--card-background);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+
+      .user-role-badge {
+        padding: 2px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+      }
+    }
+
+    .override-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+  }
+
+  .inheritance-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .inheritance-help {
+      padding: 12px 16px;
+      background: var(--card-background);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+
+      p {
+        margin: 0 0 8px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      strong {
+        color: var(--text-color);
+      }
+
+      em {
+        font-style: normal;
+        font-weight: 500;
+        color: var(--text-color);
+      }
+    }
+
+    .inheritance-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--card-background);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      transition: border-color 0.2s;
+
+      &:hover {
+        border-color: var(--input-focus);
+      }
+
+      .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 13px;
+        color: #fff;
+      }
+
+      .inheritance-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        white-space: nowrap;
+      }
+
+      .inheritance-arrow {
+        color: var(--text-secondary);
+        flex-shrink: 0;
+      }
+
+      .inheritance-actions {
+        margin-left: auto;
+      }
+
+      .inheritance-delete-btn {
+        color: var(--text-secondary);
+        transition: color 0.2s;
+
+        &:hover {
+          color: var(--color-red, #cf222e);
+        }
+      }
+    }
+
+    .add-inheritance-form {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--card-background);
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      flex-wrap: wrap;
+
+      .form-label {
+        color: var(--text-secondary);
+        font-size: 13px;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .empty-state {
+    padding: 32px;
+    text-align: center;
+    color: var(--text-secondary);
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+  }
+}

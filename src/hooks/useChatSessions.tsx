@@ -26,6 +26,14 @@ export function useChatSessions(params?: {
     },
   });
 
+  const createDirectSession = useMutation({
+    mutationFn: (targetUserId: string) =>
+      chatApi.createDirectSession(targetUserId).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chat", "sessions"] });
+    },
+  });
+
   const updateSession = useMutation({
     mutationFn: ({
       id,
@@ -56,6 +64,7 @@ export function useChatSessions(params?: {
     error: sessionsQuery.error,
     refetch: sessionsQuery.refetch,
     createSession: createSession.mutateAsync,
+    createDirectSession: createDirectSession.mutateAsync,
     updateSession: updateSession.mutateAsync,
     deleteSession: deleteSession.mutateAsync,
   };

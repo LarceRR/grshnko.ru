@@ -10,6 +10,7 @@ export interface ChatMessageBranchInfo {
 export interface ChatMessage {
   id: string;
   sessionId: string;
+  sequenceNumber?: number;
   role: ChatMessageRole;
   content: string | null;
   toolCalls?: unknown;
@@ -18,7 +19,11 @@ export interface ChatMessage {
   model?: string | null;
   createdAt: string;
   branchInfo?: ChatMessageBranchInfo;
+  /** Client-side id for optimistic/pending messages */
+  clientId?: string;
 }
+
+export type ChatSessionType = "AGENT" | "DIRECT";
 
 export interface ChatSessionAgent {
   id: string;
@@ -28,16 +33,34 @@ export interface ChatSessionAgent {
   welcomeMessage?: string | null;
 }
 
+export interface ChatSessionUser {
+  id: string;
+  username: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatarUrl: string | null;
+  isVerified?: boolean;
+  lastLoginAt?: string | null;
+  isOnline?: boolean;
+}
+
 export interface ChatSession {
   id: string;
   title: string | null;
+  type: ChatSessionType;
   status: "ACTIVE" | "ARCHIVED";
   userId: string;
-  agentId: string;
-  agent: ChatSessionAgent;
+  agentId: string | null;
+  agent: ChatSessionAgent | null;
+  peerUserId?: string | null;
+  peerUser?: ChatSessionUser | null;
+  user?: ChatSessionUser | null;
   createdAt: string;
   updatedAt: string;
-  lastMessage?: { id: string; role: string; content: string | null; createdAt: string } | null;
+  lastMessage?: { id: string; role: string; content: string | null; createdAt: string; sequenceNumber?: number } | null;
+  lastReadSequenceNumber?: number;
+  peerLastReadSequenceNumber?: number;
+  unreadCount?: number;
 }
 
 export interface ChatAgent {

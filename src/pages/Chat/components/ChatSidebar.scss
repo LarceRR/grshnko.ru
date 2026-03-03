@@ -6,11 +6,20 @@
   flex-direction: column;
   border-radius: var(--border-radius-main);
 
+  @media (max-width: 768px) {
+    width: 100%!important;
+    min-width: 100%!important;
+  }
+
   &__header {
     padding: 14px 12px;
     background: var(--card-background);
     margin-bottom: 10px;
     border-radius: var(--border-radius-main);
+
+    .ant-btn-icon {
+      color: var(--primary-color)!important;
+    }
   }
 
   &__new-btn {

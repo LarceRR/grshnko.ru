@@ -51,6 +51,14 @@
     }
 }
 
+:where(.css-dev-only-do-not-override-j0nr1x).ant-drawer .ant-drawer-content {
+    background-color: var(--background-color)!important;
+}
+
+:where(.css-dev-only-do-not-override-j0nr1x).ant-drawer .ant-drawer-body {
+    padding: unset!important;
+}
+
 /* Мульти-Select: line-height у контента выбранных пунктов */
 :where(.css-dev-only-do-not-override-j0nr1x).ant-select-multiple .ant-select-selection-overflow .ant-select-selection-item-content {
     line-height: 20px !important;
@@ -253,4 +261,26 @@ h4.ant-typography {
 .ant-popconfirm-buttons .ant-btn-dangerous span,
 .ant-popover .ant-popover-buttons .ant-btn-primary span {
     color: inherit !important;
+}
+
+/* Tabs: цвета из темы вместо хардкода */
+.ant-tabs .ant-tabs-tab {
+    color: var(--text-secondary) !important;
+
+    &:hover {
+        color: var(--text-color) !important;
+    }
+
+    &.ant-tabs-tab-active .ant-tabs-tab-btn {
+        color: var(--text-color) !important;
+        text-shadow: none !important;
+    }
+}
+
+.ant-tabs .ant-tabs-ink-bar {
+    background: var(--button-primary-bg) !important;
+}
+
+.ant-tabs .ant-tabs-nav::before {
+    border-bottom-color: var(--border-color) !important;
 }

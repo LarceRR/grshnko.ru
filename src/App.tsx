@@ -16,6 +16,7 @@ import AgentEditPage from "./pages/System/system-pages/AgentsPage/AgentEditPage"
 import LLMModelsPage from "./pages/System/system-pages/LLMModelsPage/LLMModelsPage";
 import ThemesPage from "./pages/System/system-pages/ThemesPage/ThemesPage";
 import ThemeEditPage from "./pages/System/system-pages/ThemesPage/ThemeEditPage";
+import PermissionsPage from "./pages/System/system-pages/PermissionsPage/PermissionsPage";
 import Settings from "./pages/Settings/Settings";
 import Animations from "./pages/Animations/Animations";
 import AnimationDetail from "./pages/Animations/AnimationDetail";
@@ -89,6 +90,7 @@ export const App = () => {
           <Route path="/system/llm-models" element={<LLMModelsPage />} />
           <Route path="/system/themes" element={<ThemesPage />} />
           <Route path="/system/themes/:id" element={<ThemeEditPage />} />
+          <Route path="/system/permissions" element={<PermissionsPage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/animations" element={<Animations />} />
           <Route path="/animation/:id" element={<AnimationDetail />} />

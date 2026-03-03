@@ -7,6 +7,7 @@ import { getLLMModels } from "../../../../api/llmModels";
 import { ModelSelect } from "../../../../components/ModelSelect/ModelSelect";
 import { useSelectedTheme } from "../../../../contexts/SelectedThemeContext";
 import { useNotify } from "../../../../hooks/useNotify";
+import { getPageHeaderIcon } from "../../../../config/route-icons";
 import type { Theme } from "../../../../types/theme";
 import { Check, Palette, Sparkles } from "lucide-react";
 import "./ThemesPage.scss";
@@ -163,9 +164,14 @@ export default function ThemesPage() {
     new Set(themes.flatMap((t) => t.labels || [])),
   ).sort();
 
+  const pageIcon = getPageHeaderIcon("/system/themes");
   return (
     <div className="themes-page">
       {contextHolder}
+      <div className="page-header__title">
+        {pageIcon}
+        <h2>Темы сайта</h2>
+      </div>
 
       <section className="themes-section themes-generate">
         <h2>

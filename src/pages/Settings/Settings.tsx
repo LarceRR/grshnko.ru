@@ -1,4 +1,4 @@
-// src/components/System/System.tsx
+// src/components/Settings/Settings.tsx
 
 import { useQuery } from "@tanstack/react-query";
 import React, { useState, useRef } from "react";
@@ -7,6 +7,7 @@ import GridWrapper, {
   IGridItemProps,
 } from "../../components/GridWrapper/GridWrapper";
 import { getUser } from "../../api/user";
+import { getPageHeaderIcon } from "../../config/route-icons";
 import "./Settings.scss";
 import { useGridCalculation } from "../../hooks/useGridCalculation";
 import { gridItems } from "./SettingsItems";
@@ -29,13 +30,13 @@ const Settings = () => {
   const { columns, rows, actualCellSize } = useGridCalculation(
     gridContainerRef,
     desiredCellSize,
-    gap
+    gap,
   );
 
   // Эта функция больше не нуждается в zIndex, так как весь ее контейнер будет ниже
   const generateGridMarkers = (
     totalColumns: number,
-    totalRows: number
+    totalRows: number,
   ): React.ReactElement<IGridItemProps>[] => {
     const markers: React.ReactElement<IGridItemProps>[] = [];
     let markerIndex = 0;
@@ -58,7 +59,7 @@ const Settings = () => {
                 [ {col} , {row} ]
               </span>
             </div>
-          </GridItem>
+          </GridItem>,
         );
         markerIndex++;
       }
@@ -70,8 +71,11 @@ const Settings = () => {
 
   return (
     <div className="system-card">
-      <h1>
-        Настройки
+      <div className="system-card__header">
+        <div className="page-header__title">
+          {getPageHeaderIcon("/settings")}
+          <h1>Настройки</h1>
+        </div>
         {user?.role?.key === "ADMIN" && (
           <button
             onClick={() => setShowGridPositions(!showGridPositions)}
@@ -82,7 +86,7 @@ const Settings = () => {
               : "Показать позиции сетки"}
           </button>
         )}
-      </h1>
+      </div>
 
       {/* --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: КОНТЕЙНЕР ДЛЯ ПОЗИЦИОНИРОВАНИЯ --- */}
       <div className="grid-area-container">

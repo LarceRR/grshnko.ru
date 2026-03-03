@@ -2,16 +2,18 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Markdown from "react-markdown";
 import { motion } from "framer-motion";
+import { Clock, CheckCheck } from "lucide-react";
 import { ToolCallBlock } from "./tools/ToolCallBlock";
 import { QuestionnaireCards } from "./tools/QuestionnaireCards";
 import { MessageActions } from "./branching/MessageActions";
 import { EditMessageInline } from "./branching/EditMessageInline";
 import UserAvatar from "../../../components/UserAvatar/UserAvatar";
-import type {
-  ChatMessage,
-  QuestionnaireData,
-} from "../../../types/chat.types";
-import { stripToolBlocks } from "../../../utils/stripToolBlocks";
+import type { ChatMessage, QuestionnaireData } from "../../../types/chat.types";
+import type { MessageStatus } from "./ChatMessageList";
+import {
+  stripToolBlocks,
+  extractToolCallsFromContent,
+} from "../../../utils/stripToolBlocks";
 import { useChatActions } from "../context/ChatActionContext";
 import "./ChatMessageItem.scss";
 
@@ -29,17 +31,18 @@ function formatTime(isoDate: string): string {
 
 interface ChatMessageItemProps {
   message: ChatMessage;
-  /** Tool results associated with this message */
   toolResultsFromNextMessage?: unknown;
   isStreaming?: boolean;
   streamingContent?: string;
   editingMessageId?: string | null;
-  /** Questionnaire data to render inline (inside the tool call block) */
   questionnaire?: QuestionnaireData | null;
-  /** Explicit tool calls (useful for streaming) */
   toolCalls?: any[];
-  /** Current user's avatar URL */
   userAvatarUrl?: string | null;
+  peerAvatarUrl?: string | null;
+  showAvatar?: boolean;
+  isDirect?: boolean;
+  currentUserId?: string | null;
+  messageStatus?: MessageStatus;
 }
 
 interface ToolCallEntry {
@@ -90,6 +93,11 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   toolResultsFromNextMessage,
   toolCalls: toolCallsProp,
   userAvatarUrl,
+  peerAvatarUrl = null,
+  showAvatar = true,
+  isDirect = false,
+  currentUserId,
+  messageStatus,
 }) => {
   const {
     onEdit,
@@ -104,9 +112,15 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   } = useChatActions();
   const navigate = useNavigate();
 
-  const isUser = message.role === "USER";
+  // In DIRECT sessions, agentId stores the sender's userId
+  const isMine = isDirect
+    ? message.agentId === currentUserId
+    : message.role === "USER";
+  const isUser = isDirect ? isMine : message.role === "USER";
   const isSystem = message.role === "SYSTEM";
-  const isAssistant = message.role === "ASSISTANT";
+  const isAssistant = isDirect
+    ? !isMine && message.role === "USER"
+    : message.role === "ASSISTANT";
   const isEditing = editingMessageId === message.id;
   const rawContent =
     isStreaming && streamingContent !== undefined
@@ -114,7 +128,10 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
       : (message.content ?? "");
   const content = stripToolBlocks(rawContent);
 
-  const toolCalls = toolCallsProp || parseToolCalls(message.toolCalls);
+  const toolCalls =
+    toolCallsProp ??
+    (parseToolCalls(message.toolCalls) ||
+      (rawContent ? extractToolCallsFromContent(rawContent) : []));
   const toolResults = parseToolResults(
     Array.isArray(toolResultsFromNextMessage)
       ? toolResultsFromNextMessage
@@ -152,19 +169,44 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
     [message.createdAt],
   );
 
+  const isPending = (message as any)._isPending === true;
+  const isGrouped = !showAvatar;
+
   return (
     <div
-      className={`chat-message chat-message--${isUser ? "user" : "assistant"}`}
+      className={`chat-message chat-message--${isUser ? "user" : "assistant"}${isGrouped ? " chat-message--grouped" : ""}`}
       data-message-id={message.id}
+      data-sequence-number={message.sequenceNumber}
     >
       {isAssistant && (
-        <div 
-          className="chat-message__avatar" 
-          title="Редактировать агента"
-          onClick={() => message.agentId && navigate(`/system/agents/${message.agentId}`)}
-          style={{ cursor: 'pointer' }}
+        <div
+          className="chat-message__avatar"
+          title={isDirect ? "Профиль" : "Редактировать агента"}
+          onClick={() =>
+            showAvatar &&
+            (isDirect
+              ? message.agentId && navigate(`/profile/${message.agentId}`)
+              : message.agentId &&
+                navigate(`/system/agents/${message.agentId}`))
+          }
+          style={{ cursor: showAvatar ? "pointer" : undefined }}
         >
-          <span className="chat-message__avatar-inner">AI</span>
+          {showAvatar ? (
+            isDirect && peerAvatarUrl ? (
+              <UserAvatar
+                avatarUrl={peerAvatarUrl}
+                size={30}
+                className="chat-message__avatar-inner"
+                style={{ display: "block" }}
+              />
+            ) : (
+              <span className="chat-message__avatar-inner">
+                {isDirect ? "DM" : "AI"}
+              </span>
+            )
+          ) : (
+            <span className="chat-message__avatar-spacer" aria-hidden />
+          )}
         </div>
       )}
       <div className="chat-message__bubble">
@@ -209,12 +251,13 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
                         }
                       })()
                     : ((tc.arguments as Record<string, unknown>) ?? {});
-                const status = (tc as any).status || (res
-                  ? res.isError
-                    ? "error"
-                    : "done"
-                  : "running");
-                const toolName = (tc as { name?: string; toolName?: string }).toolName ?? (tc as { name?: string }).name ?? "tool";
+                const status =
+                  (tc as any).status ||
+                  (res ? (res.isError ? "error" : "done") : "running");
+                const toolName =
+                  (tc as { name?: string; toolName?: string }).toolName ??
+                  (tc as { name?: string }).name ??
+                  "tool";
                 const isQuestionnaireTool = (toolName ?? "")
                   .toLowerCase()
                   .includes("questionnaire");
@@ -225,16 +268,32 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
                     arguments={args}
                     result={res?.result}
                     status={status}
-                    displayType={res?.displayType}
-                    displayData={res?.displayData}
+                    displayType={
+                      res?.displayType ?? (res?.result as any)?.displayType
+                    }
+                    displayData={
+                      res?.displayData ?? (res?.result as any)?.displayData
+                    }
                     questionnaire={
                       isQuestionnaireTool ? questionnaire : undefined
                     }
                     onQuestionnaireSelect={
-                      isQuestionnaireTool ? onQuestionnaireSelect : undefined
+                      isQuestionnaireTool && (callId ?? tc.id)
+                        ? (option: any) =>
+                            onQuestionnaireSelect(option, {
+                              callId: String(callId ?? tc.id),
+                              assistantMessageId: message.id,
+                            })
+                        : undefined
                     }
                     onQuestionnaireSubmit={
-                      isQuestionnaireTool ? onQuestionnaireSubmit : undefined
+                      isQuestionnaireTool && (callId ?? tc.id)
+                        ? (text: string) =>
+                            onQuestionnaireSubmit(text, {
+                              callId: String(callId ?? tc.id),
+                              assistantMessageId: message.id,
+                            })
+                        : undefined
                     }
                     onQuestionnaireSkip={
                       isQuestionnaireTool ? onQuestionnaireSkip : undefined
@@ -246,7 +305,10 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
               (questionnaire.options?.length > 0 ||
                 questionnaire.groups?.length) &&
               !toolCalls.some((tc) => {
-                const n = (tc as { name?: string; toolName?: string }).toolName ?? (tc as { name?: string }).name ?? "";
+                const n =
+                  (tc as { name?: string; toolName?: string }).toolName ??
+                  (tc as { name?: string }).name ??
+                  "";
                 return n.toLowerCase().includes("questionnaire");
               }) && (
                 <QuestionnaireCards
@@ -260,11 +322,24 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
                 />
               )}
             {!isStreaming && timeStr && (
-              <span className="chat-message__time">{timeStr}</span>
+              <span className="chat-message__time">
+                {timeStr}
+                {messageStatus && (
+                  <span
+                    className={`chat-message__status chat-message__status--${messageStatus}`}
+                  >
+                    {messageStatus === "pending" ? (
+                      <Clock size={13} />
+                    ) : (
+                      <CheckCheck size={13} />
+                    )}
+                  </span>
+                )}
+              </span>
             )}
           </>
         )}
-        {!isStreaming && !isEditing && (
+        {!isStreaming && !isEditing && !isPending && (
           <MessageActions
             message={message}
             branchInfo={message.branchInfo ?? null}
@@ -276,15 +351,21 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
           />
         )}
       </div>
-      {isUser && (
-        <UserAvatar
-          avatarUrl={userAvatarUrl}
-          size={30}
-          className="chat-message__avatar"
-          style={{ cursor: 'pointer' }}
-          onClick={() => navigate("/profile")}
-        />
-      )}
+      {isUser &&
+        (showAvatar ? (
+          <UserAvatar
+            avatarUrl={userAvatarUrl}
+            size={30}
+            className="chat-message__avatar"
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/profile")}
+          />
+        ) : (
+          <span
+            className="chat-message__avatar chat-message__avatar-spacer"
+            aria-hidden
+          />
+        ))}
     </div>
   );
 };

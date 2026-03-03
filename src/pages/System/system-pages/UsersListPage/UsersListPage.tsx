@@ -14,6 +14,7 @@ import { User } from "../../../../types/user";
 import { getAllUsers, getUser } from "../../../../api/user";
 import { useNotify } from "../../../../hooks/useNotify";
 import UserAvatar from "../../../../components/UserAvatar/UserAvatar";
+import { getPageHeaderIcon } from "../../../../config/route-icons";
 
 const UsersList = ({ userId }: { userId?: string }) => {
   const queryClient = useQueryClient();
@@ -111,7 +112,10 @@ const UsersList = ({ userId }: { userId?: string }) => {
     <div className="sheduled-posts">
       {contextHolder}
       <div className="sheduled-posts-header">
-        <h2>Список пользователей</h2>
+        <div className="page-header__title">
+          {getPageHeaderIcon("/system/users")}
+          <h2>Список пользователей</h2>
+        </div>
         {/* <SheduledPostFilter
           userId={userId}
           onFilter={(posts) => handleFilterDebounced(posts)}

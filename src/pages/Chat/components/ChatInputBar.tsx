@@ -3,6 +3,7 @@ import { Send, Square } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getLLMModels } from "../../../api/llmModels";
 import { ModelSelect } from "../../../components/ModelSelect/ModelSelect";
+import { AgentSelector } from "./AgentSelector";
 import "./ChatInputBar.scss";
 
 interface ChatInputBarProps {
@@ -10,6 +11,12 @@ interface ChatInputBarProps {
   onStop?: () => void;
   disabled?: boolean;
   isStreaming?: boolean;
+  sessionId?: string | null;
+  agents?: any[];
+  currentAgentId?: string | null;
+  onAgentChange?: (agentId: string) => void;
+  currentUserId?: string | null;
+  isDirect?: boolean;
 }
 
 export const ChatInputBar: React.FC<ChatInputBarProps> = ({
@@ -17,6 +24,12 @@ export const ChatInputBar: React.FC<ChatInputBarProps> = ({
   onStop,
   disabled,
   isStreaming,
+  sessionId,
+  agents,
+  currentAgentId,
+  onAgentChange,
+  currentUserId,
+  isDirect,
 }) => {
   const [content, setContent] = useState("");
   const [selectedModel, setSelectedModel] = useState<string>("");
@@ -32,6 +45,8 @@ export const ChatInputBar: React.FC<ChatInputBarProps> = ({
     if (!content.trim() || disabled || isStreaming) return;
     onSend(content.trim(), selectedModel || undefined);
     setContent("");
+    // Reset model selection after sending (optional - keep if user wants to use same model)
+    // setSelectedModel("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -54,6 +69,31 @@ export const ChatInputBar: React.FC<ChatInputBarProps> = ({
   return (
     <div className="chat-input-bar">
       <div className="chat-input-bar__field-wrapper">
+        {!isDirect && (
+          <div className="chat-input-bar__field-wrapper-inner">
+            <div className="chat-input-bar__agent">
+              <AgentSelector
+                agents={agents || []}
+                value={currentAgentId || null}
+                onChange={onAgentChange || (() => {})}
+                disabled={!sessionId || isStreaming}
+                currentUserId={currentUserId}
+              />
+            </div>
+            <div className="chat-input-bar__model">
+              <ModelSelect
+                models={modelsData}
+                value={selectedModel}
+                onChange={(v) => setSelectedModel(v ?? "")}
+                allowAuto
+                placeholder="Авто"
+                size="small"
+                loading={modelsLoading}
+                disabled={disabled || isStreaming}
+              />
+            </div>
+          </div>
+        )}
         <textarea
           ref={textareaRef}
           className="chat-input-bar__input"
@@ -64,20 +104,6 @@ export const ChatInputBar: React.FC<ChatInputBarProps> = ({
           rows={1}
           disabled={disabled}
         />
-        <div className="chat-input-bar__actions">
-          <div className="chat-input-bar__model-wrapper">
-            <ModelSelect
-              models={modelsData}
-              value={selectedModel}
-              onChange={(v) => setSelectedModel(v ?? "")}
-              allowAuto
-              placeholder="Авто"
-              size="small"
-              loading={modelsLoading}
-              disabled={disabled || isStreaming}
-            />
-          </div>
-        </div>
       </div>
 
       {isStreaming ? (

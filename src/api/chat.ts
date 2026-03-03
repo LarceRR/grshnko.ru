@@ -14,6 +14,9 @@ export const chatApi = {
   createSession: (agentId: string, title?: string) =>
     axios.post<ChatSession>(`${API_URL}api/chat/sessions`, { agentId, title }, withAuth),
 
+  createDirectSession: (targetUserId: string) =>
+    axios.post<ChatSession>(`${API_URL}api/chat/sessions/direct`, { targetUserId }, withAuth),
+
   getSessions: (params?: { skip?: number; take?: number; status?: string; agentId?: string; search?: string }) =>
     axios.get<SessionsListResponse>(`${API_URL}api/chat/sessions`, { ...withAuth, params: params ?? {} }),
 
@@ -26,11 +29,14 @@ export const chatApi = {
   deleteSession: (id: string) =>
     axios.delete(`${API_URL}api/chat/sessions/${id}`, withAuth),
 
-  getMessages: (sessionId: string, params?: { before?: string; limit?: number }) =>
+  getMessages: (sessionId: string, params?: { before?: number; limit?: number }) =>
     axios.get<MessagesListResponse>(`${API_URL}api/chat/sessions/${sessionId}/messages`, {
       ...withAuth,
       params: params ?? {},
     }),
+
+  markAsRead: (sessionId: string, lastReadSequenceNumber: number) =>
+    axios.patch(`${API_URL}api/chat/sessions/${sessionId}/read`, { lastReadSequenceNumber }, withAuth),
 
   getAgents: (params?: { skip?: number; take?: number; label?: string; search?: string }) =>
     axios.get<{ data: ChatAgent[]; total: number; skip: number; take: number }>(

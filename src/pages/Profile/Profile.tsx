@@ -1,23 +1,38 @@
-import { useQuery } from "@tanstack/react-query";
-import { getUser } from "../../api/user"; // Предполагается, что эта функция может принимать id
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getUser } from "../../api/user";
+import { chatApi } from "../../api/chat";
 import "./Profile.scss";
 import UserRoleIcon from "../../components/Navigator/NavUser/components/UserRoleIcon";
 import dayjs from "dayjs";
 import UserInfo from "./UserInfo";
-import { Modal } from "antd";
+import { Modal, message } from "antd";
 import UserEditableFields from "./UserEditableFields";
 import { useState } from "react";
-import { LogOut, Pen } from "lucide-react";
-import { useUser } from "../../hooks/useUser"; // Предполагается, что useUser предоставляет данные авторизованного пользователя
-import { useParams } from "react-router-dom";
+import { LogOut, Pen, MessageSquare } from "lucide-react";
+import { useUser } from "../../hooks/useUser";
+import { useParams, useNavigate } from "react-router-dom";
 import ActiveSessions from "./ActiveSessions/ActiveSessions";
 import UserAvatar from "../../components/UserAvatar/UserAvatar";
 
 const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { logout, user: authUser } = useUser(); // Получаем авторизованного пользователя из useUser
+  const { logout, user: authUser } = useUser();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const { id } = useParams<{ id?: string }>(); // Получаем id из параметров URL
+  const { id } = useParams<{ id?: string }>();
+
+  const startDM = useMutation({
+    mutationFn: (targetUserId: string) =>
+      chatApi.createDirectSession(targetUserId).then((r) => r.data),
+    onSuccess: (session) => {
+      queryClient.invalidateQueries({ queryKey: ["chat", "sessions"] });
+      navigate(`/chat/${session.id}`);
+    },
+    onError: () => {
+      message.error("Не удалось создать чат");
+    },
+  });
 
   // Запрос для пользователя, профиль которого просматривается (по id или авторизованный)
   const { data: profileUser, isLoading: isProfileUserLoading } = useQuery({
@@ -41,17 +56,29 @@ const Profile = () => {
 
   // console.log("Rendering profile for user:", user);
 
+  const isOtherUser = !!id && id !== authUser?.id;
+
   const blocks = [
     <div className="profile-header profile-block" key="header">
       <h1>
         Профиль
-        {/* Кнопка "Выйти" показывается только если это профиль авторизованного пользователя */}
-        {user.id === authUser?.id && (
-          <button onClick={logout} style={{ background: "var(--color-red)" }}>
-            <LogOut size={16} />
-            Выйти
-          </button>
-        )}
+        <div style={{ display: "flex", gap: 8 }}>
+          {isOtherUser && id && (
+            <button
+              onClick={() => startDM.mutate(id)}
+              disabled={startDM.isPending}
+            >
+              <MessageSquare size={16} />
+              {startDM.isPending ? "Открытие…" : "Написать"}
+            </button>
+          )}
+          {user.id === authUser?.id && (
+            <button onClick={logout} style={{ background: "var(--color-red)" }}>
+              <LogOut size={16} />
+              Выйти
+            </button>
+          )}
+        </div>
       </h1>
       <div className="profile-block__body">
         <UserAvatar

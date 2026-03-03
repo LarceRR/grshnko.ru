@@ -31,6 +31,13 @@ html {
     @media screen and (max-width: 1028px) {
       padding: 20px 10px 10px 10px;
     }
+
+    &[data-page="chat"] { 
+
+      @media screen and (max-width: 1028px) {
+        padding: 0 !important;
+      }
+    }
 }
 
 .divider {
@@ -321,10 +328,31 @@ input, textarea {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding-top: 20px;
     overflow-y: auto;
 
     @media screen and (max-width: 1028px) {
       margin-bottom: 75px;
+      padding-top: 10px;
+    }
+
+    // Заголовок страницы с иконкой (как на agents-page)
+    .page-header__title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-color);
+
+      h1, h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      svg {
+        color: var(--primary-color);
+        flex-shrink: 0;
+      }
     }
 }
   
