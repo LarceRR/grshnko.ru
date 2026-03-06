@@ -20,6 +20,8 @@ import PermissionsPage from "./pages/System/system-pages/PermissionsPage/Permiss
 import Settings from "./pages/Settings/Settings";
 import Animations from "./pages/Animations/Animations";
 import AnimationDetail from "./pages/Animations/AnimationDetail";
+import ConstructorLanding from "./pages/Animations/AnimationConstructor/ConstructorLanding";
+import AnimationConstructorEditor from "./pages/Animations/AnimationConstructor/AnimationConstructorEditor";
 import Devices from "./pages/Devices/Devices";
 import DeviceDetail from "./pages/Devices/DeviceDetail";
 import Ota from "./pages/Ota/Ota";
@@ -93,6 +95,8 @@ export const App = () => {
           <Route path="/system/permissions" element={<PermissionsPage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/animations" element={<Animations />} />
+          <Route path="/animations/constructor" element={<ConstructorLanding />} />
+          <Route path="/animations/constructor/:id" element={<AnimationConstructorEditor />} />
           <Route path="/animation/:id" element={<AnimationDetail />} />
           <Route path="/devices" element={<Devices />} />
           <Route path="/devices/:id" element={<DeviceDetail />} />

@@ -5,10 +5,12 @@ import type {
   AnimationCreated,
   AnimationListItem,
   AnimationDetail,
+  AnimationDefinition,
   SendAnimationToDeviceBody,
   SendAnimationResponse,
   UpdateAnimationParametersBody,
   UpdateAnimationParametersResponse,
+  ParamDescription,
 } from "../types/animation";
 
 const withAuth = { withCredentials: true };
@@ -85,6 +87,52 @@ export const updateAnimationBody = async (
       ...withAuth,
       headers: { "Content-Type": "application/json" },
     }
+  );
+  return res.data;
+};
+
+export const compileAnimation = async (
+  animation: AnimationDefinition
+): Promise<{
+  ok: boolean;
+  body?: AnimationDetail["body"];
+  error?: string;
+}> => {
+  const res = await axios.post(
+    `${API_URL}api/animations/constructor/compile`,
+    { animation },
+    { ...withAuth, headers: { "Content-Type": "application/json" } }
+  );
+  return res.data;
+};
+
+export const createAnimationFromConstructor = async (body: {
+  animation: AnimationDefinition;
+  description?: string;
+  labels?: string[];
+  paramsDescription?: Record<string, ParamDescription>;
+}): Promise<AnimationCreated> => {
+  const res = await axios.post<AnimationCreated>(
+    `${API_URL}api/animations/constructor`,
+    body,
+    { ...withAuth, headers: { "Content-Type": "application/json" } }
+  );
+  return res.data;
+};
+
+export const updateAnimationFromConstructor = async (
+  id: string,
+  body: {
+    animation?: AnimationDefinition;
+    description?: string;
+    labels?: string[];
+    paramsDescription?: Record<string, ParamDescription>;
+  }
+): Promise<AnimationDetail> => {
+  const res = await axios.patch<AnimationDetail>(
+    `${API_URL}api/animationsLists/${id}`,
+    body,
+    { ...withAuth, headers: { "Content-Type": "application/json" } }
   );
   return res.data;
 };

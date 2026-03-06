@@ -11,6 +11,7 @@ import {
   sendAnimationToDevice,
   deleteAnimation,
 } from "../../api/animations";
+import { getUser } from "../../api/user";
 import { getLLMModels } from "../../api/llmModels";
 import { ModelSelect } from "../../components/ModelSelect/ModelSelect";
 import type {
@@ -18,7 +19,7 @@ import type {
   AnimationListItem,
 } from "../../types/animation";
 import type { LLMModel } from "../../types/llmModel";
-import { Send, Trash2, Wand2, Square } from "lucide-react";
+import { Send, Trash2, Wand2, Square, Wrench } from "lucide-react";
 
 /** Палитра фонов для лейблов (разные цвета) */
 const LABEL_BG_COLORS = [
@@ -73,6 +74,13 @@ export default function Animations() {
     queryFn: () => getAnimations({ skip: 0, take: 50 }),
     retry: false,
   });
+
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => getUser(),
+    retry: false,
+  });
+  const canCreate = user?.permissions?.includes("ANIMATION_CREATE") ?? false;
 
   const { data: llmModels = [], isLoading: modelsLoading } = useQuery<
     LLMModel[]
@@ -222,6 +230,16 @@ export default function Animations() {
       {contextHolder}
       <div className="animations-header">
         <h1>Анимации</h1>
+        {canCreate && (
+          <button
+            type="button"
+            className="animations-constructor-btn"
+            onClick={() => navigate("/animations/constructor")}
+          >
+            <Wrench size={18} />
+            Конструктор
+          </button>
+        )}
       </div>
 
       <section className="create-block">

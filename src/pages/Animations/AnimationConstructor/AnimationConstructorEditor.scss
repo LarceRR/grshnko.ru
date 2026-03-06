@@ -1,0 +1,336 @@
+.constructor-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+
+  &__loading {
+    padding: 48px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    background: var(--card-background);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: var(--button-primary-bg);
+    }
+  }
+
+  &__title {
+    flex: 1;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__error {
+    font-size: 0.85rem;
+    color: var(--error-color, #ef4444);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__save {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    color: var(--button-primary-text, #fff);
+    background: var(--button-primary-bg);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  &__sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    padding: 16px;
+    background: var(--card-background);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+  }
+
+  &__section {
+    margin-bottom: 24px;
+
+    h3 {
+      margin: 0 0 12px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+  }
+
+  &__layers {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__layer-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--input-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: var(--button-primary-bg);
+    }
+
+    &.selected {
+      border-color: var(--button-primary-bg);
+      background: rgba(var(--button-primary-rgb, 59, 130, 246), 0.1);
+    }
+  }
+
+  &__layer-remove {
+    padding: 2px 8px;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+
+    &:hover {
+      color: var(--error-color, #ef4444);
+    }
+  }
+
+  &__add-layer {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    color: var(--button-primary-bg);
+    background: transparent;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+
+    &:hover {
+      border-color: var(--button-primary-bg);
+    }
+  }
+
+  &__params {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__param-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    label {
+      flex: 0 0 80px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    input {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      background: var(--input-background);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+    }
+
+    input[type="number"] {
+      min-width: 0;
+    }
+  }
+
+  &__param-remove {
+    padding: 4px 8px;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--error-color, #ef4444);
+    }
+  }
+
+  &__add-param {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+
+    input {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      background: var(--input-background);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+
+      &[type="text"] {
+        min-width: 0;
+      }
+    }
+
+    button {
+      padding: 6px 12px;
+      font-size: 1rem;
+      color: var(--button-primary-bg);
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        border-color: var(--button-primary-bg);
+      }
+    }
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    label {
+      flex: 0 0 80px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    input {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      background: var(--input-background);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+    }
+  }
+
+  &__main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 16px;
+    overflow: auto;
+  }
+
+  &__preview {
+    flex: 1;
+    min-height: 200px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  &__layer-form {
+    padding: 16px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+
+    h3 {
+      margin: 0 0 12px 0;
+      font-size: 1rem;
+      color: var(--text-color);
+    }
+  }
+
+  &__layer-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    input,
+    select {
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      background: var(--input-background);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+      font-family: monospace;
+    }
+  }
+}
