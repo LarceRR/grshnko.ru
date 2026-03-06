@@ -4,7 +4,6 @@ import {
   Role,
   PermissionDef,
   GroupPermissionEntry,
-  EffectiveGroupPermissionEntry,
   UserPermissionEntry,
   RoleInheritanceEntry,
 } from "../types/permission";
@@ -29,16 +28,6 @@ export const getGroupPermissions = async (
 ): Promise<GroupPermissionEntry[]> => {
   const res = await axios.get<GroupPermissionEntry[]>(
     `${API_URL}api/permissions/groups/${roleId}`,
-    { withCredentials: true },
-  );
-  return res.data;
-};
-
-export const getEffectiveGroupPermissions = async (
-  roleId: string,
-): Promise<EffectiveGroupPermissionEntry[]> => {
-  const res = await axios.get<EffectiveGroupPermissionEntry[]>(
-    `${API_URL}api/permissions/groups/${roleId}/effective`,
     { withCredentials: true },
   );
   return res.data;

@@ -18,14 +18,6 @@ export interface GroupPermissionEntry {
   value: boolean;
 }
 
-export interface EffectiveGroupPermissionEntry {
-  permissionId: string;
-  permissionName: string;
-  description: string | null;
-  value: boolean;
-  inherited: boolean;
-}
-
 export interface UserPermissionEntry {
   id: string;
   permissionId: string;

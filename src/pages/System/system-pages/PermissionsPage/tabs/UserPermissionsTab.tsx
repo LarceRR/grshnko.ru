@@ -7,7 +7,7 @@ import {
   getUserPermissions,
   updateUserPermissions,
   getRoles,
-  getEffectiveGroupPermissions,
+  getGroupPermissions,
 } from "../../../../../api/permission";
 import { getAllUsers, getUser } from "../../../../../api/user";
 import type { User } from "../../../../../types/user";
@@ -66,8 +66,8 @@ const UserPermissionsTab = () => {
   });
 
   const { data: groupPerms } = useQuery({
-    queryKey: ["effective-group-permissions", userRoleId],
-    queryFn: () => getEffectiveGroupPermissions(userRoleId!),
+    queryKey: ["group-permissions", userRoleId],
+    queryFn: () => getGroupPermissions(userRoleId!),
     enabled: !!userRoleId,
   });
 
