@@ -2,6 +2,7 @@ export interface AppRoute {
   path: string;
   label: string;
   requireAdmin?: boolean;
+  requirePermission?: string;
   children?: AppRoute[];
   enabled?: boolean;
 }
@@ -16,6 +17,7 @@ export const APP_ROUTES: AppRoute[] = [
   { path: "/tgcosmos/allPosts", label: "Все посты", enabled: false },
   { path: "/chat", label: "Чат", enabled: true },
   { path: "/animations", label: "Анимации", enabled: true },
+  { path: "/animations/constructor", label: "Конструктор анимаций", enabled: true, requirePermission: "ANIMATION_CREATE" },
   { path: "/devices", label: "Устройства", enabled: true },
   { path: "/ota", label: "OTA / Прошивки", enabled: true },
   { path: "/sheduled-posts", label: "Запланированные посты", enabled: true },

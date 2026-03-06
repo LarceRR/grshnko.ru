@@ -70,4 +70,27 @@ export interface AnimationDetail extends AnimationListItem {
     paramNames: string[];
     paramDefaults: number[];
   };
+  sourceJson?: string | null;
+}
+
+/** AnimationDefinition — JSON format for constructor (matches backend) */
+export interface AnimationLayer {
+  name?: string;
+  selector: string;
+  color: { r: string; g: string; b: string };
+  brightness?: string | number;
+  opacity?: string | number;
+  blend?: "replace" | "add" | "multiply" | "screen" | "overlay" | "lighten";
+}
+
+export interface AnimationDefinition {
+  engineVersion: string;
+  name: string;
+  ledCount: number;
+  fps: number;
+  brightness: number;
+  parameters: Record<string, number>;
+  state_vars?: string[];
+  layers: AnimationLayer[];
+  update_rules?: string[];
 }

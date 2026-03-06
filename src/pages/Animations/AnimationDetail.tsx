@@ -8,9 +8,10 @@ import {
   sendAnimationToDevice,
   updateAnimationParameters,
 } from "../../api/animations";
+import { getUser } from "../../api/user";
 import { getDevices } from "../../api/devices";
 import { useNotify } from "../../hooks/useNotify";
-import { ArrowLeft, Send, Trash2, Save } from "lucide-react";
+import { ArrowLeft, Send, Trash2, Save, Wrench } from "lucide-react";
 import type { Device } from "../../types/device";
 import type { AnimationDetail, ParamDescription } from "../../types/animation";
 import AnimationSimulator from "../../components/AnimationSimulator/AnimationSimulator";
@@ -30,6 +31,13 @@ export default function AnimationDetail() {
     string | null
   >(null);
   const [updatingParams, setUpdatingParams] = useState(false);
+
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => getUser(),
+    retry: false,
+  });
+  const canEdit = user?.permissions?.includes("ANIMATION_CREATE") ?? false;
 
   const {
     data: animation,
@@ -178,6 +186,16 @@ export default function AnimationDetail() {
         </button>
         <h1>Детали анимации</h1>
         <div className="header-actions">
+          {canEdit && (
+            <button
+              className="action-btn"
+              onClick={() => navigate(`/animations/constructor/${id}`)}
+              title="Открыть в конструкторе"
+            >
+              <Wrench size={18} />
+              Конструктор
+            </button>
+          )}
           <button
             className="action-btn send-btn"
             onClick={() => setSendModal(true)}

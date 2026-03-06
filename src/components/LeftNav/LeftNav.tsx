@@ -95,7 +95,12 @@ const LeftNav: React.FC = () => {
 
   const activeRoute = findActiveRoute(location.pathname);
   const isAdmin = user?.role?.key === "ADMIN";
-  const visibleRoutes = APP_ROUTES.filter((r) => !r.requireAdmin || isAdmin);
+  const permissions = user?.permissions ?? [];
+  const visibleRoutes = APP_ROUTES.filter((r) => {
+    if (r.requireAdmin && !isAdmin) return false;
+    if (r.requirePermission && !permissions.includes(r.requirePermission)) return false;
+    return true;
+  });
   const parentGroupRoute = findParentGroupRoute(activeRoute, visibleRoutes);
 
   useEffect(() => {

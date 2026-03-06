@@ -26,6 +26,7 @@ export const ROUTE_ICONS: Record<string, React.ReactNode> = {
   "/tgcosmos/allPosts": <LayoutGrid size={SIZE} />,
   "/chat": <MessageCircle size={SIZE} />,
   "/animations": <Sparkles size={SIZE} />,
+  "/animations/constructor": <Sparkles size={SIZE} />,
   "/devices": <Smartphone size={SIZE} />,
   "/ota": <Cpu size={SIZE} />,
   "/sheduled-posts": <CalendarClock size={SIZE} />,

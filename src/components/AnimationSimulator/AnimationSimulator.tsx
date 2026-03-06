@@ -6,10 +6,13 @@ import "./AnimationSimulator.scss";
 
 interface AnimationSimulatorProps {
   animation: AnimationDetail | null;
+  /** Автозапуск при загрузке и при каждом изменении анимации (для конструктора) */
+  autoPlay?: boolean;
 }
 
 export default function AnimationSimulator({
   animation,
+  autoPlay = false,
 }: AnimationSimulatorProps) {
   const stripCanvasRef = useRef<HTMLCanvasElement>(null);
   const largeCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -34,6 +37,13 @@ export default function AnimationSimulator({
   } = useAnimationSimulator({
     animationBody: animation?.body || null,
   });
+
+  // Автозапуск при каждом изменении анимации (для конструктора)
+  useEffect(() => {
+    if (autoPlay && animData) {
+      loadAndPlay();
+    }
+  }, [autoPlay, animData, loadAndPlay]);
 
   // Resize canvases
   useEffect(() => {
