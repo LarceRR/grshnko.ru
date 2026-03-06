@@ -150,3 +150,57 @@
     color: var(--text-secondary);
   }
 }
+
+// Mobile
+@media (max-width: 768px) {
+  .constructor-landing {
+    padding: 16px;
+
+    &__header {
+      margin-bottom: 24px;
+
+      h1 {
+        font-size: 1.4rem;
+      }
+    }
+
+    &__recent {
+      margin-bottom: 24px;
+
+      h2 {
+        font-size: 1rem;
+      }
+    }
+
+    &__cards {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    &__create-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 14px 24px;
+    }
+  }
+
+  .constructor-card {
+    padding: 12px 16px;
+    gap: 12px;
+
+    &__icon {
+      width: 40px;
+      height: 40px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .constructor-landing {
+    padding: 12px;
+
+    &__header h1 {
+      font-size: 1.25rem;
+    }
+  }
+}
