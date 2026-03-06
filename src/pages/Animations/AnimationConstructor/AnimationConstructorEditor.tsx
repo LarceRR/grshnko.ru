@@ -232,7 +232,7 @@ export default function AnimationConstructorEditor() {
           onClick={() => navigate("/animations/constructor")}
         >
           <ArrowLeft size={20} />
-          Назад
+          <span>Назад</span>
         </button>
         <h1 className="constructor-editor__title">
           Конструктор: {definition.name || (isNew ? "Новая анимация" : id)}

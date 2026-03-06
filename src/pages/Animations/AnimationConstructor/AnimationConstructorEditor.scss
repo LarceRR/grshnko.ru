@@ -334,3 +334,144 @@
     }
   }
 }
+
+// Mobile
+@media (max-width: 768px) {
+  .constructor-editor {
+    &__header {
+      flex-wrap: wrap;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+
+    &__back {
+      padding: 6px 10px;
+      font-size: 0.9rem;
+    }
+
+    &__title {
+      order: 3;
+      flex-basis: 100%;
+      font-size: 1rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &__actions {
+      flex: 1;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    &__error {
+      display: none;
+    }
+
+    &__save {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+    }
+
+    &__body {
+      flex-direction: column;
+    }
+
+    &__sidebar {
+      width: 100%;
+      max-height: 40vh;
+      border-right: none;
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 16px;
+    }
+
+    &__section {
+      margin-bottom: 16px;
+    }
+
+    &__param-row label,
+    &__meta-row label {
+      flex: 0 0 70px;
+    }
+
+    &__main {
+      padding: 12px 16px;
+      min-height: 50vh;
+    }
+
+    &__preview {
+      min-height: 160px;
+      margin-bottom: 12px;
+    }
+
+    &__layer-form {
+      padding: 12px 16px;
+    }
+
+    &__layer-fields {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Simulator compact in constructor on mobile
+@media (max-width: 768px) {
+  .constructor-editor__preview .animation-simulator {
+    .simulator-header {
+      padding: 8px 12px;
+
+      h2 {
+        font-size: 14px;
+      }
+    }
+
+    .simulator-controls button {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .strip-container {
+      padding: 10px 12px;
+    }
+
+    .info-bar {
+      padding: 6px 12px;
+      font-size: 11px;
+      gap: 12px;
+    }
+
+    .led-canvas-large {
+      height: 80px;
+    }
+  }
+}
+
+// Very small screens
+@media (max-width: 480px) {
+  .constructor-editor {
+    &__header {
+      padding: 10px 12px;
+    }
+
+    &__back span {
+      display: none;
+    }
+
+    &__sidebar {
+      max-height: 35vh;
+      padding: 10px 12px;
+    }
+
+    &__main {
+      padding: 10px 12px;
+    }
+
+    &__preview {
+      min-height: 140px;
+    }
+
+    &__add-param {
+      flex-direction: column;
+    }
+  }
+}
