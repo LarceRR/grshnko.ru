@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Select, Button, Switch, message, Spin } from "antd";
+import { ChevronRight } from "lucide-react";
 import {
   getRoles,
   getAllPermissions,
@@ -30,6 +31,7 @@ const GroupPermissionsTab = () => {
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [localValues, setLocalValues] = useState<Record<string, boolean>>({});
   const [dirty, setDirty] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   const { data: roles = [] } = useQuery({
     queryKey: ["permissions-roles"],
@@ -86,7 +88,12 @@ const GroupPermissionsTab = () => {
     setSelectedRoleId(roleId);
     setLocalValues({});
     setDirty(false);
+    setExpandedCategory(null);
   };
+
+  const handleCategoryClick = useCallback((category: string) => {
+    setExpandedCategory((prev) => (prev === category ? null : category));
+  }, []);
 
   return (
     <div>
@@ -129,26 +136,18 @@ const GroupPermissionsTab = () => {
       {selectedRoleId && loadingGroup && <Spin />}
 
       {selectedRoleId && !loadingGroup && (
-        <div className="perm-matrix">
-          <table>
-            <thead>
-              <tr>
-                <th>Право</th>
-                <th style={{ width: 80, textAlign: "center" }}>Разрешено</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...grouped.entries()].map(([category, perms]) => (
-                <CategoryBlock
-                  key={category}
-                  category={category}
-                  permissions={perms}
-                  valueMap={valueMap}
-                  onToggle={handleToggle}
-                />
-              ))}
-            </tbody>
-          </table>
+        <div className="perm-accordion">
+          {[...grouped.entries()].map(([category, perms]) => (
+            <CategoryBlock
+              key={category}
+              category={category}
+              permissions={perms}
+              valueMap={valueMap}
+              onToggle={handleToggle}
+              isExpanded={expandedCategory === category}
+              onHeaderClick={() => handleCategoryClick(category)}
+            />
+          ))}
         </div>
       )}
 
@@ -166,32 +165,70 @@ const CategoryBlock = ({
   permissions,
   valueMap,
   onToggle,
+  isExpanded,
+  onHeaderClick,
 }: {
   category: string;
   permissions: PermissionDef[];
   valueMap: Record<string, boolean>;
   onToggle: (id: string, val: boolean) => void;
-}) => (
-  <>
-    <tr className="perm-category">
-      <td colSpan={2}>{category}</td>
-    </tr>
-    {permissions.map((p) => (
-      <tr key={p.id}>
-        <td>
-          <div className="perm-name">{p.name}</div>
-          {p.description && <div className="perm-desc">{p.description}</div>}
-        </td>
-        <td style={{ textAlign: "center" }}>
-          <Switch
-            size="small"
-            checked={!!valueMap[p.id]}
-            onChange={(checked) => onToggle(p.id, checked)}
-          />
-        </td>
-      </tr>
-    ))}
-  </>
-);
+  isExpanded: boolean;
+  onHeaderClick: () => void;
+}) => {
+  const enabledCount = permissions.filter((p) => !!valueMap[p.id]).length;
+  const total = permissions.length;
+
+  return (
+    <div className="perm-category-block">
+      <div
+        className="perm-category-header"
+        onClick={onHeaderClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === "Enter" && onHeaderClick()}
+      >
+        <span className="perm-category-name">{category}</span>
+        <span className="perm-category-count">
+          {enabledCount}/{total}
+        </span>
+        <ChevronRight
+          size={18}
+          className={`perm-category-chevron ${isExpanded ? "expanded" : ""}`}
+        />
+      </div>
+      {isExpanded && (
+        <div className="perm-category-content">
+          <table>
+            <thead>
+              <tr>
+                <th>Право</th>
+                <th style={{ width: 80, textAlign: "center" }}>Разрешено</th>
+              </tr>
+            </thead>
+            <tbody>
+              {permissions.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <div className="perm-name">{p.name}</div>
+                    {p.description && (
+                      <div className="perm-desc">{p.description}</div>
+                    )}
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    <Switch
+                      size="small"
+                      checked={!!valueMap[p.id]}
+                      onChange={(checked) => onToggle(p.id, checked)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default GroupPermissionsTab;
