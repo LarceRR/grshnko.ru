@@ -15,7 +15,10 @@ import {
   EMPTY_ANIMATION,
   LAST_EDITED_IDS_KEY,
   MAX_LAST_EDITED,
+  PRESETS,
 } from "./constants";
+import ExpressionField from "./ExpressionField";
+import ExpressionReference from "./ExpressionReference";
 import { ArrowLeft, Save } from "lucide-react";
 import "./AnimationConstructorEditor.scss";
 
@@ -256,6 +259,29 @@ export default function AnimationConstructorEditor() {
       <div className="constructor-editor__body">
         <aside className="constructor-editor__sidebar">
           <section className="constructor-editor__section">
+            <h3>Шаблон</h3>
+            <select
+              className="constructor-editor__preset-select"
+              value=""
+              onChange={(e) => {
+                const name = e.target.value;
+                if (name) {
+                  const p = PRESETS.find((x) => x.name === name);
+                  if (p) setDefinition(JSON.parse(JSON.stringify(p.def)));
+                  e.target.value = "";
+                }
+              }}
+            >
+              <option value="">Выбрать шаблон...</option>
+              {PRESETS.map((p) => (
+                <option key={p.name} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </section>
+
+          <section className="constructor-editor__section">
             <h3>Слои</h3>
             <div className="constructor-editor__layers">
               {definition.layers.map((layer, idx) => (
@@ -394,96 +420,76 @@ export default function AnimationConstructorEditor() {
             <div className="constructor-editor__layer-form">
               <h3>Слой: {selectedLayer.name ?? `Слой ${selectedLayerIndex}`}</h3>
               <div className="constructor-editor__layer-fields">
-                <div className="constructor-editor__field">
-                  <label>Selector</label>
-                  <input
-                    type="text"
+                <div className="constructor-editor__field constructor-editor__field--full">
+                  <ExpressionField
+                    label="Selector"
                     value={selectedLayer.selector}
-                    onChange={(e) =>
-                      updateLayer(selectedLayerIndex, {
-                        selector: e.target.value,
-                      })
-                    }
-                    placeholder="1"
+                    onChange={(v) => updateLayer(selectedLayerIndex, { selector: v })}
+                    placeholder="1 = все пиксели"
+                    hint="0 или 1. Где 1 — слой рисуется"
+                    quickInserts
                   />
                 </div>
                 <div className="constructor-editor__field">
-                  <label>Color R</label>
-                  <input
-                    type="text"
+                  <ExpressionField
+                    label="Color R"
                     value={selectedLayer.color.r}
-                    onChange={(e) =>
+                    onChange={(v) =>
                       updateLayer(selectedLayerIndex, {
-                        color: {
-                          ...selectedLayer.color,
-                          r: e.target.value,
-                        },
+                        color: { ...selectedLayer.color, r: v },
                       })
                     }
+                    quickInserts
                   />
                 </div>
                 <div className="constructor-editor__field">
-                  <label>Color G</label>
-                  <input
-                    type="text"
+                  <ExpressionField
+                    label="Color G"
                     value={selectedLayer.color.g}
-                    onChange={(e) =>
+                    onChange={(v) =>
                       updateLayer(selectedLayerIndex, {
-                        color: {
-                          ...selectedLayer.color,
-                          g: e.target.value,
-                        },
+                        color: { ...selectedLayer.color, g: v },
                       })
                     }
+                    quickInserts
                   />
                 </div>
                 <div className="constructor-editor__field">
-                  <label>Color B</label>
-                  <input
-                    type="text"
+                  <ExpressionField
+                    label="Color B"
                     value={selectedLayer.color.b}
-                    onChange={(e) =>
+                    onChange={(v) =>
                       updateLayer(selectedLayerIndex, {
-                        color: {
-                          ...selectedLayer.color,
-                          b: e.target.value,
-                        },
+                        color: { ...selectedLayer.color, b: v },
                       })
                     }
+                    quickInserts
                   />
                 </div>
                 <div className="constructor-editor__field">
-                  <label>Brightness</label>
-                  <input
-                    type="text"
+                  <ExpressionField
+                    label="Brightness"
                     value={
                       selectedLayer.brightness !== undefined && selectedLayer.brightness !== null
                         ? String(selectedLayer.brightness)
                         : ""
                     }
-                    onChange={(e) =>
-                      updateLayer(selectedLayerIndex, {
-                        brightness: e.target.value,
-                      })
-                    }
+                    onChange={(v) => updateLayer(selectedLayerIndex, { brightness: v })}
                     placeholder="1"
+                    quickInserts
                   />
                 </div>
                 <div className="constructor-editor__field">
-                  <label>Opacity</label>
-                  <input
-                    type="text"
+                  <ExpressionField
+                    label="Opacity"
                     value={
                       selectedLayer.opacity !== undefined && selectedLayer.opacity !== null
                         ? String(selectedLayer.opacity)
                         : ""
                     }
-                    onChange={(e) =>
-                      updateLayer(selectedLayerIndex, {
-                        opacity: e.target.value,
-                      })
-                    }
+                    onChange={(v) => updateLayer(selectedLayerIndex, { opacity: v })}
                     placeholder="1"
+                    quickInserts
                   />
                 </div>
                 <div className="constructor-editor__field">
@@ -495,6 +501,7 @@ export default function AnimationConstructorEditor() {
                         blend: e.target.value as AnimationLayer["blend"],
                       })
                     }
+                    className="constructor-editor__select"
                   >
                     <option value="replace">replace</option>
                     <option value="add">add</option>
@@ -505,6 +512,17 @@ export default function AnimationConstructorEditor() {
                   </select>
                 </div>
               </div>
+
+              <ExpressionReference
+                onInsertSelector={(text) =>
+                  updateLayer(selectedLayerIndex, { selector: text })
+                }
+                onInsertColor={(r, g, b) =>
+                  updateLayer(selectedLayerIndex, {
+                    color: { r, g, b },
+                  })
+                }
+              />
             </div>
           )}
         </main>
