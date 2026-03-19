@@ -13,6 +13,7 @@ import { useUser } from "../../hooks/useUser";
 import { useParams, useNavigate } from "react-router-dom";
 import ActiveSessions from "./ActiveSessions/ActiveSessions";
 import UserAvatar from "../../components/UserAvatar/UserAvatar";
+import { CurrencyDisplay } from "../../components/CurrencyDisplay/CurrencyDisplay";
 
 const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,6 +92,7 @@ const Profile = () => {
           <h2 className="profile-username">
             {user.username}
             {user.isVerified && <span className="verified">✔</span>}
+            <CurrencyDisplay userId={user.id} hideCurrencyName compact />
           </h2>
           <UserInfo content={user.bio || "Расскажите о себе"} noCopy />
         </div>

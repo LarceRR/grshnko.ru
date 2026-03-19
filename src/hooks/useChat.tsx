@@ -296,18 +296,41 @@ export function useChat(sessionId: string | null) {
                   }),
                 );
                 break;
-              case "session_title":
+              case "session_title": {
+                const title = (data as { title?: string })?.title;
                 queryClient.setQueryData(
                   ["chat", "session", sessionId],
                   (prev: unknown) =>
                     prev && typeof prev === "object"
-                      ? { ...prev, title: (data as { title: string })?.title }
+                      ? { ...prev, title }
                       : prev,
                 );
-                queryClient.invalidateQueries({
-                  queryKey: ["chat", "sessions"],
-                });
+                // Обновляем кэш списка сессий без нового запроса
+                queryClient.setQueriesData(
+                  { queryKey: ["chat", "sessions"] },
+                  (prev: unknown) => {
+                    if (
+                      !prev ||
+                      typeof prev !== "object" ||
+                      !("data" in prev) ||
+                      !Array.isArray((prev as { data: unknown }).data)
+                    )
+                      return prev;
+                    const list = prev as {
+                      data: { id: string; title: string | null }[];
+                    };
+                    return {
+                      ...list,
+                      data: list.data.map((s) =>
+                        s.id === sessionId
+                          ? { ...s, title: title ?? s.title }
+                          : s,
+                      ),
+                    };
+                  },
+                );
                 break;
+              }
               case "error": {
                 const errMsg =
                   data && typeof data === "object" && "message" in data

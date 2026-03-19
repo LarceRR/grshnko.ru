@@ -26,6 +26,9 @@ import Devices from "./pages/Devices/Devices";
 import DeviceDetail from "./pages/Devices/DeviceDetail";
 import Ota from "./pages/Ota/Ota";
 import Chat from "./pages/Chat/Chat";
+import CurrenciesPage from "./pages/Currencies/CurrenciesPage";
+import CurrencyDetailPage from "./pages/Currencies/CurrencyDetailPage";
+import CurrencyGetPage from "./pages/Currencies/CurrencyGetPage";
 import LeftNav from "./components/LeftNav/LeftNav";
 import { SelectedThemeProvider } from "./contexts/SelectedThemeContext";
 
@@ -103,6 +106,9 @@ export const App = () => {
           <Route path="/ota" element={<Ota />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/chat/:sessionId" element={<Chat />} />
+          <Route path="/currencies" element={<CurrenciesPage />} />
+          <Route path="/currencies/:id" element={<CurrencyDetailPage />} />
+          <Route path="/currency-get" element={<CurrencyGetPage />} />
         </Route>
       </Routes>
     </ConfigProvider>

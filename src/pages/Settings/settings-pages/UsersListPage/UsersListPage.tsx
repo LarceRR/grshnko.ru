@@ -1,6 +1,6 @@
 // pages/SheduledPosts/SheduledPosts.tsx
 import { useState, useMemo, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   ColumnDef,
   flexRender,
@@ -11,16 +11,11 @@ import "./UsersListPage.scss";
 import { useNavigate } from "react-router";
 import debounce from "lodash.debounce";
 import { User } from "../../../../types/user";
-import { getAllUsers, getUser } from "../../../../api/user";
+import { getAllUsers } from "../../../../api/user";
 import { useNotify } from "../../../../hooks/useNotify";
 import UserAvatar from "../../../../components/UserAvatar/UserAvatar";
 
-const UsersList = ({ userId }: { userId?: string }) => {
-  const queryClient = useQueryClient();
-  const { data: user } = useQuery<User | null>({
-    queryKey: ["user"],
-    queryFn: () => getUser(),
-  });
+const UsersList = () => {
   const {
     data: users,
     isError,
@@ -31,7 +26,7 @@ const UsersList = ({ userId }: { userId?: string }) => {
   });
 
   const navigate = useNavigate();
-  const { notify, contextHolder } = useNotify();
+  const { contextHolder } = useNotify();
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
   // --- Дебаунс для фильтрации текста ---
@@ -91,7 +86,7 @@ const UsersList = ({ userId }: { userId?: string }) => {
         },
       },
     ],
-    [queryClient, userId, navigate, notify, user],
+    [navigate],
   );
 
   const table = useReactTable({

@@ -1,6 +1,5 @@
-// pages/SheduledPosts/SheduledPosts.tsx
 import { useState, useMemo, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   ColumnDef,
   flexRender,
@@ -15,9 +14,9 @@ import { getAllUsers, getUser } from "../../../../api/user";
 import { useNotify } from "../../../../hooks/useNotify";
 import UserAvatar from "../../../../components/UserAvatar/UserAvatar";
 import { getPageHeaderIcon } from "../../../../config/route-icons";
+import { CurrencyDisplay } from "../../../../components/CurrencyDisplay/CurrencyDisplay";
 
-const UsersList = ({ userId }: { userId?: string }) => {
-  const queryClient = useQueryClient();
+const UsersList = () => {
   const { data: user } = useQuery<User | null>({
     queryKey: ["user"],
     queryFn: () => getUser(),
@@ -32,10 +31,9 @@ const UsersList = ({ userId }: { userId?: string }) => {
   });
 
   const navigate = useNavigate();
-  const { notify, contextHolder } = useNotify();
+  const { contextHolder } = useNotify();
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
-  // --- Дебаунс для фильтрации текста ---
   const handleFilterDebounced = useMemo(
     () =>
       debounce((users: User[]) => {
@@ -49,6 +47,9 @@ const UsersList = ({ userId }: { userId?: string }) => {
       handleFilterDebounced.cancel();
     };
   }, [handleFilterDebounced]);
+
+  const canSeeSelf = user?.permissions.includes("CURRENCY_SEE_SELF");
+  const canSeeOthers = user?.permissions.includes("CURRENCY_SEE_OTHERS");
 
   const columns = useMemo<ColumnDef<User>[]>(
     () => [
@@ -91,8 +92,26 @@ const UsersList = ({ userId }: { userId?: string }) => {
           return <span style={{ color: role?.color }}>{role?.name}</span>;
         },
       },
+      {
+        header: "Валюта",
+        id: "currency",
+        cell: ({ row }) => {
+          const rowUser = row.original;
+          const isSelf = rowUser.id === user?.id;
+          if (isSelf && !canSeeSelf) return null;
+          if (!isSelf && !canSeeOthers) return null;
+          if (!rowUser.currencyBalances?.length) return null;
+          return (
+            <CurrencyDisplay
+              inlineBalances={rowUser.currencyBalances}
+              hideCurrencyName
+              compact
+            />
+          );
+        },
+      },
     ],
-    [queryClient, userId, navigate, notify, user],
+    [navigate, user?.id, canSeeSelf, canSeeOthers],
   );
 
   const table = useReactTable({
@@ -107,7 +126,7 @@ const UsersList = ({ userId }: { userId?: string }) => {
   const rowsToRender = table.getRowModel().rows;
 
   return users?.length === 0 ? (
-    <div>Отложенных постов нет</div>
+    <div>Пользователей нет</div>
   ) : (
     <div className="sheduled-posts">
       {contextHolder}

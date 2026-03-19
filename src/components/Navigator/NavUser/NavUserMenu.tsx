@@ -7,7 +7,7 @@ import {
 import { useUser } from "../../../hooks/useUser";
 import UserNavInfo from "./components/UserNavInfo";
 import ThemeSwitcher from "../../ThemeSwitcher/ThemeSwitcher";
-import { MonitorCog } from "lucide-react";
+import { MonitorCog, Coins } from "lucide-react";
 
 export interface NavUserMenuItem {
   key: string;
@@ -38,6 +38,14 @@ export const useNavUserMenu = (): NavUserMenuItem[] => {
       icon: <UserOutlined />,
       link: "/profile",
       closeOnClick: false,
+      enabled: true,
+    },
+    {
+      key: "currencies",
+      label: "Валюты",
+      icon: <Coins size={16} />,
+      link: "/currencies",
+      closeOnClick: true,
       enabled: true,
     },
     {

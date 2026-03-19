@@ -10,8 +10,11 @@ export default defineConfig({
     tailwindcss(),
     pkgVersion()
   ],
+  /** Не затирать терминал при рестарте — иначе кажется, что «ничего не билдится». */
+  clearScreen: false,
+  logLevel: 'info',
   server: {
     host: true,
     port: 3001,
-  }
+  },
 })

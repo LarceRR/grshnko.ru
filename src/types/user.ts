@@ -1,4 +1,10 @@
+import type { Currency } from './currency';
 
+export interface UserCurrencyBalanceInline {
+  currencyId: string;
+  amount: number;
+  currency: Currency;
+}
 
 export interface User {
   id: string;
@@ -20,6 +26,7 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   isOnline?: boolean;
+  currencyBalances?: UserCurrencyBalanceInline[];
 }
 
 export interface Role {

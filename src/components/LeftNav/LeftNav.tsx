@@ -7,8 +7,12 @@ import { ROUTE_ICONS } from "../../config/route-icons";
 import { getUser } from "../../api/user";
 import { chatApi } from "../../api/chat";
 import { useChatSocket } from "../../hooks/useChatSocket";
+import type { ChatSession } from "../../types/chat.types";
 import NavUser from "../Navigator/NavUser/NavUser";
 import "./LeftNav.scss";
+
+/** GET /chat/sessions rows may include server-computed unread counts. */
+type ChatSessionListRow = ChatSession & { unreadCount?: number };
 
 function flattenRoutes(routes: AppRoute[]): AppRoute[] {
   return routes.flatMap((r) => [
@@ -69,7 +73,8 @@ const LeftNav: React.FC = () => {
     queryFn: async () => {
       try {
         const res = await chatApi.getSessions({ take: 100, status: "ACTIVE" });
-        const sessions = Array.isArray(res.data?.data) ? res.data.data : [];
+        const list = res.data?.data;
+        const sessions: ChatSessionListRow[] = Array.isArray(list) ? list : [];
         return sessions.reduce((sum, s) => sum + (s.unreadCount ?? 0), 0);
       } catch {
         return 0;
@@ -98,7 +103,8 @@ const LeftNav: React.FC = () => {
   const permissions = user?.permissions ?? [];
   const visibleRoutes = APP_ROUTES.filter((r) => {
     if (r.requireAdmin && !isAdmin) return false;
-    if (r.requirePermission && !permissions.includes(r.requirePermission)) return false;
+    if (r.requirePermission && !permissions.includes(r.requirePermission))
+      return false;
     return true;
   });
   const parentGroupRoute = findParentGroupRoute(activeRoute, visibleRoutes);

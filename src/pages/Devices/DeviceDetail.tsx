@@ -58,18 +58,31 @@ function OtaProgressBar({
         border: `1px solid ${status === "failed" ? "var(--color-red, #e53935)" : "var(--button-secondary-border, #333)"}`,
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 8,
+        }}
+      >
         <span style={{ fontSize: 13, fontWeight: 500 }}>
           {OTA_STATUS_LABELS[status]}
-          {status === "downloading" || status === "flashing" ? ` ${percent}%` : ""}
+          {status === "downloading" || status === "flashing"
+            ? ` ${percent}%`
+            : ""}
         </span>
         {isFinal && (
           <button
             type="button"
             onClick={onDismiss}
             style={{
-              background: "none", border: "none", color: "var(--text-secondary)",
-              cursor: "pointer", fontSize: 12, padding: "2px 6px",
+              background: "none",
+              border: "none",
+              color: "var(--text-secondary)",
+              cursor: "pointer",
+              fontSize: 12,
+              padding: "2px 6px",
             }}
           >
             Закрыть
@@ -95,7 +108,13 @@ function OtaProgressBar({
         />
       </div>
       {error && (
-        <div style={{ marginTop: 8, fontSize: 12, color: "var(--color-red, #e53935)" }}>
+        <div
+          style={{
+            marginTop: 8,
+            fontSize: 12,
+            color: "var(--color-red, #e53935)",
+          }}
+        >
           {error}
         </div>
       )}
@@ -270,7 +289,11 @@ export default function DeviceDetail() {
   useEffect(() => {
     if (ota.progress.status === "complete") {
       queryClient.invalidateQueries({ queryKey: ["device", id] });
-      notify({ title: "OTA завершена", body: "Устройство обновлено и перезагружено", type: "success" });
+      notify({
+        title: "OTA завершена",
+        body: "Устройство обновлено и перезагружено",
+        type: "success",
+      });
     } else if (ota.progress.status === "failed") {
       notify({
         title: "Ошибка OTA",
@@ -381,6 +404,18 @@ export default function DeviceDetail() {
             <button type="button" onClick={() => handleRpc("pause")}>
               Pause
             </button>
+            <button
+              type="button"
+              onClick={() => handleRpc("sleep.enter", { fadeMs: 1000 })}
+            >
+              Sleep
+            </button>
+            <button
+              type="button"
+              onClick={() => handleRpc("sleep.exit", { fadeMs: 1000 })}
+            >
+              Wake
+            </button>
             <button type="button" onClick={() => handleRpc("reboot")}>
               Reboot
             </button>
@@ -390,8 +425,16 @@ export default function DeviceDetail() {
             >
               Brightness 200
             </button>
-            <button type="button" onClick={handleOta} disabled={otaLoading || ota.active}>
-              {otaLoading ? "OTA…" : ota.active ? "Обновление..." : "OTA обновление"}
+            <button
+              type="button"
+              onClick={handleOta}
+              disabled={otaLoading || ota.active}
+            >
+              {otaLoading
+                ? "OTA…"
+                : ota.active
+                  ? "Обновление..."
+                  : "OTA обновление"}
             </button>
             <Popconfirm
               title="Удалить устройство?"

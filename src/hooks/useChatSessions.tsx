@@ -16,6 +16,8 @@ export function useChatSessions(params?: {
       const res = await chatApi.getSessions(params);
       return res.data;
     },
+    staleTime: 60 * 1000, // 1 min — не рефетчить при каждом фокусе окна
+    refetchOnWindowFocus: false,
   });
 
   const createSession = useMutation({

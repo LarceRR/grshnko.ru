@@ -290,7 +290,7 @@ export function useAnimationSimulator({
     (slot: number, val = 1.0, pos = 0, width = 20, decay = 0.05) => {
       const engine = engineStateRef.current;
       if (!engine || slot < 0 || slot >= 4) return;
-      engine.events[slot] = { val, pos, width, decay };
+      engine.events[slot] = { val, pos, width, decay, mode: 0 };
     },
     []
   );

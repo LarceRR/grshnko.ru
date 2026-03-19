@@ -31,6 +31,8 @@ export function useChatMessages(
         ? Number(lastPage.nextCursor)
         : undefined,
     enabled: !!sessionId,
+    staleTime: 30 * 1000, // 30 сек — не рефетчить при каждом фокусе
+    refetchOnWindowFocus: false,
   });
 
   const invalidate = () =>

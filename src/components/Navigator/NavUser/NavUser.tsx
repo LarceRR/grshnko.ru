@@ -5,6 +5,7 @@ import { getUser } from "../../../api/user";
 import "./NavUser.scss";
 import { useNavigate } from "react-router-dom";
 import UserAvatar from "../../UserAvatar/UserAvatar";
+import { CurrencyDisplay } from "../../CurrencyDisplay/CurrencyDisplay";
 
 interface NavUserProps {
   showAvatar?: boolean;
@@ -95,7 +96,10 @@ const NavUser: React.FC<NavUserProps> = ({
         )}
         {expanded && (
           <div className="nav-user__details">
-            <span className="nav-user__name">{user.username}</span>
+            <div className="nav-user__name-row">
+              <span className="nav-user__name">{user.username}</span>
+              <CurrencyDisplay hideCurrencyName compact />
+            </div>
             <span className="nav-user__email">{user.email}</span>
           </div>
         )}

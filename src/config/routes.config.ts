@@ -36,6 +36,7 @@ export const APP_ROUTES: AppRoute[] = [
       { path: "/system/permissions", label: "Права", requireAdmin: true, enabled: true },
     ],
   },
+  { path: "/currencies", label: "Валюты", enabled: true },
   { path: "/settings", label: "Настройки", enabled: true },
   { path: "/other", label: "Другое", enabled: true },
 ];

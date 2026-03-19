@@ -49,6 +49,14 @@
     overflow: hidden;
   }
 
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    min-width: 0;
+  }
+
   &__name {
     font-weight: 500;
     font-size: 13px;

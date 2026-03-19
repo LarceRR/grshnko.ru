@@ -135,7 +135,7 @@ export const MAX_PARTICLES = 16;
 /** Simulator engine state: events, globals, particles, previous frame buffer */
 export interface SimulatorEngineState {
   globals: Float64Array;
-  events: Array<{ val: number; pos: number; width: number; decay: number }>;
+  events: Array<{ val: number; pos: number; width: number; decay: number; mode: number }>;
   particles: Array<{
     x: number; vx: number; life: number; decay: number; gravity: number;
     r: number; g: number; b: number; size: number; active: boolean;
@@ -936,6 +936,26 @@ function applyBlend(
         ((255 - accum.b) * (255 - (b * opacity) / 255)) / 255
       );
       break;
+    case 4: { // overlay
+      const overlayChan = (base: number, blend: number): number =>
+        base < 128 ? (base * blend) / 127 : 255 - ((255 - base) * (255 - blend)) / 127;
+      const br = (r * opacity) / 255;
+      const bg = (g * opacity) / 255;
+      const bb = (b * opacity) / 255;
+      accum.r = Math.round((accum.r * (255 - opacity) + overlayChan(accum.r, br) * opacity) / 255);
+      accum.g = Math.round((accum.g * (255 - opacity) + overlayChan(accum.g, bg) * opacity) / 255);
+      accum.b = Math.round((accum.b * (255 - opacity) + overlayChan(accum.b, bb) * opacity) / 255);
+      break;
+    }
+    case 5: { // lighten
+      const br = (r * opacity) / 255;
+      const bg = (g * opacity) / 255;
+      const bb = (b * opacity) / 255;
+      accum.r = Math.round((accum.r * (255 - opacity) + Math.max(accum.r, br) * opacity) / 255);
+      accum.g = Math.round((accum.g * (255 - opacity) + Math.max(accum.g, bg) * opacity) / 255);
+      accum.b = Math.round((accum.b * (255 - opacity) + Math.max(accum.b, bb) * opacity) / 255);
+      break;
+    }
     default:
       accum.r = Math.round(
         (r * opacity + accum.r * (255 - opacity)) / 255
@@ -1135,7 +1155,7 @@ export function createStateSnapshot(stateVars: Int32Array[]): Int32Array[] {
 export function createEngineState(ledCount: number): SimulatorEngineState {
   return {
     globals: new Float64Array(MAX_GLOBAL_VARS),
-    events: Array.from({ length: MAX_EVENT_SLOTS }, () => ({ val: 0, pos: 0, width: 20, decay: 0.05 })),
+    events: Array.from({ length: MAX_EVENT_SLOTS }, () => ({ val: 0, pos: 0, width: 20, decay: 0.05, mode: 0 })),
     particles: Array.from({ length: MAX_PARTICLES }, () => ({
       x: 0, vx: 0, life: 0, decay: 0.02, gravity: 0,
       r: 255, g: 255, b: 255, size: 5, active: false,
@@ -1155,10 +1175,14 @@ export function createEngineState(ledCount: number): SimulatorEngineState {
 
 /** Tick engine state per frame: decay events, update particle physics, evolve fields */
 export function tickEngineState(engine: SimulatorEngineState, ledCount: number): void {
-  // Events
+  // Events (mode: 0=linear, 1=exponential, 2=hold)
   for (let e = 0; e < MAX_EVENT_SLOTS; e++) {
     const evt = engine.events[e];
-    if (evt.val > 0) { evt.val -= evt.decay; if (evt.val < 0) evt.val = 0; }
+    if (evt.val > 0 && evt.mode !== 2) {
+      if (evt.mode === 0) { evt.val -= evt.decay; }
+      else if (evt.mode === 1) { evt.val *= (1 - evt.decay); }
+      if (evt.val < 0.001) evt.val = 0;
+    }
   }
 
   // Particles
