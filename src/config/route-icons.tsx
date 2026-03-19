@@ -17,6 +17,7 @@ import {
   MessageCircle,
   GraduationCap,
   ShieldCheck,
+  Coins,
 } from "lucide-react";
 
 const SIZE = 22;
@@ -38,6 +39,7 @@ export const ROUTE_ICONS: Record<string, React.ReactNode> = {
   "/system/llm-models": <Bot size={SIZE} />,
   "/system/themes": <Palette size={SIZE} />,
   "/system/permissions": <ShieldCheck size={SIZE} />,
+  "/currencies": <Coins size={SIZE} />,
   "/settings": <Settings size={SIZE} />,
   "/other": <MoreHorizontal size={SIZE} />,
 };

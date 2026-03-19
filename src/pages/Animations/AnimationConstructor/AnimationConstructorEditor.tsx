@@ -9,7 +9,10 @@ import {
 } from "../../../api/animations";
 import { useNotify } from "../../../hooks/useNotify";
 import AnimationSimulator from "../../../components/AnimationSimulator/AnimationSimulator";
-import type { AnimationDefinition, AnimationLayer } from "../../../types/animation";
+import type {
+  AnimationDefinition,
+  AnimationLayer,
+} from "../../../types/animation";
 import type { AnimationDetail } from "../../../types/animation";
 import {
   EMPTY_ANIMATION,
@@ -18,7 +21,7 @@ import {
   PRESETS,
 } from "./constants";
 import ExpressionField from "./ExpressionField";
-import ExpressionReference from "./ExpressionReference";
+import ExpressionReference from "./ExpressionReference.tsx";
 import { ArrowLeft, Save } from "lucide-react";
 import "./AnimationConstructorEditor.scss";
 
@@ -30,11 +33,11 @@ export default function AnimationConstructorEditor() {
 
   const isNew = id === "new";
   const [definition, setDefinition] = useState<AnimationDefinition | null>(
-    null
+    null,
   );
-  const [compiledBody, setCompiledBody] = useState<AnimationDetail["body"] | null>(
-    null
-  );
+  const [compiledBody, setCompiledBody] = useState<
+    AnimationDetail["body"] | null
+  >(null);
   const [compileError, setCompileError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0);
@@ -53,7 +56,9 @@ export default function AnimationConstructorEditor() {
     }
     if (existingAnimation?.sourceJson) {
       try {
-        const parsed = JSON.parse(existingAnimation.sourceJson) as AnimationDefinition;
+        const parsed = JSON.parse(
+          existingAnimation.sourceJson,
+        ) as AnimationDefinition;
         setDefinition(parsed);
       } catch {
         setDefinition({ ...EMPTY_ANIMATION });
@@ -108,7 +113,11 @@ export default function AnimationConstructorEditor() {
         const created = await createAnimationFromConstructor({
           animation: definition,
         });
-        notify({ title: "Анимация создана", body: created.id, type: "success" });
+        notify({
+          title: "Анимация создана",
+          body: created.id,
+          type: "success",
+        });
         addToLastEdited(created.id);
         navigate(`/animations/constructor/${created.id}`);
         await queryClient.invalidateQueries({ queryKey: ["animations"] });
@@ -116,7 +125,9 @@ export default function AnimationConstructorEditor() {
         await updateAnimationFromConstructor(id!, { animation: definition });
         notify({ title: "Сохранено", body: "", type: "success" });
         addToLastEdited(id!);
-        await queryClient.invalidateQueries({ queryKey: ["animation-detail", id] });
+        await queryClient.invalidateQueries({
+          queryKey: ["animation-detail", id],
+        });
         await queryClient.invalidateQueries({ queryKey: ["animations"] });
       }
     } catch (e) {
@@ -135,7 +146,7 @@ export default function AnimationConstructorEditor() {
       filtered.unshift(animId);
       localStorage.setItem(
         LAST_EDITED_IDS_KEY,
-        JSON.stringify(filtered.slice(0, MAX_LAST_EDITED))
+        JSON.stringify(filtered.slice(0, MAX_LAST_EDITED)),
       );
     } catch {}
   };
@@ -369,7 +380,10 @@ export default function AnimationConstructorEditor() {
                   onChange={(e) =>
                     setDefinition({
                       ...definition,
-                      ledCount: Math.max(1, parseInt(e.target.value, 10) || 300),
+                      ledCount: Math.max(
+                        1,
+                        parseInt(e.target.value, 10) || 300,
+                      ),
                     })
                   }
                 />
@@ -401,7 +415,7 @@ export default function AnimationConstructorEditor() {
                       ...definition,
                       brightness: Math.max(
                         0,
-                        Math.min(255, parseInt(e.target.value, 10) || 200)
+                        Math.min(255, parseInt(e.target.value, 10) || 200),
                       ),
                     })
                   }
@@ -418,13 +432,17 @@ export default function AnimationConstructorEditor() {
 
           {selectedLayer && (
             <div className="constructor-editor__layer-form">
-              <h3>Слой: {selectedLayer.name ?? `Слой ${selectedLayerIndex}`}</h3>
+              <h3>
+                Слой: {selectedLayer.name ?? `Слой ${selectedLayerIndex}`}
+              </h3>
               <div className="constructor-editor__layer-fields">
                 <div className="constructor-editor__field constructor-editor__field--full">
                   <ExpressionField
                     label="Selector"
                     value={selectedLayer.selector}
-                    onChange={(v) => updateLayer(selectedLayerIndex, { selector: v })}
+                    onChange={(v) =>
+                      updateLayer(selectedLayerIndex, { selector: v })
+                    }
                     placeholder="1 = все пиксели"
                     hint="0 или 1. Где 1 — слой рисуется"
                     quickInserts
@@ -470,11 +488,14 @@ export default function AnimationConstructorEditor() {
                   <ExpressionField
                     label="Brightness"
                     value={
-                      selectedLayer.brightness !== undefined && selectedLayer.brightness !== null
+                      selectedLayer.brightness !== undefined &&
+                      selectedLayer.brightness !== null
                         ? String(selectedLayer.brightness)
                         : ""
                     }
-                    onChange={(v) => updateLayer(selectedLayerIndex, { brightness: v })}
+                    onChange={(v) =>
+                      updateLayer(selectedLayerIndex, { brightness: v })
+                    }
                     placeholder="1"
                     quickInserts
                   />
@@ -483,11 +504,14 @@ export default function AnimationConstructorEditor() {
                   <ExpressionField
                     label="Opacity"
                     value={
-                      selectedLayer.opacity !== undefined && selectedLayer.opacity !== null
+                      selectedLayer.opacity !== undefined &&
+                      selectedLayer.opacity !== null
                         ? String(selectedLayer.opacity)
                         : ""
                     }
-                    onChange={(v) => updateLayer(selectedLayerIndex, { opacity: v })}
+                    onChange={(v) =>
+                      updateLayer(selectedLayerIndex, { opacity: v })
+                    }
                     placeholder="1"
                     quickInserts
                   />

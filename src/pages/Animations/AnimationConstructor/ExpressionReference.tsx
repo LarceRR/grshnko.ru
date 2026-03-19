@@ -6,7 +6,7 @@ import {
   SELECTOR_EXAMPLES,
   COLOR_EXAMPLES,
   type RefItem,
-} from "./expressionReference";
+} from "./expressionEngineDocs";
 import "./ExpressionReference.scss";
 
 interface ExpressionReferenceProps {
@@ -108,7 +108,9 @@ export default function ExpressionReference({
                   onClick={() => onInsertColor?.(c.r, c.g, c.b)}
                 >
                   <span className="expr-ref__example-label">{c.label}</span>
-                  <code>{c.r} / {c.g} / {c.b}</code>
+                  <code>
+                    {c.r} / {c.g} / {c.b}
+                  </code>
                 </button>
               ))}
             </div>
@@ -162,7 +164,13 @@ function Section({
   );
 }
 
-function RefItemRow({ item, onInsert }: { item: RefItem; onInsert?: (t: string) => void }) {
+function RefItemRow({
+  item,
+  onInsert,
+}: {
+  item: RefItem;
+  onInsert?: (t: string) => void;
+}) {
   const insert = item.example || item.name;
   return (
     <div className="expr-ref__row">
