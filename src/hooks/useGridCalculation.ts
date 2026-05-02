@@ -24,19 +24,22 @@ export const useGridCalculation = (
   gap: number
 ): GridConfig => {
   const [gridConfig, setGridConfig] = useState<GridConfig>({
-    columns: 0,
-    rows: 0,
-    actualCellSize: 0,
+    columns: 1,
+    rows: 1,
+    actualCellSize: desiredCellSize,
   });
 
   // Используем useLayoutEffect для синхронных измерений DOM перед отрисовкой
   useLayoutEffect(() => {
     const calculateGrid = () => {
-      // Прерываем выполнение, если контейнер еще не смонтирован
+      // Прерываем выполнение, если контейнер еще не смонтирован или не имеет размеров
       if (!containerRef.current) return;
 
       const parentWidth = containerRef.current.clientWidth;
       const parentHeight = containerRef.current.clientHeight;
+
+      // Не пересчитываем, если контейнер ещё не имеет размеров
+      if (parentWidth === 0 || parentHeight === 0) return;
 
       // Рассчитываем, сколько колонок может поместиться
       const calculatedCols = Math.max(

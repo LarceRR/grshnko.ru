@@ -26,8 +26,17 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   isOnline?: boolean;
+  /** Нормализованные балансы; на API из `UserService.mapUser` / `auth` session всегда приходит массив. */
   currencyBalances?: UserCurrencyBalanceInline[];
 }
+
+/**
+ * Строка из `GET api/user/userslist` — сервер всегда кладёт `currencyBalances`
+ * (по всем валютам, нули если записи не было). См. `UserService.mapUser`.
+ */
+export type UserListEntry = Omit<User, "currencyBalances"> & {
+  currencyBalances: UserCurrencyBalanceInline[];
+};
 
 export interface Role {
   id: string;

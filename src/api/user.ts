@@ -1,7 +1,7 @@
 // api/user.ts
 import axios from "axios";
 import { API_URL } from "../config";
-import { User } from "../types/user";
+import type { User, UserListEntry } from "../types/user";
 
 export const getUser = async (id?: string): Promise<User | null> => {
   try {
@@ -24,7 +24,9 @@ export const getUser = async (id?: string): Promise<User | null> => {
   }
 };
 
-export async function getAllUsers(getCount?: boolean): Promise<User[] | number> {
+export async function getAllUsers(getCount: true): Promise<number>;
+export async function getAllUsers(getCount?: false): Promise<UserListEntry[]>;
+export async function getAllUsers(getCount?: boolean): Promise<UserListEntry[] | number> {
   if (getCount) {
     const res = await axios.get<{ count: number }>(`${API_URL}api/user/userslist?getCount=true`, {
       withCredentials: true,
@@ -32,9 +34,8 @@ export async function getAllUsers(getCount?: boolean): Promise<User[] | number> 
     // Ключевое исправление: возвращаем именно число, а не объект
     return res.data.count;
   }
-  
-  // Этот блок остается без изменений
-  const res = await axios.get<User[]>(`${API_URL}api/user/userslist`, {
+
+  const res = await axios.get<UserListEntry[]>(`${API_URL}api/user/userslist`, {
     withCredentials: true,
   });
   return res.data;

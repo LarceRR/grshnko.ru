@@ -9,7 +9,7 @@ import {
 import "./UsersListPage.scss";
 import { useNavigate } from "react-router";
 import debounce from "lodash.debounce";
-import { User } from "../../../../types/user";
+import type { User, UserListEntry } from "../../../../types/user";
 import { getAllUsers, getUser } from "../../../../api/user";
 import { useNotify } from "../../../../hooks/useNotify";
 import UserAvatar from "../../../../components/UserAvatar/UserAvatar";
@@ -25,18 +25,18 @@ const UsersList = () => {
     data: users,
     isError,
     isLoading,
-  } = useQuery<User[]>({
+  } = useQuery<UserListEntry[]>({
     queryKey: ["usersList"],
-    queryFn: () => getAllUsers() as Promise<User[]>,
+    queryFn: () => getAllUsers(false),
   });
 
   const navigate = useNavigate();
   const { contextHolder } = useNotify();
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserListEntry[]>([]);
 
   const handleFilterDebounced = useMemo(
     () =>
-      debounce((users: User[]) => {
+      debounce((users: UserListEntry[]) => {
         setFilteredUsers(users);
       }, 200),
     [],
@@ -51,7 +51,7 @@ const UsersList = () => {
   const canSeeSelf = user?.permissions.includes("CURRENCY_SEE_SELF");
   const canSeeOthers = user?.permissions.includes("CURRENCY_SEE_OTHERS");
 
-  const columns = useMemo<ColumnDef<User>[]>(
+  const columns = useMemo<ColumnDef<UserListEntry>[]>(
     () => [
       {
         header: "Аватар",
