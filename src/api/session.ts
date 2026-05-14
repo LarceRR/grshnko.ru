@@ -6,9 +6,7 @@ import { User } from "../types/user";
 export interface ISession {
   id: string;
   userId: string;
-  accessToken: string;
   accessTokenExpiresAt: string; // ISO date string
-  refreshToken: string;
   refreshTokenExpiresAt: string; // ISO date string
   ipAddress: string;
   userAgent: string;
