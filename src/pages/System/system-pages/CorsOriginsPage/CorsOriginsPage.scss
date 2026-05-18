@@ -1,0 +1,120 @@
+.cors-origins-page {
+  padding: 1rem 1.5rem;
+  max-width: 960px;
+
+  .cors-origins-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+
+  .cors-origins-intro {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+
+  .cors-origins-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .cors-origin-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-background);
+    gap: 1rem;
+  }
+
+  .cors-origin-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cors-origin-value {
+    font-family: ui-monospace, monospace;
+    font-size: 0.95rem;
+    word-break: break-all;
+  }
+
+  .cors-origin-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+
+  .cors-origin-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .cors-origin-status {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+
+    &.enabled {
+      background: color-mix(in srgb, var(--button-primary-bg) 20%, transparent);
+      color: var(--text-color);
+    }
+
+    &.disabled {
+      background: color-mix(in srgb, var(--border-color) 60%, transparent);
+      color: var(--text-secondary);
+    }
+  }
+
+  .cors-origin-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 4px;
+
+    &:hover {
+      color: var(--text-color);
+      background: var(--border-color);
+    }
+
+    &.delete-button:hover {
+      color: #e74c3c;
+    }
+  }
+
+  .empty-state {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .cors-origin-form .form-item {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.9rem;
+    }
+  }
+}

@@ -6,6 +6,7 @@ import AnimationsButton from "./SystemButtons/AnimationsButton/AnimationsButton"
 import DevicesButton from "./SystemButtons/DevicesButton/DevicesButton";
 import OtaButton from "./SystemButtons/OtaButton/OtaButton";
 import ThemesButton from "./SystemButtons/ThemesButton/ThemesButton";
+import UpdaterReleasesButton from "./SystemButtons/UpdaterReleasesButton/UpdaterReleasesButton";
 
 export const gridItems: React.ReactElement[] = [
   <GridItem
@@ -55,5 +56,13 @@ export const gridItems: React.ReactElement[] = [
     className="grid-item-redefine-wrapper"
   >
     <OtaButton />
+  </GridItem>,
+  <GridItem
+    key="updater-releases"
+    colSpan={1}
+    rowSpan={1}
+    className="grid-item-redefine-wrapper"
+  >
+    <UpdaterReleasesButton />
   </GridItem>,
 ];

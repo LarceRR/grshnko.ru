@@ -34,6 +34,7 @@ export const APP_ROUTES: AppRoute[] = [
       { path: "/system/llm-models", label: "LLM модели", requireAdmin: true, enabled: true },
       { path: "/system/themes", label: "Темы сайта", requireAdmin: true, enabled: true },
       { path: "/system/permissions", label: "Права", requireAdmin: true, enabled: true },
+      { path: "/system/cors-origins", label: "CORS Origins", requireAdmin: true, enabled: true },
     ],
   },
   { path: "/currencies", label: "Валюты", enabled: true },

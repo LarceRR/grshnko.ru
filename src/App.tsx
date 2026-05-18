@@ -17,6 +17,8 @@ import LLMModelsPage from "./pages/System/system-pages/LLMModelsPage/LLMModelsPa
 import ThemesPage from "./pages/System/system-pages/ThemesPage/ThemesPage";
 import ThemeEditPage from "./pages/System/system-pages/ThemesPage/ThemeEditPage";
 import PermissionsPage from "./pages/System/system-pages/PermissionsPage/PermissionsPage";
+import CorsOriginsPage from "./pages/System/system-pages/CorsOriginsPage/CorsOriginsPage";
+import UpdaterReleasesPage from "./pages/System/system-pages/UpdaterReleasesPage/UpdaterReleasesPage";
 import Settings from "./pages/Settings/Settings";
 import Animations from "./pages/Animations/Animations";
 import AnimationDetail from "./pages/Animations/AnimationDetail";
@@ -31,6 +33,7 @@ import CurrencyDetailPage from "./pages/Currencies/CurrencyDetailPage";
 import CurrencyGetPage from "./pages/Currencies/CurrencyGetPage";
 import LeftNav from "./components/LeftNav/LeftNav";
 import { SelectedThemeProvider } from "./contexts/SelectedThemeContext";
+import { PasswordConfirmationProvider } from "./components/PasswordConfirmation/PasswordConfirmationProvider";
 
 const AuthLayout = () => (
   <ProtectedRoute>
@@ -77,40 +80,44 @@ export const App = () => {
   const antdConfig = currentTheme === "dark" ? antdDarkConfig : {};
   return (
     <ConfigProvider {...antdConfig}>
-      <Routes>
-        <Route path="/login" element={<AuthPage />} />
+      <PasswordConfirmationProvider>
+        <Routes>
+          <Route path="/login" element={<AuthPage />} />
 
-        <Route element={<AuthLayout />}>
-          <Route path="/" element={<SmartHome />} />
-          <Route path="/tgcosmos/allPosts" element={<AllPosts />} />
-          <Route path="/other" element={<Other />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/profile/:id" element={<Profile />} />
-          <Route path="/notifications" element={<h1>Notifications</h1>} />
-          <Route path="/sheduled-posts" element={<SheduledPosts />} />
-          <Route path="/system" element={<System />} />
-          <Route path="/system/users" element={<UsersList />} />
-          <Route path="/system/agents" element={<AgentsListPage />} />
-          <Route path="/system/agents/:id" element={<AgentEditPage />} />
-          <Route path="/system/llm-models" element={<LLMModelsPage />} />
-          <Route path="/system/themes" element={<ThemesPage />} />
-          <Route path="/system/themes/:id" element={<ThemeEditPage />} />
-          <Route path="/system/permissions" element={<PermissionsPage />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/animations" element={<Animations />} />
-          <Route path="/animations/constructor" element={<ConstructorLanding />} />
-          <Route path="/animations/constructor/:id" element={<AnimationConstructorEditor />} />
-          <Route path="/animation/:id" element={<AnimationDetail />} />
-          <Route path="/devices" element={<Devices />} />
-          <Route path="/devices/:id" element={<DeviceDetail />} />
-          <Route path="/ota" element={<Ota />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/chat/:sessionId" element={<Chat />} />
-          <Route path="/currencies" element={<CurrenciesPage />} />
-          <Route path="/currencies/:id" element={<CurrencyDetailPage />} />
-          <Route path="/currency-get" element={<CurrencyGetPage />} />
-        </Route>
-      </Routes>
+          <Route element={<AuthLayout />}>
+            <Route path="/" element={<SmartHome />} />
+            <Route path="/tgcosmos/allPosts" element={<AllPosts />} />
+            <Route path="/other" element={<Other />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/notifications" element={<h1>Notifications</h1>} />
+            <Route path="/sheduled-posts" element={<SheduledPosts />} />
+            <Route path="/system" element={<System />} />
+            <Route path="/system/users" element={<UsersList />} />
+            <Route path="/system/agents" element={<AgentsListPage />} />
+            <Route path="/system/agents/:id" element={<AgentEditPage />} />
+            <Route path="/system/llm-models" element={<LLMModelsPage />} />
+            <Route path="/system/themes" element={<ThemesPage />} />
+            <Route path="/system/themes/:id" element={<ThemeEditPage />} />
+            <Route path="/system/permissions" element={<PermissionsPage />} />
+            <Route path="/system/cors-origins" element={<CorsOriginsPage />} />
+            <Route path="/system/updater-releases" element={<UpdaterReleasesPage />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/animations" element={<Animations />} />
+            <Route path="/animations/constructor" element={<ConstructorLanding />} />
+            <Route path="/animations/constructor/:id" element={<AnimationConstructorEditor />} />
+            <Route path="/animation/:id" element={<AnimationDetail />} />
+            <Route path="/devices" element={<Devices />} />
+            <Route path="/devices/:id" element={<DeviceDetail />} />
+            <Route path="/ota" element={<Ota />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat/:sessionId" element={<Chat />} />
+            <Route path="/currencies" element={<CurrenciesPage />} />
+            <Route path="/currencies/:id" element={<CurrencyDetailPage />} />
+            <Route path="/currency-get" element={<CurrencyGetPage />} />
+          </Route>
+        </Routes>
+      </PasswordConfirmationProvider>
     </ConfigProvider>
   );
 };

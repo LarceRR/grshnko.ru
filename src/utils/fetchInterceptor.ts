@@ -1,5 +1,8 @@
-// utils/httpTracker.ts
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import {
+  isPasswordConfirmationChallenge,
+  requestPasswordConfirmation,
+} from "../security/passwordChallenge";
 
 export type RequestStatus = "pending" | "success" | "error";
 
@@ -29,33 +32,20 @@ const notify = (request: TrackedRequest) => {
   listeners.forEach((l) => l(request));
 };
 
-// --- Перехват fetch ---
 const originalFetch = window.fetch.bind(window);
+
+type TrackedAxiosConfig = InternalAxiosRequestConfig & {
+  _tracked?: TrackedRequest;
+  _passwordConfirmationRetried?: boolean;
+};
+
 window.fetch = async (...args: Parameters<typeof fetch>) => {
-  const [input, init] = args;
-  let url: string;
-  let method = init?.method || "GET";
-
-  if (typeof input === "string") url = input;
-  else if (input instanceof Request) {
-    url = input.url;
-    method = input.method;
-  } else if (input instanceof URL) url = input.toString();
-  else url = "";
-
-  const tracked: TrackedRequest = {
-    id: Math.random().toString(36).substring(2, 9),
-    url,
-    method,
-    status: "pending",
-    startTime: Date.now(),
-  };
-
+  const tracked = createFetchTracking(args);
   notify(tracked);
 
   try {
-    const response = await originalFetch(...args);
-    tracked.status = "success";
+    const response = await runFetch(args, false);
+    tracked.status = response.ok ? "success" : "error";
     tracked.endTime = Date.now();
     notify(tracked);
     return response;
@@ -68,14 +58,53 @@ window.fetch = async (...args: Parameters<typeof fetch>) => {
   }
 };
 
-// --- Интерцепторы Axios ---
+const createFetchTracking = (args: Parameters<typeof fetch>): TrackedRequest => {
+  const [input, init] = args;
+  const url = readFetchUrl(input);
+  const method = readFetchMethod(input, init);
+  return {
+    id: Math.random().toString(36).substring(2, 9),
+    url,
+    method,
+    status: "pending",
+    startTime: Date.now(),
+  };
+};
+
+const readFetchUrl = (input: Parameters<typeof fetch>[0]): string => {
+  if (typeof input === "string") return input;
+  if (input instanceof Request) return input.url;
+  if (input instanceof URL) return input.toString();
+  return "";
+};
+
+const readFetchMethod = (
+  input: Parameters<typeof fetch>[0],
+  init?: RequestInit,
+): string => {
+  if (init?.method) return init.method;
+  if (input instanceof Request) return input.method;
+  return "GET";
+};
+
+const runFetch = async (
+  args: Parameters<typeof fetch>,
+  alreadyRetried: boolean,
+): Promise<Response> => {
+  const [input, init] = args;
+  const request = input instanceof Request ? input.clone() : input;
+  const response = await originalFetch(request, init);
+  if (alreadyRetried || !(await isFetchPasswordChallenge(response))) return response;
+
+  await requestPasswordConfirmation();
+  return runFetch(args, true);
+};
+
 axios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  // гарантируем, что headers не undefined
   if (!config.headers) {
     config.headers = {} as InternalAxiosRequestConfig["headers"];
   }
 
-  // создаём объект трекинга запроса
   const tracked = {
     id: Math.random().toString(36).substring(2, 9),
     url: config.url,
@@ -85,21 +114,19 @@ axios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     progress: 0,
   };
 
-  (config as any)._tracked = tracked;
+  (config as TrackedAxiosConfig)._tracked = tracked;
 
-  // onDownloadProgress для прогресса
   config.onDownloadProgress = (e) => {
     tracked.progress = e.loaded / (e.total || 1);
     listeners.forEach((l) => l(tracked));
   };
 
-  // возвращаем config с правильным типом
   return config;
 });
 
 axios.interceptors.response.use(
   (response) => {
-    const tracked: TrackedRequest | undefined = (response.config as any)?._tracked;
+    const tracked = (response.config as TrackedAxiosConfig)?._tracked;
     if (tracked) {
       tracked.status = "success";
       tracked.endTime = Date.now();
@@ -107,8 +134,15 @@ axios.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
-    const tracked: TrackedRequest | undefined = (error.config as any)?._tracked;
+  async (error: AxiosError) => {
+    if (await shouldRetryAxios(error)) {
+      await requestPasswordConfirmation();
+      const config = error.config as TrackedAxiosConfig;
+      config._passwordConfirmationRetried = true;
+      return axios.request(config);
+    }
+
+    const tracked = (error.config as TrackedAxiosConfig | undefined)?._tracked;
     if (tracked) {
       tracked.status = "error";
       tracked.endTime = Date.now();
@@ -118,3 +152,15 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+const isFetchPasswordChallenge = async (response: Response): Promise<boolean> => {
+  if (response.status !== 403) return false;
+  const payload = await response.clone().json().catch(() => null);
+  return isPasswordConfirmationChallenge(payload);
+};
+
+const shouldRetryAxios = async (error: AxiosError): Promise<boolean> => {
+  const config = error.config as TrackedAxiosConfig | undefined;
+  if (!config || config._passwordConfirmationRetried) return false;
+  return error.response?.status === 403 && isPasswordConfirmationChallenge(error.response.data);
+};

@@ -1,0 +1,84 @@
+.updater-releases-page {
+  padding: 1rem 1.5rem;
+  max-width: 1120px;
+
+  .updater-releases-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+
+  .updater-releases-intro {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+
+  .channel-title,
+  .version-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .channel-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .version-section {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--input-background) 92%, transparent);
+  }
+
+  .release-file-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .release-file-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 6px;
+    background: var(--input-background);
+  }
+
+  .release-file-main {
+    min-width: 0;
+  }
+
+  .release-file-name {
+    font-family: ui-monospace, monospace;
+    word-break: break-all;
+  }
+
+  .release-file-meta {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    margin-top: 0.2rem;
+  }
+
+  .download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .empty-state {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+}
